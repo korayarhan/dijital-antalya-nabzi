@@ -1,0 +1,8 @@
+{
+  "image": "mcr.microsoft.com/devcontainers/universal:2",
+  "features": {}
+}unzip "*.zip"
+rm *.zip
+git add .
+git commit -m "mobil program dosyalarını aç"
+git push

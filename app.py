@@ -703,8 +703,28 @@ a {{
 
 <div class="card">
     <h2>14. Yarın Takip Edilecek Başlıklar</h2>
-    <p>{esc(tomorrow_keywords)}</p>
+
+    <div class="item">
+        <h3>A) Takip Edilecek Fırsat Başlıkları</h3>
+        <p>Hizmet, mahalle çalışmaları, asfalt, çocuk/aile etkinlikleri, spor organizasyonları, personel emeği ve vatandaş memnuniyeti başlıkları takip edilmelidir.</p>
+    </div>
+
+    <div class="item">
+        <h3>B) Takip Edilecek Risk Başlıkları</h3>
+        <p>Teleferik davası, borç söylemi, hizmet şikayetleri, olumsuz yerel basın haberleri ve sosyal medyada büyüme ihtimali olan eleştiriler ayrıca izlenmelidir.</p>
+    </div>
+
+    <div class="item">
+        <h3>C) Sosyal Medyada Bakılacak Başlıklar</h3>
+        <p>Instagram, Facebook, X, YouTube ve TikTok üzerinde beğeni oranı, yorum tonu, kötü yorum artışı ve en çok paylaşılan içerikler kontrol edilmelidir.</p>
+    </div>
+
+    <div class="item">
+        <h3>D) Sistem Anahtar Kelimeleri</h3>
+        <p>{esc(tomorrow_keywords)}</p>
+    </div>
 </div>
+
 
 </main>
 </body>

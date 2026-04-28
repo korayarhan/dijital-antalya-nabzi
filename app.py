@@ -196,6 +196,13 @@ def normalize_for_keyword(text):
     text = re.sub(r"\s+", " ", text)
     return text.strip()
 
+STOPWORDS = {
+    "ve", "ile", "bir", "bu", "da", "de", "için", "olan", "olarak",
+    "son", "yeni", "gün", "daha", "çok", "sonra", "önce", "başkanı",
+    "belediye", "belediyesi", "antalya", "kepez", "mesut", "kocagöz",
+    "haber", "gündem", "açıklama", "başkan"
+}
+
 
 def generate_dynamic_keywords(news, social):
     candidates = []

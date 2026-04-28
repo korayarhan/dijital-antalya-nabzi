@@ -37,7 +37,8 @@ jobs:
           mkdir -p reports
           wkhtmltopdf reports/daily_report.html reports/daily_report.pdf
 
-      - name: Raporu mail gönder
+       - name: Raporu mail gönder
+        continue-on-error: true
         env:
           MAIL_USER: ${{ secrets.MAIL_USER }}
           MAIL_PASS: ${{ secrets.MAIL_PASS }}

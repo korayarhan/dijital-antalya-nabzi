@@ -160,26 +160,97 @@ def read_social_data():
     return rows
 
 
+def topic_key(title):
+    t = str(title or "").lower()
+
+    if "teleferik" in t or "facia" in t or "dava" in t:
+        return "teleferik_davasi"
+    if "asfalt" in t or "duacı" in t or "yol" in t:
+        return "hizmet_asfalt"
+    if "bayrak" in t or "personel" in t or "ödül" in t:
+        return "bayrak_personel"
+    if "23 nisan" in t or "çocuk" in t or "şenlik" in t:
+        return "cocuk_aile"
+    if "borç" in t or "mali" in t:
+        return "mali_disiplin"
+    if "drag" in t or "spor" in t:
+        return "spor_etkinlik"
+
+    words = re.sub(r"[^a-zA-ZğüşöçıİĞÜŞÖÇ0-9 ]", "", t).split()
+    return "_".join(words[:4])
+
+
+def unique_by_topic(items, limit):
+    result = []
+    used = set()
+
+    for item in items:
+        key = topic_key(item.get("title", ""))
+        if key in used:
+            continue
+        used.add(key)
+        result.append(item)
+
+        if len(result) >= limit:
+            break
+
+    return result
+
+
 def top_items(news):
-    positive = sorted(
+    positive_candidates = sorted(
         [x for x in news if x["tone"] == "Olumlu"],
         key=lambda x: x["opportunity"],
         reverse=True
-    )[:5]
+    )
 
-    risky = sorted(
+    service_candidates = sorted(
+        [
+            x for x in news
+            if any(k in str(x.get("title", "")).lower() for k in ["asfalt", "duacı", "hizmet", "mahalle", "yol", "park"])
+        ],
+        key=lambda x: x["opportunity"],
+        reverse=True
+    )
+
+    risk_candidates = sorted(
         [x for x in news if x["tone"] == "Riskli"],
         key=lambda x: x["risk"],
         reverse=True
-    )[:5]
+    )
 
-    important = sorted(
-        news,
-        key=lambda x: x["risk"] + x["opportunity"],
-        reverse=True
-    )[:3]
+    positive = unique_by_topic(positive_candidates, 5)
+    risky = unique_by_topic(risk_candidates, 5)
 
-    return important, positive, risky
+    important = []
+
+    if positive_candidates:
+        important.append(positive_candidates[0])
+
+    if service_candidates:
+        service_item = service_candidates[0]
+        if service_item not in important:
+            important.append(service_item)
+
+    if risk_candidates:
+        risk_item = risk_candidates[0]
+        if risk_item not in important:
+            important.append(risk_item)
+
+    if len(important) < 3:
+        remaining = sorted(
+            news,
+            key=lambda x: x["risk"] + x["opportunity"],
+            reverse=True
+        )
+
+        for item in remaining:
+            if item not in important:
+                important.append(item)
+            if len(important) >= 3:
+                break
+
+    return important[:3], positive, risky
 
 
 def social_summary(social):

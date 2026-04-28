@@ -659,7 +659,21 @@ a {{
 
 <div class="card">
     <h2>12. Stratejik Yorum</h2>
-    <p>Bugünkü raporda hizmet, mahalle çalışması, çocuk/aile teması ve değer odaklı içerikler olumlu algı üretme potansiyeli taşır. Riskli başlıklarda ise savunmacı dil yerine sakin, bilgi veren ve hukuki sürece saygılı bir dil tercih edilmelidir.</p>
+
+    <div class="item">
+        <h3>A) Bugün Öne Çıkarılacak Konu</h3>
+        <p>Bugün olumlu etki üretme potansiyeli en yüksek alan; hizmet, mahalle çalışması, çocuk/aile teması ve değer odaklı içeriklerdir. Özellikle vatandaşla temas eden, sahadan görüntü içeren ve insan hikayesi taşıyan paylaşımlar öne çıkarılmalıdır.</p>
+    </div>
+
+    <div class="item">
+        <h3>B) Dikkat Edilecek Risk</h3>
+        <p>Teleferik, dava, borç, şikayet ve hizmet aksaması içeren başlıklar kontrollü biçimde takip edilmelidir. Bu başlıklarda hızlı tepki yerine; sakin, belgeye dayalı ve hukuki sürece saygılı bir iletişim dili kullanılmalıdır.</p>
+    </div>
+
+    <div class="item">
+        <h3>C) Önerilen İletişim Dili</h3>
+        <p>Bugün önerilen dil; sert siyasi polemik değil, sade hizmet dili ve güven veren başkan profili olmalıdır. Mesajlar kısa, anlaşılır, mahalleye dokunan ve vatandaşın gündelik hayatına temas eden şekilde kurulmalıdır.</p>
+    </div>
 </div>
 
 <div class="card">

@@ -10,6 +10,7 @@ import feedparser
 ROOT = Path(__file__).resolve().parent
 CONFIG = ROOT / "config" / "keywords.txt"
 SOCIAL_CSV = ROOT / "data" / "manual_social" / "social_manual.csv"
+DYNAMIC_KEYWORDS = ROOT / "data" / "dynamic_keywords.txt"
 REPORTS = ROOT / "reports"
 REPORTS.mkdir(exist_ok=True)
 
@@ -40,14 +41,31 @@ def clean_text(text):
     return text.strip()
 
 
-def read_keywords():
-    if not CONFIG.exists():
+def read_keyword_file(path):
+    if not path.exists():
         return []
+
     return [
         x.strip()
-        for x in CONFIG.read_text(encoding="utf-8").splitlines()
-        if x.strip()
+        for x in path.read_text(encoding="utf-8").splitlines()
+        if x.strip() and not x.strip().startswith("#")
     ]
+
+
+def read_keywords():
+    base_keywords = read_keyword_file(CONFIG)
+    dynamic_keywords = read_keyword_file(DYNAMIC_KEYWORDS)
+
+    combined = []
+    seen = set()
+
+    for keyword in base_keywords + dynamic_keywords:
+        key = keyword.lower().strip()
+        if key and key not in seen:
+            seen.add(key)
+            combined.append(keyword)
+
+    return combined[:30]
 
 
 def classify(text):
@@ -163,6 +181,105 @@ def read_social_data():
 
     return rows
 
+    STOPWORDS = {
+    "ve", "ile", "bir", "bu", "da", "de", "için", "olan", "olarak",
+    "son", "yeni", "gün", "daha", "çok", "sonra", "önce", "başkanı",
+    "belediye", "belediyesi", "antalya", "kepez", "mesut", "kocagöz",
+    "haber", "gündem", "açıklama", "başkan"
+}
+
+
+def normalize_for_keyword(text):
+    text = str(text or "").lower()
+    text = text.replace("ı", "i")
+    text = re.sub(r"[^a-zA-ZğüşöçıİĞÜŞÖÇ0-9 ]", " ", text)
+    text = re.sub(r"\s+", " ", text)
+    return text.strip()
+
+
+def generate_dynamic_keywords(news, social):
+    candidates = []
+
+    for item in news:
+        title = normalize_for_keyword(item.get("title", ""))
+        summary = normalize_for_keyword(item.get("summary", ""))
+        text = title + " " + summary
+
+        if "teleferik" in text or "dava" in text:
+            candidates.append("Mesut Kocagöz teleferik davası")
+
+        if "asfalt" in text or "duaci" in text or "duacı" in text or "yol" in text:
+            candidates.append("Kepez asfalt çalışması")
+
+        if "bayrak" in text or "personel" in text or "ödül" in text:
+            candidates.append("Kepez bayrak personel ödül")
+
+        if "23 nisan" in text or "çocuk" in text or "şenlik" in text:
+            candidates.append("Kepez 23 Nisan çocuk etkinliği")
+
+        if "borç" in text or "mali" in text:
+            candidates.append("Kepez Belediyesi borç mali disiplin")
+
+        if "drag" in text or "spor" in text:
+            candidates.append("Kepez drag pisti spor")
+
+        if "büyükşehir" in text or "ulasim" in text or "ulaşım" in text:
+            candidates.append("Antalya Büyükşehir Belediyesi ulaşım")
+
+        words = [
+            w for w in text.split()
+            if len(w) > 3 and w not in STOPWORDS
+        ]
+
+        for i in range(len(words) - 1):
+            pair = f"{words[i]} {words[i+1]}"
+            if len(pair) > 8:
+                candidates.append(pair)
+
+    for item in social:
+        topic = normalize_for_keyword(item.get("topic", ""))
+        if topic:
+            candidates.append(topic)
+
+    scored = {}
+
+    for c in candidates:
+        c = c.strip()
+        if len(c) < 5:
+            continue
+        scored[c] = scored.get(c, 0) + 1
+
+    sorted_keywords = sorted(
+        scored.items(),
+        key=lambda x: x[1],
+        reverse=True
+    )
+
+    result = []
+    seen = set()
+
+    for keyword, score in sorted_keywords:
+        key = keyword.lower()
+        if key not in seen:
+            seen.add(key)
+            result.append(keyword)
+
+        if len(result) >= 15:
+            break
+
+    return result
+
+
+def save_dynamic_keywords(keywords):
+    DYNAMIC_KEYWORDS.parent.mkdir(parents=True, exist_ok=True)
+
+    content = "# Sistem tarafından otomatik üretilen dinamik anahtar kelimeler\n"
+    content += "# Bu dosya her çalışmada güncellenir\n\n"
+
+    for keyword in keywords:
+        content += keyword + "\n"
+
+    DYNAMIC_KEYWORDS.write_text(content, encoding="utf-8")
 
 def topic_key(title):
     t = str(title or "").lower()
@@ -739,6 +856,10 @@ a {{
 def main():
     news = fetch_news()
     social = read_social_data()
+
+    dynamic_keywords = generate_dynamic_keywords(news, social)
+    save_dynamic_keywords(dynamic_keywords)
+
     build_report(news, social)
 
 

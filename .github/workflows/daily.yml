@@ -21,17 +21,35 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Paketleri yükle
+      - name: Sistem paketlerini kur
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y wkhtmltopdf
+
+      - name: Python paketlerini yükle
         run: pip install -r requirements.txt
 
       - name: Günlük raporu üret
         run: python app.py
 
+      - name: HTML raporu PDF yap
+        run: |
+          mkdir -p reports
+          wkhtmltopdf reports/daily_report.html reports/daily_report.pdf
+
+      - name: Raporu mail gönder
+        env:
+          MAIL_USER: ${{ secrets.MAIL_USER }}
+          MAIL_PASS: ${{ secrets.MAIL_PASS }}
+          MAIL_TO: ${{ secrets.MAIL_TO }}
+          SMTP_SERVER: ${{ secrets.SMTP_SERVER }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT }}
+        run: python send_report.py
+
       - name: Raporu repoya kaydet
         run: |
           git config user.name "yerel-lider-ai-bot"
           git config user.email "bot@example.com"
-          git push --force-with-lease
-          git add reports/daily_report.html data/dynamic_keywords.txt
+          git add reports/daily_report.html reports/daily_report.pdf data/dynamic_keywords.txt
           git commit -m "Günlük rapor güncellendi" || echo "Değişiklik yok"
-          git push
+          git push --force-with-lease

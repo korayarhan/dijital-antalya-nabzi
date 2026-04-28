@@ -32,6 +32,6 @@ jobs:
           git config user.name "yerel-lider-ai-bot"
           git config user.email "bot@example.com"
           git push --force-with-lease
-          git add reports/daily_report.html
+          git add reports/daily_report.html data/dynamic_keywords.txt
           git commit -m "Günlük rapor güncellendi" || echo "Değişiklik yok"
           git push

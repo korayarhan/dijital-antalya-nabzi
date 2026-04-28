@@ -1,8 +1,8 @@
 # Sistem tarafından otomatik üretilen dinamik anahtar kelimeler
 # Bu dosya her çalışmada güncellenir
 
-Kepez bayrak personel ödül
 Kepez 23 Nisan çocuk etkinliği
+Kepez bayrak personel ödül
 Mesut Kocagöz teleferik davası
 Kepez asfalt çalışması
 Antalya Büyükşehir Belediyesi ulaşım

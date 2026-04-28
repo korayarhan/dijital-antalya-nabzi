@@ -678,13 +678,28 @@ a {{
 
 <div class="card">
     <h2>13. Bugün Ne Yapılmalı?</h2>
-    <ul>
-        <li>En yüksek beğenme oranı alan paylaşımın dili tekrar kullanılmalı.</li>
-        <li>Olumlu haberler sade, insan hikayesi içeren kısa sosyal medya içeriklerine çevrilmeli.</li>
-        <li>Riskli başlıklarda yorumlar izlenmeli; gereksiz polemiğe girilmemeli.</li>
-        <li>Mahalle bazlı hizmet başlıkları görselle desteklenmeli.</li>
-    </ul>
+
+    <div class="item">
+        <h3>1) Paylaşım Önerisi</h3>
+        <p>Bugün sosyal medyada hizmet ve insan hikayesi taşıyan içerikler öne çıkarılmalıdır. Özellikle mahalle çalışması, çocuk/aile teması, personel emeği ve vatandaşla temas içeren kısa videolar tercih edilmelidir.</p>
+    </div>
+
+    <div class="item">
+        <h3>2) Takip Edilecek Risk</h3>
+        <p>Teleferik, dava, borç, şikayet ve hizmet aksaması başlıkları gün içinde tekrar kontrol edilmelidir. Bu konularda yorum artışı olursa ayrıca not alınmalı ve büyüme eğilimi izlenmelidir.</p>
+    </div>
+
+    <div class="item">
+        <h3>3) Sahada Kullanılacak Mesaj</h3>
+        <p>“Kepez’de hizmet mahalle mahalle ilerliyor. Önceliğimiz vatandaşın gündelik hayatına dokunan işleri görünür ve sürdürülebilir hale getirmek.” mesajı sahada ve sosyal medya dilinde kullanılabilir.</p>
+    </div>
+
+    <div class="item">
+        <h3>4) Cevap Verilmemesi Gereken Konu</h3>
+        <p>Kaynağı belirsiz, kişisel saldırı içeren veya büyüme ihtimali düşük yorumlara doğrudan cevap verilmemelidir. Bu tür içerikler sadece takip edilmeli; resmi cevap ancak konu büyürse ve belgeye dayalı biçimde hazırlanmalıdır.</p>
+    </div>
 </div>
+<div 
 
 <div class="card">
     <h2>14. Yarın Takip Edilecek Başlıklar</h2>

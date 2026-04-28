@@ -18,7 +18,7 @@ POSITIVE_WORDS = [
     "hizmet", "asfalt", "açılış", "ödül", "teşekkür", "çocuk",
     "şenlik", "proje", "destek", "spor", "başarı", "tamamlandı",
     "coşku", "yatırım", "park", "festival", "yardım", "duyarlılık",
-    "bayrak", "personel", "mahalle"
+    "bayrak", "personel", "mahalle", "memnuniyet", "etkinlik"
 ]
 
 RISK_WORDS = [
@@ -26,6 +26,20 @@ RISK_WORDS = [
     "eleştiri", "borç", "iddia", "tartışma", "soruşturma",
     "yargı", "protesto", "usulsüz", "ceza", "gündem oldu"
 ]
+
+CORE_TERMS = [
+    "mesut", "kocagöz", "kepez", "antalya", "büyükşehir",
+    "belediye", "belediyesi", "teleferik", "duacı", "asfalt",
+    "borç", "drag", "23 nisan", "çocuk", "bayrak", "personel"
+]
+
+STOPWORDS = {
+    "ve", "ile", "bir", "bu", "da", "de", "için", "olan", "olarak",
+    "son", "yeni", "gün", "daha", "çok", "sonra", "önce", "başkanı",
+    "belediye", "belediyesi", "antalya", "kepez", "mesut", "kocagöz",
+    "haber", "gündem", "açıklama", "başkan", "son dakika", "yerel",
+    "gazete", "medya", "com", "tr"
+}
 
 
 def esc(x):
@@ -35,8 +49,15 @@ def esc(x):
 def clean_text(text):
     text = html.unescape(str(text or ""))
     text = re.sub(r"<.*?>", "", text)
-    text = text.replace("\xa0", " ")
-    text = text.replace("&nbsp;", " ")
+    text = text.replace("\xa0", " ").replace("&nbsp;", " ")
+    text = re.sub(r"\s+", " ", text)
+    return text.strip()
+
+
+def normalize_text(text):
+    text = str(text or "").lower()
+    text = text.replace("ı", "i")
+    text = re.sub(r"[^a-zA-ZğüşöçıİĞÜŞÖÇ0-9 ]", " ", text)
     text = re.sub(r"\s+", " ", text)
     return text.strip()
 
@@ -44,7 +65,6 @@ def clean_text(text):
 def read_keyword_file(path):
     if not path.exists():
         return []
-
     return [
         x.strip()
         for x in path.read_text(encoding="utf-8").splitlines()
@@ -69,9 +89,9 @@ def read_keywords():
 
 
 def classify(text):
-    t = str(text or "").lower()
-    positive = sum(1 for w in POSITIVE_WORDS if w in t)
-    risk = sum(1 for w in RISK_WORDS if w in t)
+    t = normalize_text(text)
+    positive = sum(1 for w in POSITIVE_WORDS if normalize_text(w) in t)
+    risk = sum(1 for w in RISK_WORDS if normalize_text(w) in t)
 
     if risk > positive:
         tone = "Riskli"
@@ -82,7 +102,6 @@ def classify(text):
 
     risk_score = min(10, risk * 3 + (2 if tone == "Riskli" else 0))
     opportunity_score = min(10, positive * 2 + (2 if tone == "Olumlu" else 0))
-
     return tone, risk_score, opportunity_score
 
 
@@ -91,27 +110,54 @@ def google_news_url(keyword):
     return f"https://news.google.com/rss/search?q={q}&hl=tr&gl=TR&ceid=TR:tr"
 
 
+def topic_key(title):
+    t = normalize_text(title)
+
+    if "teleferik" in t or "facia" in t or "dava" in t:
+        return "teleferik_davasi"
+    if "asfalt" in t or "duaci" in t or "duacı" in t or "yol" in t:
+        return "hizmet_asfalt"
+    if "bayrak" in t or "personel" in t or "odul" in t or "ödül" in t:
+        return "bayrak_personel"
+    if "23 nisan" in t or "cocuk" in t or "çocuk" in t or "senlik" in t or "şenlik" in t:
+        return "cocuk_aile"
+    if "borc" in t or "borç" in t or "mali" in t:
+        return "mali_disiplin"
+    if "drag" in t or "spor" in t:
+        return "spor_etkinlik"
+    if "buyuksehir" in t or "büyükşehir" in t or "ulasim" in t or "ulaşım" in t:
+        return "buyuksehir_ulasim"
+
+    words = [w for w in t.split() if len(w) > 3 and w not in STOPWORDS]
+    return "_".join(words[:4]) or "genel"
+
+
+def is_relevant(title, summary, keyword):
+    text = normalize_text(f"{title} {summary} {keyword}")
+    return any(term in text for term in CORE_TERMS)
+
+
 def fetch_news():
     rows = []
-    seen_titles = set()
+    seen_topics = set()
 
     for keyword in read_keywords():
         feed = feedparser.parse(google_news_url(keyword))
 
-        for item in feed.entries[:10]:
+        for item in feed.entries[:8]:
             title = clean_text(getattr(item, "title", ""))
             link = getattr(item, "link", "")
             date = getattr(item, "published", "")
             summary = clean_text(getattr(item, "summary", ""))
 
-            if not title:
+            if not title or not is_relevant(title, summary, keyword):
                 continue
 
-            short_title_key = re.sub(r"\s+", " ", title.lower())[:90]
-            if short_title_key in seen_titles:
+            topic = topic_key(title)
+            if topic in seen_topics:
                 continue
+            seen_topics.add(topic)
 
-            seen_titles.add(short_title_key)
             tone, risk, opportunity = classify(title + " " + summary)
 
             rows.append({
@@ -123,6 +169,7 @@ def fetch_news():
                 "tone": tone,
                 "risk": risk,
                 "opportunity": opportunity,
+                "topic": topic,
             })
 
     return rows
@@ -140,10 +187,8 @@ def read_social_data():
         return []
 
     rows = []
-
     with SOCIAL_CSV.open("r", encoding="utf-8-sig", newline="") as f:
         reader = csv.DictReader(f)
-
         for row in reader:
             likes = to_float(row.get("likes"))
             comments = to_float(row.get("comments"))
@@ -155,13 +200,9 @@ def read_social_data():
 
             like_rate = (likes / views * 100) if views else 0
             engagement_rate = ((likes + comments + shares) / views * 100) if views else 0
-
             total_comment_tone = good + neutral + bad
             bad_ratio = bad / total_comment_tone if total_comment_tone else 0
             good_ratio = good / total_comment_tone if total_comment_tone else 0
-
-            risk_score = min(10, round(bad_ratio * 8 + (2 if row.get("tone") == "Kötü" else 0), 1))
-            opportunity_score = min(10, round(good_ratio * 8 + (2 if like_rate > 5 else 0), 1))
 
             row.update({
                 "likes": likes,
@@ -173,105 +214,49 @@ def read_social_data():
                 "bad_comments": bad,
                 "like_rate": like_rate,
                 "engagement_rate": engagement_rate,
-                "risk_score": risk_score,
-                "opportunity_score": opportunity_score,
+                "risk_score": min(10, round(bad_ratio * 8 + (2 if row.get("tone") == "Kötü" else 0), 1)),
+                "opportunity_score": min(10, round(good_ratio * 8 + (2 if like_rate > 5 else 0), 1)),
             })
-
             rows.append(row)
 
     return rows
-
-    STOPWORDS = {
-    "ve", "ile", "bir", "bu", "da", "de", "için", "olan", "olarak",
-    "son", "yeni", "gün", "daha", "çok", "sonra", "önce", "başkanı",
-    "belediye", "belediyesi", "antalya", "kepez", "mesut", "kocagöz",
-    "haber", "gündem", "açıklama", "başkan"
-}
-
-
-def normalize_for_keyword(text):
-    text = str(text or "").lower()
-    text = text.replace("ı", "i")
-    text = re.sub(r"[^a-zA-ZğüşöçıİĞÜŞÖÇ0-9 ]", " ", text)
-    text = re.sub(r"\s+", " ", text)
-    return text.strip()
-
-STOPWORDS = {
-    "ve", "ile", "bir", "bu", "da", "de", "için", "olan", "olarak",
-    "son", "yeni", "gün", "daha", "çok", "sonra", "önce", "başkanı",
-    "belediye", "belediyesi", "antalya", "kepez", "mesut", "kocagöz",
-    "haber", "gündem", "açıklama", "başkan"
-}
 
 
 def generate_dynamic_keywords(news, social):
     candidates = []
 
     for item in news:
-        title = normalize_for_keyword(item.get("title", ""))
-        summary = normalize_for_keyword(item.get("summary", ""))
-        text = title + " " + summary
+        text = normalize_text(item.get("title", "") + " " + item.get("summary", ""))
 
         if "teleferik" in text or "dava" in text:
             candidates.append("Mesut Kocagöz teleferik davası")
-
         if "asfalt" in text or "duaci" in text or "duacı" in text or "yol" in text:
             candidates.append("Kepez asfalt çalışması")
-
-        if "bayrak" in text or "personel" in text or "ödül" in text:
+        if "bayrak" in text or "personel" in text or "ödül" in text or "odul" in text:
             candidates.append("Kepez bayrak personel ödül")
-
-        if "23 nisan" in text or "çocuk" in text or "şenlik" in text:
+        if "23 nisan" in text or "çocuk" in text or "cocuk" in text or "şenlik" in text:
             candidates.append("Kepez 23 Nisan çocuk etkinliği")
-
-        if "borç" in text or "mali" in text:
+        if "borç" in text or "borc" in text or "mali" in text:
             candidates.append("Kepez Belediyesi borç mali disiplin")
-
         if "drag" in text or "spor" in text:
             candidates.append("Kepez drag pisti spor")
-
-        if "büyükşehir" in text or "ulasim" in text or "ulaşım" in text:
+        if "büyükşehir" in text or "buyuksehir" in text or "ulaşım" in text or "ulasim" in text:
             candidates.append("Antalya Büyükşehir Belediyesi ulaşım")
 
-        words = [
-            w for w in text.split()
-            if len(w) > 3 and w not in STOPWORDS
-        ]
-
-        for i in range(len(words) - 1):
-            pair = f"{words[i]} {words[i+1]}"
-            if len(pair) > 8:
-                candidates.append(pair)
-
     for item in social:
-        topic = normalize_for_keyword(item.get("topic", ""))
+        topic = clean_text(item.get("topic", ""))
         if topic:
             candidates.append(topic)
-
-    scored = {}
-
-    for c in candidates:
-        c = c.strip()
-        if len(c) < 5:
-            continue
-        scored[c] = scored.get(c, 0) + 1
-
-    sorted_keywords = sorted(
-        scored.items(),
-        key=lambda x: x[1],
-        reverse=True
-    )
 
     result = []
     seen = set()
 
-    for keyword, score in sorted_keywords:
-        key = keyword.lower()
-        if key not in seen:
+    for keyword in candidates:
+        key = normalize_text(keyword)
+        if key and key not in seen:
             seen.add(key)
             result.append(keyword)
-
-        if len(result) >= 15:
+        if len(result) >= 12:
             break
 
     return result
@@ -279,99 +264,48 @@ def generate_dynamic_keywords(news, social):
 
 def save_dynamic_keywords(keywords):
     DYNAMIC_KEYWORDS.parent.mkdir(parents=True, exist_ok=True)
-
     content = "# Sistem tarafından otomatik üretilen dinamik anahtar kelimeler\n"
     content += "# Bu dosya her çalışmada güncellenir\n\n"
-
     for keyword in keywords:
         content += keyword + "\n"
-
     DYNAMIC_KEYWORDS.write_text(content, encoding="utf-8")
-
-def topic_key(title):
-    t = str(title or "").lower()
-
-    if "teleferik" in t or "facia" in t or "dava" in t:
-        return "teleferik_davasi"
-    if "asfalt" in t or "duacı" in t or "yol" in t:
-        return "hizmet_asfalt"
-    if "bayrak" in t or "personel" in t or "ödül" in t:
-        return "bayrak_personel"
-    if "23 nisan" in t or "çocuk" in t or "şenlik" in t:
-        return "cocuk_aile"
-    if "borç" in t or "mali" in t:
-        return "mali_disiplin"
-    if "drag" in t or "spor" in t:
-        return "spor_etkinlik"
-
-    words = re.sub(r"[^a-zA-ZğüşöçıİĞÜŞÖÇ0-9 ]", "", t).split()
-    return "_".join(words[:4])
 
 
 def unique_by_topic(items, limit):
     result = []
     used = set()
-
     for item in items:
-        key = topic_key(item.get("title", ""))
+        key = item.get("topic") or topic_key(item.get("title", ""))
         if key in used:
             continue
         used.add(key)
         result.append(item)
-
         if len(result) >= limit:
             break
-
     return result
 
 
 def top_items(news):
-    positive_candidates = sorted(
-        [x for x in news if x["tone"] == "Olumlu"],
-        key=lambda x: x["opportunity"],
-        reverse=True
-    )
-
+    positive_candidates = sorted([x for x in news if x["tone"] == "Olumlu"], key=lambda x: x["opportunity"], reverse=True)
     service_candidates = sorted(
-        [
-            x for x in news
-            if any(k in str(x.get("title", "")).lower() for k in ["asfalt", "duacı", "hizmet", "mahalle", "yol", "park"])
-        ],
+        [x for x in news if any(k in normalize_text(x.get("title", "")) for k in ["asfalt", "duaci", "duacı", "hizmet", "mahalle", "yol", "park"])],
         key=lambda x: x["opportunity"],
         reverse=True
     )
-
-    risk_candidates = sorted(
-        [x for x in news if x["tone"] == "Riskli"],
-        key=lambda x: x["risk"],
-        reverse=True
-    )
+    risk_candidates = sorted([x for x in news if x["tone"] == "Riskli"], key=lambda x: x["risk"], reverse=True)
 
     positive = unique_by_topic(positive_candidates, 5)
     risky = unique_by_topic(risk_candidates, 5)
 
     important = []
-
-    if positive_candidates:
-        important.append(positive_candidates[0])
-
-    if service_candidates:
-        service_item = service_candidates[0]
-        if service_item not in important:
-            important.append(service_item)
-
-    if risk_candidates:
-        risk_item = risk_candidates[0]
-        if risk_item not in important:
-            important.append(risk_item)
+    for group in [positive_candidates, service_candidates, risk_candidates]:
+        if group:
+            item = group[0]
+            if item not in important:
+                important.append(item)
 
     if len(important) < 3:
-        remaining = sorted(
-            news,
-            key=lambda x: x["risk"] + x["opportunity"],
-            reverse=True
-        )
-
+        remaining = sorted(news, key=lambda x: x["risk"] + x["opportunity"], reverse=True)
         for item in remaining:
             if item not in important:
                 important.append(item)
@@ -390,14 +324,6 @@ def social_summary(social):
     total_neutral = sum(x["neutral_comments"] for x in social)
     total_bad = sum(x["bad_comments"] for x in social)
 
-    like_rate = (total_likes / total_views * 100) if total_views else 0
-    engagement_rate = ((total_likes + total_comments + total_shares) / total_views * 100) if total_views else 0
-
-    best_like = max(social, key=lambda x: x["like_rate"], default=None)
-    most_comments = max(social, key=lambda x: x["comments"], default=None)
-    risky = max(social, key=lambda x: x["risk_score"], default=None)
-    opportunity = max(social, key=lambda x: x["opportunity_score"], default=None)
-
     return {
         "total_likes": total_likes,
         "total_comments": total_comments,
@@ -406,12 +332,12 @@ def social_summary(social):
         "total_good": total_good,
         "total_neutral": total_neutral,
         "total_bad": total_bad,
-        "like_rate": like_rate,
-        "engagement_rate": engagement_rate,
-        "best_like": best_like,
-        "most_comments": most_comments,
-        "risky": risky,
-        "opportunity": opportunity,
+        "like_rate": (total_likes / total_views * 100) if total_views else 0,
+        "engagement_rate": ((total_likes + total_comments + total_shares) / total_views * 100) if total_views else 0,
+        "best_like": max(social, key=lambda x: x["like_rate"], default=None),
+        "most_comments": max(social, key=lambda x: x["comments"], default=None),
+        "risky": max(social, key=lambda x: x["risk_score"], default=None),
+        "opportunity": max(social, key=lambda x: x["opportunity_score"], default=None),
     }
 
 
@@ -419,13 +345,8 @@ def bar(label, value, color_class):
     value = max(0, min(100, float(value or 0)))
     return f"""
     <div class="bar-row">
-        <div class="bar-label">
-            <span>{esc(label)}</span>
-            <b>%{value:.1f}</b>
-        </div>
-        <div class="bar">
-            <div class="{color_class}" style="width:{value:.1f}%"></div>
-        </div>
+        <div class="bar-label"><span>{esc(label)}</span><b>%{value:.1f}</b></div>
+        <div class="bar"><div class="{color_class}" style="width:{value:.1f}%"></div></div>
     </div>
     """
 
@@ -440,10 +361,19 @@ def news_card(item):
             <span class="pill">Risk: {item["risk"]}/10</span>
             <span class="pill">Fırsat: {item["opportunity"]}/10</span>
         </p>
-        <p>{esc(item.get("summary", ""))[:220]}</p>
+        <p>{esc(item.get("summary", ""))[:240]}</p>
         <p><a href="{esc(item["link"])}" target="_blank">Haberi aç</a></p>
     </div>
     """
+
+
+def social_link(link):
+    link = str(link or "").strip()
+    if not link:
+        return ""
+    if "example.com" in link:
+        return '<p class="muted"><b>Link:</b> Manuel sosyal medya verisi</p>'
+    return f'<p><a href="{esc(link)}" target="_blank">Paylaşımı aç</a></p>'
 
 
 def social_card(title, item):
@@ -470,27 +400,22 @@ def social_card(title, item):
             Beğenme oranı: <b>%{item["like_rate"]:.2f}</b> •
             Etkileşim oranı: <b>%{item["engagement_rate"]:.2f}</b>
         </p>
-        <p>
-            Risk: <b>{item["risk_score"]}/10</b> •
-            Fırsat: <b>{item["opportunity_score"]}/10</b>
-        </p>
+        <p>Risk: <b>{item["risk_score"]}/10</b> • Fırsat: <b>{item["opportunity_score"]}/10</b></p>
         <p>{esc(item.get("notes"))}</p>
         <p class="risk-note">{esc(item.get("risk_note"))}</p>
-        <p><a href="{esc(item.get("link"))}" target="_blank">Paylaşımı aç</a></p>
+        {social_link(item.get("link"))}
     </div>
     """
 
 
 def build_report(news, social):
     today = dt.date.today().isoformat()
-
     important, positive_news, risky_news = top_items(news)
     social_sum = social_summary(social)
 
     positive_count = sum(1 for x in news if x["tone"] == "Olumlu")
     neutral_count = sum(1 for x in news if x["tone"] == "Nötr")
     risk_count = sum(1 for x in news if x["tone"] == "Riskli")
-
     total_news = len(news)
 
     if risk_count > positive_count:
@@ -529,7 +454,7 @@ def build_report(news, social):
     if not social_rows:
         social_rows = "<tr><td colspan='7'>Henüz manuel sosyal medya verisi girilmedi.</td></tr>"
 
-    tomorrow_keywords = ", ".join(read_keywords()[:10])
+    tomorrow_keywords = ", ".join(read_keywords()[:12])
 
     html_doc = f"""<!doctype html>
 <html lang="tr">
@@ -551,7 +476,6 @@ def build_report(news, social):
     --neutral:#6b6259;
     --warn:#b26a00;
 }}
-}}
 * {{ box-sizing:border-box; }}
 body {{
     margin:0;
@@ -561,25 +485,13 @@ body {{
     line-height:1.45;
 }}
 header {{
-    background:linear-gradient(135deg,#2f3a45,#5d4c38);
+    background:linear-gradient(135deg,#1f2933,#7a5c36);
     color:white;
     padding:24px 16px;
 }}
-header h1 {{
-    margin:0 0 6px;
-    font-size:23px;
-    letter-spacing:-.3px;
-}}
-header p {{
-    margin:0;
-    opacity:.92;
-    font-size:14px;
-}}
-main {{
-    padding:16px;
-    max-width:980px;
-    margin:auto;
-}}
+header h1 {{ margin:0 0 6px; font-size:23px; letter-spacing:-.3px; }}
+header p {{ margin:0; opacity:.94; font-size:14px; }}
+main {{ padding:16px; max-width:980px; margin:auto; }}
 .card,.item {{
     background:var(--card);
     border:1px solid var(--line);
@@ -587,19 +499,11 @@ main {{
     padding:16px;
     margin-bottom:14px;
     box-shadow:0 8px 22px rgba(31,41,51,.06);
+    page-break-inside:avoid;
 }}
-h2 {{
-    font-size:19px;
-    margin:4px 0 12px;
-}}
-h3 {{
-    font-size:15px;
-    margin:0 0 8px;
-}}
-.muted {{
-    color:var(--muted);
-    font-size:13px;
-}}
+h2 {{ font-size:19px; margin:4px 0 12px; }}
+h3 {{ font-size:15px; margin:0 0 8px; }}
+.muted {{ color:var(--muted); font-size:13px; }}
 .kpis {{
     display:grid;
     grid-template-columns:repeat(2,1fr);
@@ -616,19 +520,9 @@ h3 {{
     border-radius:16px;
     padding:14px;
 }}
-.kpi b {{
-    display:block;
-    font-size:24px;
-}}
-.kpi span {{
-    color:var(--muted);
-    font-size:12px;
-    font-weight:700;
-}}
-.grid {{
-    display:grid;
-    gap:12px;
-}}
+.kpi b {{ display:block; font-size:24px; color:var(--dark); }}
+.kpi span {{ color:var(--muted); font-size:12px; font-weight:700; }}
+.grid {{ display:grid; gap:12px; }}
 .pill {{
     display:inline-flex;
     background:#f1eee8;
@@ -639,66 +533,26 @@ h3 {{
     font-size:12px;
     font-weight:800;
 }}
-.pill.olumlu {{
-    background:#e8f5ee;
-    color:var(--good);
-}}
-.pill.riskli {{
-    background:#fdeceb;
-    color:var(--bad);
-}}
-.pill.nötr {{
-    background:#f1eee8;
-    color:var(--neutral);
-}}
-.bar-row {{
-    margin:10px 0;
-}}
-.bar-label {{
-    display:flex;
-    justify-content:space-between;
-    font-size:13px;
-    margin-bottom:5px;
-}}
-.bar {{
-    height:11px;
-    background:#ebe4dc;
-    border-radius:999px;
-    overflow:hidden;
-}}
-.bar div {{
-    height:100%;
-}}
+.pill.olumlu {{ background:#e4f4ec; color:var(--good); }}
+.pill.riskli {{ background:#fde9e7; color:var(--bad); }}
+.pill.nötr {{ background:#f1eee8; color:var(--neutral); }}
+.bar-row {{ margin:10px 0; }}
+.bar-label {{ display:flex; justify-content:space-between; font-size:13px; margin-bottom:5px; }}
+.bar {{ height:11px; background:#ebe4dc; border-radius:999px; overflow:hidden; }}
+.bar div {{ height:100%; }}
 .bar .good {{ background:var(--good); }}
 .bar .neutral {{ background:var(--neutral); }}
 .bar .bad {{ background:var(--bad); }}
-.bar .accent {{ background:var(--accent); }}
-table {{
-    width:100%;
-    border-collapse:collapse;
-    font-size:13px;
-    background:white;
-    border-radius:14px;
-    overflow:hidden;
-}}
-th,td {{
-    padding:9px;
-    border-bottom:1px solid var(--line);
-    text-align:left;
-    vertical-align:top;
-}}
-th {{
-    background:#fbfaf8;
-}}
-a {{
-    color:#2f3a45;
-    font-weight:800;
-}}
-.risk-note {{
-    color:var(--bad);
-}}
-.notice {{
-    border-left:5px solid var(--accent);
+table {{ width:100%; border-collapse:collapse; font-size:13px; background:white; border-radius:14px; overflow:hidden; }}
+th,td {{ padding:9px; border-bottom:1px solid var(--line); text-align:left; vertical-align:top; }}
+th {{ background:#fbfaf8; }}
+a {{ color:#1f2933; font-weight:800; }}
+.risk-note {{ color:var(--bad); }}
+.notice {{ border-left:6px solid var(--accent); }}
+@media print {{
+    body {{ background:white; }}
+    header {{ -webkit-print-color-adjust:exact; print-color-adjust:exact; }}
+    .card,.item {{ box-shadow:none; }}
 }}
 </style>
 </head>
@@ -723,20 +577,9 @@ a {{
     <p>{esc(general_comment)}</p>
 </div>
 
-<div class="card">
-    <h2>2. Bugünün En Önemli 3 Başlığı</h2>
-    {important_html}
-</div>
-
-<div class="card">
-    <h2>3. Öne Çıkan Olumlu Haberler</h2>
-    {positive_html}
-</div>
-
-<div class="card">
-    <h2>4. Riskli / İzlenmesi Gereken Haberler</h2>
-    {risky_html}
-</div>
+<div class="card"><h2>2. Bugünün En Önemli 3 Başlığı</h2>{important_html}</div>
+<div class="card"><h2>3. Öne Çıkan Olumlu Haberler</h2>{positive_html}</div>
+<div class="card"><h2>4. Riskli / İzlenmesi Gereken Haberler</h2>{risky_html}</div>
 
 <div class="card">
     <h2>5. Sosyal Medya Etkileşim Analizi</h2>
@@ -746,7 +589,6 @@ a {{
         <div class="kpi"><b>%{social_sum["like_rate"]:.2f}</b><span>Beğenme oranı</span></div>
         <div class="kpi"><b>%{social_sum["engagement_rate"]:.2f}</b><span>Etkileşim oranı</span></div>
     </div>
-
     <h3>Yorum Duygu Dağılımı</h3>
     {bar("İyi yorum", good_pct, "good")}
     {bar("Nötr yorum", neutral_pct, "neutral")}
@@ -764,13 +606,7 @@ a {{
     <h2>10. Manuel Sosyal Medya Kayıtları</h2>
     <table>
         <tr>
-            <th>Tarih</th>
-            <th>Platform</th>
-            <th>Konu</th>
-            <th>Ton</th>
-            <th>Beğenme</th>
-            <th>Risk</th>
-            <th>Fırsat</th>
+            <th>Tarih</th><th>Platform</th><th>Konu</th><th>Ton</th><th>Beğenme</th><th>Risk</th><th>Fırsat</th>
         </tr>
         {social_rows}
     </table>
@@ -784,17 +620,14 @@ a {{
 
 <div class="card">
     <h2>12. Stratejik Yorum</h2>
-
     <div class="item">
         <h3>A) Bugün Öne Çıkarılacak Konu</h3>
         <p>Bugün olumlu etki üretme potansiyeli en yüksek alan; hizmet, mahalle çalışması, çocuk/aile teması ve değer odaklı içeriklerdir. Özellikle vatandaşla temas eden, sahadan görüntü içeren ve insan hikayesi taşıyan paylaşımlar öne çıkarılmalıdır.</p>
     </div>
-
     <div class="item">
         <h3>B) Dikkat Edilecek Risk</h3>
         <p>Teleferik, dava, borç, şikayet ve hizmet aksaması içeren başlıklar kontrollü biçimde takip edilmelidir. Bu başlıklarda hızlı tepki yerine; sakin, belgeye dayalı ve hukuki sürece saygılı bir iletişim dili kullanılmalıdır.</p>
     </div>
-
     <div class="item">
         <h3>C) Önerilen İletişim Dili</h3>
         <p>Bugün önerilen dil; sert siyasi polemik değil, sade hizmet dili ve güven veren başkan profili olmalıdır. Mesajlar kısa, anlaşılır, mahalleye dokunan ve vatandaşın gündelik hayatına temas eden şekilde kurulmalıdır.</p>
@@ -803,59 +636,24 @@ a {{
 
 <div class="card">
     <h2>13. Bugün Ne Yapılmalı?</h2>
-
-    <div class="item">
-        <h3>1) Paylaşım Önerisi</h3>
-        <p>Bugün sosyal medyada hizmet ve insan hikayesi taşıyan içerikler öne çıkarılmalıdır. Özellikle mahalle çalışması, çocuk/aile teması, personel emeği ve vatandaşla temas içeren kısa videolar tercih edilmelidir.</p>
-    </div>
-
-    <div class="item">
-        <h3>2) Takip Edilecek Risk</h3>
-        <p>Teleferik, dava, borç, şikayet ve hizmet aksaması başlıkları gün içinde tekrar kontrol edilmelidir. Bu konularda yorum artışı olursa ayrıca not alınmalı ve büyüme eğilimi izlenmelidir.</p>
-    </div>
-
-    <div class="item">
-        <h3>3) Sahada Kullanılacak Mesaj</h3>
-        <p>“Kepez’de hizmet mahalle mahalle ilerliyor. Önceliğimiz vatandaşın gündelik hayatına dokunan işleri görünür ve sürdürülebilir hale getirmek.” mesajı sahada ve sosyal medya dilinde kullanılabilir.</p>
-    </div>
-
-    <div class="item">
-        <h3>4) Cevap Verilmemesi Gereken Konu</h3>
-        <p>Kaynağı belirsiz, kişisel saldırı içeren veya büyüme ihtimali düşük yorumlara doğrudan cevap verilmemelidir. Bu tür içerikler sadece takip edilmeli; resmi cevap ancak konu büyürse ve belgeye dayalı biçimde hazırlanmalıdır.</p>
-    </div>
+    <div class="item"><h3>1) Paylaşım Önerisi</h3><p>Bugün sosyal medyada hizmet ve insan hikayesi taşıyan içerikler öne çıkarılmalıdır. Özellikle mahalle çalışması, çocuk/aile teması, personel emeği ve vatandaşla temas içeren kısa videolar tercih edilmelidir.</p></div>
+    <div class="item"><h3>2) Takip Edilecek Risk</h3><p>Teleferik, dava, borç, şikayet ve hizmet aksaması başlıkları gün içinde tekrar kontrol edilmelidir. Bu konularda yorum artışı olursa ayrıca not alınmalı ve büyüme eğilimi izlenmelidir.</p></div>
+    <div class="item"><h3>3) Sahada Kullanılacak Mesaj</h3><p>“Kepez’de hizmet mahalle mahalle ilerliyor. Önceliğimiz vatandaşın gündelik hayatına dokunan işleri görünür ve sürdürülebilir hale getirmek.” mesajı sahada ve sosyal medya dilinde kullanılabilir.</p></div>
+    <div class="item"><h3>4) Cevap Verilmemesi Gereken Konu</h3><p>Kaynağı belirsiz, kişisel saldırı içeren veya büyüme ihtimali düşük yorumlara doğrudan cevap verilmemelidir. Bu tür içerikler sadece takip edilmeli; resmi cevap ancak konu büyürse ve belgeye dayalı biçimde hazırlanmalıdır.</p></div>
 </div>
-<div 
 
 <div class="card">
     <h2>14. Yarın Takip Edilecek Başlıklar</h2>
-
-    <div class="item">
-        <h3>A) Takip Edilecek Fırsat Başlıkları</h3>
-        <p>Hizmet, mahalle çalışmaları, asfalt, çocuk/aile etkinlikleri, spor organizasyonları, personel emeği ve vatandaş memnuniyeti başlıkları takip edilmelidir.</p>
-    </div>
-
-    <div class="item">
-        <h3>B) Takip Edilecek Risk Başlıkları</h3>
-        <p>Teleferik davası, borç söylemi, hizmet şikayetleri, olumsuz yerel basın haberleri ve sosyal medyada büyüme ihtimali olan eleştiriler ayrıca izlenmelidir.</p>
-    </div>
-
-    <div class="item">
-        <h3>C) Sosyal Medyada Bakılacak Başlıklar</h3>
-        <p>Instagram, Facebook, X, YouTube ve TikTok üzerinde beğeni oranı, yorum tonu, kötü yorum artışı ve en çok paylaşılan içerikler kontrol edilmelidir.</p>
-    </div>
-
-    <div class="item">
-        <h3>D) Sistem Anahtar Kelimeleri</h3>
-        <p>{esc(tomorrow_keywords)}</p>
-    </div>
+    <div class="item"><h3>A) Takip Edilecek Fırsat Başlıkları</h3><p>Hizmet, mahalle çalışmaları, asfalt, çocuk/aile etkinlikleri, spor organizasyonları, personel emeği ve vatandaş memnuniyeti başlıkları takip edilmelidir.</p></div>
+    <div class="item"><h3>B) Takip Edilecek Risk Başlıkları</h3><p>Teleferik davası, borç söylemi, hizmet şikayetleri, olumsuz yerel basın haberleri ve sosyal medyada büyüme ihtimali olan eleştiriler ayrıca izlenmelidir.</p></div>
+    <div class="item"><h3>C) Sosyal Medyada Bakılacak Başlıklar</h3><p>Instagram, Facebook, X, YouTube ve TikTok üzerinde beğeni oranı, yorum tonu, kötü yorum artışı ve en çok paylaşılan içerikler kontrol edilmelidir.</p></div>
+    <div class="item"><h3>D) Sistem Anahtar Kelimeleri</h3><p>{esc(tomorrow_keywords)}</p></div>
 </div>
-
 
 </main>
 </body>
 </html>
 """
-
     out = REPORTS / "daily_report.html"
     out.write_text(html_doc, encoding="utf-8")
     print(f"Rapor hazır: {out}")
@@ -864,10 +662,8 @@ a {{
 def main():
     news = fetch_news()
     social = read_social_data()
-
     dynamic_keywords = generate_dynamic_keywords(news, social)
     save_dynamic_keywords(dynamic_keywords)
-
     build_report(news, social)
 
 

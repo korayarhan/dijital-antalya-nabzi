@@ -539,17 +539,18 @@ def build_report(news, social):
 <title>Yerel Liderlik AI Günlük Raporu</title>
 <style>
 :root {{
-    --bg:#f6f3ee;
+    --bg:#f4efe7;
     --card:#ffffff;
-    --ink:#1f2933;
-    --muted:#6b7280;
-    --line:#e5ded4;
-    --accent:#8b6f47;
-    --dark:#2f3a45;
-    --good:#177245;
-    --bad:#a33a2b;
-    --neutral:#7a6f64;
-    --warn:#b7791f;
+    --ink:#17212b;
+    --muted:#5f6670;
+    --line:#d6cbbd;
+    --accent:#7a5c36;
+    --dark:#1f2933;
+    --good:#0f6b3f;
+    --bad:#b42318;
+    --neutral:#6b6259;
+    --warn:#b26a00;
+}}
 }}
 * {{ box-sizing:border-box; }}
 body {{

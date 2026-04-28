@@ -32,7 +32,11 @@ def esc(x):
 
 
 def clean_text(text):
-    text = re.sub(r"<.*?>", "", str(text or ""))
+    text = html.unescape(str(text or ""))
+    text = re.sub(r"<.*?>", "", text)
+    text = text.replace("\xa0", " ")
+    text = text.replace("&nbsp;", " ")
+    text = re.sub(r"\s+", " ", text)
     return text.strip()
 
 

@@ -18,7 +18,6 @@
     --neutral:#6b6259;
     --warn:#b26a00;
 }
-}
 * { box-sizing:border-box; }
 body {
     margin:0;
@@ -28,25 +27,13 @@ body {
     line-height:1.45;
 }
 header {
-    background:linear-gradient(135deg,#2f3a45,#5d4c38);
+    background:linear-gradient(135deg,#1f2933,#7a5c36);
     color:white;
     padding:24px 16px;
 }
-header h1 {
-    margin:0 0 6px;
-    font-size:23px;
-    letter-spacing:-.3px;
-}
-header p {
-    margin:0;
-    opacity:.92;
-    font-size:14px;
-}
-main {
-    padding:16px;
-    max-width:980px;
-    margin:auto;
-}
+header h1 { margin:0 0 6px; font-size:23px; letter-spacing:-.3px; }
+header p { margin:0; opacity:.94; font-size:14px; }
+main { padding:16px; max-width:980px; margin:auto; }
 .card,.item {
     background:var(--card);
     border:1px solid var(--line);
@@ -54,19 +41,11 @@ main {
     padding:16px;
     margin-bottom:14px;
     box-shadow:0 8px 22px rgba(31,41,51,.06);
+    page-break-inside:avoid;
 }
-h2 {
-    font-size:19px;
-    margin:4px 0 12px;
-}
-h3 {
-    font-size:15px;
-    margin:0 0 8px;
-}
-.muted {
-    color:var(--muted);
-    font-size:13px;
-}
+h2 { font-size:19px; margin:4px 0 12px; }
+h3 { font-size:15px; margin:0 0 8px; }
+.muted { color:var(--muted); font-size:13px; }
 .kpis {
     display:grid;
     grid-template-columns:repeat(2,1fr);
@@ -83,19 +62,9 @@ h3 {
     border-radius:16px;
     padding:14px;
 }
-.kpi b {
-    display:block;
-    font-size:24px;
-}
-.kpi span {
-    color:var(--muted);
-    font-size:12px;
-    font-weight:700;
-}
-.grid {
-    display:grid;
-    gap:12px;
-}
+.kpi b { display:block; font-size:24px; color:var(--dark); }
+.kpi span { color:var(--muted); font-size:12px; font-weight:700; }
+.grid { display:grid; gap:12px; }
 .pill {
     display:inline-flex;
     background:#f1eee8;
@@ -106,66 +75,26 @@ h3 {
     font-size:12px;
     font-weight:800;
 }
-.pill.olumlu {
-    background:#e8f5ee;
-    color:var(--good);
-}
-.pill.riskli {
-    background:#fdeceb;
-    color:var(--bad);
-}
-.pill.nötr {
-    background:#f1eee8;
-    color:var(--neutral);
-}
-.bar-row {
-    margin:10px 0;
-}
-.bar-label {
-    display:flex;
-    justify-content:space-between;
-    font-size:13px;
-    margin-bottom:5px;
-}
-.bar {
-    height:11px;
-    background:#ebe4dc;
-    border-radius:999px;
-    overflow:hidden;
-}
-.bar div {
-    height:100%;
-}
+.pill.olumlu { background:#e4f4ec; color:var(--good); }
+.pill.riskli { background:#fde9e7; color:var(--bad); }
+.pill.nötr { background:#f1eee8; color:var(--neutral); }
+.bar-row { margin:10px 0; }
+.bar-label { display:flex; justify-content:space-between; font-size:13px; margin-bottom:5px; }
+.bar { height:11px; background:#ebe4dc; border-radius:999px; overflow:hidden; }
+.bar div { height:100%; }
 .bar .good { background:var(--good); }
 .bar .neutral { background:var(--neutral); }
 .bar .bad { background:var(--bad); }
-.bar .accent { background:var(--accent); }
-table {
-    width:100%;
-    border-collapse:collapse;
-    font-size:13px;
-    background:white;
-    border-radius:14px;
-    overflow:hidden;
-}
-th,td {
-    padding:9px;
-    border-bottom:1px solid var(--line);
-    text-align:left;
-    vertical-align:top;
-}
-th {
-    background:#fbfaf8;
-}
-a {
-    color:#2f3a45;
-    font-weight:800;
-}
-.risk-note {
-    color:var(--bad);
-}
-.notice {
-    border-left:5px solid var(--accent);
+table { width:100%; border-collapse:collapse; font-size:13px; background:white; border-radius:14px; overflow:hidden; }
+th,td { padding:9px; border-bottom:1px solid var(--line); text-align:left; vertical-align:top; }
+th { background:#fbfaf8; }
+a { color:#1f2933; font-weight:800; }
+.risk-note { color:var(--bad); }
+.notice { border-left:6px solid var(--accent); }
+@media print {
+    body { background:white; }
+    header { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+    .card,.item { box-shadow:none; }
 }
 </style>
 </head>
@@ -181,71 +110,16 @@ a {
 <div class="card notice">
     <h2>1. Günün Genel Algısı</h2>
     <div class="kpis">
-        <div class="kpi"><b>210</b><span>Toplam haber</span></div>
-        <div class="kpi"><b>67</b><span>Olumlu</span></div>
-        <div class="kpi"><b>96</b><span>Nötr</span></div>
-        <div class="kpi"><b>47</b><span>Riskli</span></div>
+        <div class="kpi"><b>43</b><span>Toplam haber</span></div>
+        <div class="kpi"><b>9</b><span>Olumlu</span></div>
+        <div class="kpi"><b>32</b><span>Nötr</span></div>
+        <div class="kpi"><b>2</b><span>Riskli</span></div>
     </div>
     <p><b>Genel tablo:</b> Olumlu</p>
     <p>Olumlu görünürlük riskli başlıklardan güçlü. Bugün hizmet ve insan hikayesi dili büyütülebilir.</p>
 </div>
 
-<div class="card">
-    <h2>2. Bugünün En Önemli 3 Başlığı</h2>
-    
-    <div class="item">
-        <h3>Kızıllı Mahallesi’ne 2.070 metrelik asfalt yatırımı - Kepez Belediyesi</h3>
-        <p class="muted">Anahtar kelime: Kepez asfalt</p>
-        <p>
-            <span class="pill olumlu">Olumlu</span>
-            <span class="pill">Risk: 0/10</span>
-            <span class="pill">Fırsat: 8/10</span>
-        </p>
-        <p>Kızıllı Mahallesi’ne 2.070 metrelik asfalt yatırımı Kepez Belediyesi</p>
-        <p><a href="https://news.google.com/rss/articles/CBMilgFBVV95cUxOR1E0UjVsV0ZRMXVsaVR6cFF5T2o1THdHYzV3aGtKODFLTm10SEM5dHk5R2dqTW50a2psTFlZeHpvcF9iQm5SYUZNVW1yVjlDWkRWLXhrcy1NODZuOUpHU3FVM0llVEtHVHcxS21ZWkk4UllNQURja29aT1hnZHotNTZxOHlTR3FUZ1IwQVcxelJfRnhkQkE?oc=5" target="_blank">Haberi aç</a></p>
-    </div>
-    
-    <div class="item">
-        <h3>Antalya&#x27;daki teleferik faciası davasında gelişme: Başkan Kocagöz dahil 5 sanığa beraat, 7&#x27;sine ceza talebi! - T24</h3>
-        <p class="muted">Anahtar kelime: Mesut Kocagöz teleferik</p>
-        <p>
-            <span class="pill riskli">Riskli</span>
-            <span class="pill">Risk: 10/10</span>
-            <span class="pill">Fırsat: 0/10</span>
-        </p>
-        <p>Antalya&#x27;daki teleferik faciası davasında gelişme: Başkan Kocagöz dahil 5 sanığa beraat, 7&#x27;sine ceza talebi! T24</p>
-        <p><a href="https://news.google.com/rss/articles/CBMi0gFBVV95cUxQTUwzS0Y0czlBZmh1VkQxSGZseEVaQlNqVjRuWHJQUWFMazd1ZFFZRGJZV2RFQUtDSmFyTUhVdE5fYVVQb3g1aHhCT0JYSEZSY2pLcjBuWHktc1ZBd3MtZ3pESkl1M2cwbzBHT2ZSMllYajVSQ0ZoUWRQZ3NqM1dpbzcwc0stNWI4VFZ3Unp2WF9uS3RPNjVxRDBFXzlBTWUxWkVzMlJ3bGxZUExpN1ZhWFdDYzJtMW85eEhnaUVqSHFPNkM3Tm9JWE5lN0RIdURiTkE?oc=5" target="_blank">Haberi aç</a></p>
-    </div>
-    
-    <div class="item">
-        <h3>Antalya Haberleri - Antalya - Teleferik kazası davasında 7 sanığa ceza talebi - Yerel Haberler - Hürriyet</h3>
-        <p class="muted">Anahtar kelime: teleferik kazasi</p>
-        <p>
-            <span class="pill riskli">Riskli</span>
-            <span class="pill">Risk: 10/10</span>
-            <span class="pill">Fırsat: 0/10</span>
-        </p>
-        <p>Antalya Haberleri - Antalya - Teleferik kazası davasında 7 sanığa ceza talebi - Yerel Haberler Hürriyet</p>
-        <p><a href="https://news.google.com/rss/articles/CBMiqAFBVV95cUxQTTEtSi14Ql9KeVJ0aVptNGJwWGtSaVlzUURNN00zRXc2TFZTcmlPOV9taEVOaEVDZVNYelBEbDRnbXVlaDlBZGtNMWlmb0pDOEFEWEFNN29zVFFkTWVMaGVONDk3Um1sU3pESldmLThGRmpkQkxTRzJmSzVJNndwTVRWWFo1aTVPdmlHSFdqRlZJMkM0a1R3Sm9SV1lpdWNMczFGRzFhYkg?oc=5" target="_blank">Haberi aç</a></p>
-    </div>
-    
-</div>
-
-<div class="card">
-    <h2>3. Öne Çıkan Olumlu Haberler</h2>
-    
-    <div class="item">
-        <h3>Kızıllı Mahallesi’ne 2.070 metrelik asfalt yatırımı - Kepez Belediyesi</h3>
-        <p class="muted">Anahtar kelime: Kepez asfalt</p>
-        <p>
-            <span class="pill olumlu">Olumlu</span>
-            <span class="pill">Risk: 0/10</span>
-            <span class="pill">Fırsat: 8/10</span>
-        </p>
-        <p>Kızıllı Mahallesi’ne 2.070 metrelik asfalt yatırımı Kepez Belediyesi</p>
-        <p><a href="https://news.google.com/rss/articles/CBMilgFBVV95cUxOR1E0UjVsV0ZRMXVsaVR6cFF5T2o1THdHYzV3aGtKODFLTm10SEM5dHk5R2dqTW50a2psTFlZeHpvcF9iQm5SYUZNVW1yVjlDWkRWLXhrcy1NODZuOUpHU3FVM0llVEtHVHcxS21ZWkk4UllNQURja29aT1hnZHotNTZxOHlTR3FUZ1IwQVcxelJfRnhkQkE?oc=5" target="_blank">Haberi aç</a></p>
-    </div>
-    
+<div class="card"><h2>2. Bugünün En Önemli 3 Başlığı</h2>
     <div class="item">
         <h3>Kepez’in Edip Akbayram Gençlik Parkı açılışı ve Cumhuriyet kutlamalarına 5 noktadan ring hizmeti - Kepez Belediyesi</h3>
         <p class="muted">Anahtar kelime: edip akbayram</p>
@@ -259,15 +133,52 @@ a {
     </div>
     
     <div class="item">
-        <h3>1. Ödül, &quot;SUYUN İZİNDE: Gençlik Parkı Havuzunun Uyarlanabilir Yeniden Kullanımı&quot; Öğrenci Mimari Fikir Projesi Yarışması - Arkitera</h3>
-        <p class="muted">Anahtar kelime: gençlik parki</p>
+        <h3>&#x27;Teleferik kazası&#x27; davasında karar: Kepez Belediye Başkanı Mesut Kocagöz&#x27;e beraat - T24</h3>
+        <p class="muted">Anahtar kelime: Mesut Kocagöz</p>
+        <p>
+            <span class="pill riskli">Riskli</span>
+            <span class="pill">Risk: 8/10</span>
+            <span class="pill">Fırsat: 0/10</span>
+        </p>
+        <p>&#x27;Teleferik kazası&#x27; davasında karar: Kepez Belediye Başkanı Mesut Kocagöz&#x27;e beraat T24</p>
+        <p><a href="https://news.google.com/rss/articles/CBMisAFBVV95cUxNakJoUGNfQS16Q3JDTkV2NXVGNWtzS01YaUt3YU4xOEdQeDFTZE0zMXMzaU5GVFhqb2tOYU9FdGxFU19JM054eWtGVTc5OWpkbVZpT2hLMjcwX0ZsTzZFUUFjWi15aUtGQ2xwaV8wRG1qcGtjR3g2NnNRU3o2d2x2bE91UzdEdjJpbjJZYXphVkt3WE1CcWhaeWVTVzZiUEwtbmtzckJheDAyUmhjdnZ1VA?oc=5" target="_blank">Haberi aç</a></p>
+    </div>
+    
+    <div class="item">
+        <h3>Kocagöz’den Bayrağa Sahip Çıkan Belediye Personeline Ödül - Antalya Bugün</h3>
+        <p class="muted">Anahtar kelime: Mesut Kocagöz</p>
+        <p>
+            <span class="pill olumlu">Olumlu</span>
+            <span class="pill">Risk: 0/10</span>
+            <span class="pill">Fırsat: 6/10</span>
+        </p>
+        <p>Kocagöz’den Bayrağa Sahip Çıkan Belediye Personeline Ödül Antalya Bugün</p>
+        <p><a href="https://news.google.com/rss/articles/CBMimwFBVV95cUxPRVh0eVB0aXRLeGs1WXA2TWdOQjdxRDdKWWZuYjRvTlowWDZYMWtPbUJmQ0N5SVBaT014X011SEdJd1ZxcjdhaXN3NHg5UEtEM0Q3SWNhNS1RMDRRbXJOMFlkSDcxbVRvZkt5eUJQYjFaMjA1M19SZHVIOTl5Qld6T20wRFhRa1ZjUXlLbEhwVVkwRFN5b3h4MVhBVQ?oc=5" target="_blank">Haberi aç</a></p>
+    </div>
+    </div>
+<div class="card"><h2>3. Öne Çıkan Olumlu Haberler</h2>
+    <div class="item">
+        <h3>Kepez’in Edip Akbayram Gençlik Parkı açılışı ve Cumhuriyet kutlamalarına 5 noktadan ring hizmeti - Kepez Belediyesi</h3>
+        <p class="muted">Anahtar kelime: edip akbayram</p>
         <p>
             <span class="pill olumlu">Olumlu</span>
             <span class="pill">Risk: 0/10</span>
             <span class="pill">Fırsat: 8/10</span>
         </p>
-        <p>1. Ödül, &quot;SUYUN İZİNDE: Gençlik Parkı Havuzunun Uyarlanabilir Yeniden Kullanımı&quot; Öğrenci Mimari Fikir Projesi Yarışması Arkitera</p>
-        <p><a href="https://news.google.com/rss/articles/CBMi3wFBVV95cUxNY3N6c3plQzZLdWFPNE9acVZrQ1JwMzRVdlZQZ1Uza3YwZnRncVJkRjNfOFZVaEhaQ2VXQ1B3a0ZURDZPWmFQYm11dFlXSTlrN0czRHdtcnJDa29pT1g1Qm8zN28xOTZDNUdYUDFDelBwNFBjVGdPanU4MlVtdnFWOVd0YnpyRThhYUd2WXdHTHJJazZsWEF6MU1OdHlhU2ZoVk9YNkJXeXB5UER3QURiUWVUUUQ2VHJYcTh6aUhmS0F6Z2ZUbmtSWmdSN0R5dS1heXNYZ0lhdVgteTF5QkdV?oc=5" target="_blank">Haberi aç</a></p>
+        <p>Kepez’in Edip Akbayram Gençlik Parkı açılışı ve Cumhuriyet kutlamalarına 5 noktadan ring hizmeti Kepez Belediyesi</p>
+        <p><a href="https://news.google.com/rss/articles/CBMi0gFBVV95cUxQZEw1RXRTcmZadG5TdXI2MHhGN3pnNEdPSlZTblhucnNxcWxBdmNBaHhmT25rVjNDa1VSSXZ5c3k4c0E0SGtJdTJDRUxKekp6M1pwazdOQnoxdy1jQU9VM1BDNHVEcUR3a0NoOGRuSWhpX1BxZ3pFb2ljeVNjWE54SUp4VGhaT0NuN2Jxc29uVVByRVBRWlBBSkp6NEhyQ0tBeTB1X05aR1BGeldLVnRrQXJjWmdVZzlwWkNhNkZ1RWtrcTFvNUEzdmxYOVpEZ2hiV2c?oc=5" target="_blank">Haberi aç</a></p>
+    </div>
+    
+    <div class="item">
+        <h3>Kocagöz’den Bayrağa Sahip Çıkan Belediye Personeline Ödül - Antalya Bugün</h3>
+        <p class="muted">Anahtar kelime: Mesut Kocagöz</p>
+        <p>
+            <span class="pill olumlu">Olumlu</span>
+            <span class="pill">Risk: 0/10</span>
+            <span class="pill">Fırsat: 6/10</span>
+        </p>
+        <p>Kocagöz’den Bayrağa Sahip Çıkan Belediye Personeline Ödül Antalya Bugün</p>
+        <p><a href="https://news.google.com/rss/articles/CBMimwFBVV95cUxPRVh0eVB0aXRLeGs1WXA2TWdOQjdxRDdKWWZuYjRvTlowWDZYMWtPbUJmQ0N5SVBaT014X011SEdJd1ZxcjdhaXN3NHg5UEtEM0Q3SWNhNS1RMDRRbXJOMFlkSDcxbVRvZkt5eUJQYjFaMjA1M19SZHVIOTl5Qld6T20wRFhRa1ZjUXlLbEhwVVkwRFN5b3h4MVhBVQ?oc=5" target="_blank">Haberi aç</a></p>
     </div>
     
     <div class="item">
@@ -294,33 +205,29 @@ a {
         <p><a href="https://news.google.com/rss/articles/CBMimgFBVV95cUxQUWxEZmtaSGpFYV93SmRFbS1JYlV4MFhHSWpXdk5TRUpyWWtkYU4zWTBCS3FSZm5SRXpLLW5IblFMdkRJMWdtd0dhbGc2Uk9kQ1dxenIzLTdfTDgxMmZZNU0wMmV1Ykp0bHlUbkZ0YXJOTnpSVHhKMG8yckhpcjNONk5udWRiTGxNM19UNjVRY25IVFJDYmw3NExn?oc=5" target="_blank">Haberi aç</a></p>
     </div>
     
-</div>
-
-<div class="card">
-    <h2>4. Riskli / İzlenmesi Gereken Haberler</h2>
-    
     <div class="item">
-        <h3>Antalya&#x27;daki teleferik faciası davasında gelişme: Başkan Kocagöz dahil 5 sanığa beraat, 7&#x27;sine ceza talebi! - T24</h3>
-        <p class="muted">Anahtar kelime: Mesut Kocagöz teleferik</p>
+        <h3>Duacı&#x27;da asfalt sevinci: 34 sokak sıcak asfaltla buluşuyor - Saray Medya</h3>
+        <p class="muted">Anahtar kelime: Mesut Kocagöz</p>
         <p>
-            <span class="pill riskli">Riskli</span>
-            <span class="pill">Risk: 10/10</span>
-            <span class="pill">Fırsat: 0/10</span>
+            <span class="pill olumlu">Olumlu</span>
+            <span class="pill">Risk: 0/10</span>
+            <span class="pill">Fırsat: 4/10</span>
         </p>
-        <p>Antalya&#x27;daki teleferik faciası davasında gelişme: Başkan Kocagöz dahil 5 sanığa beraat, 7&#x27;sine ceza talebi! T24</p>
-        <p><a href="https://news.google.com/rss/articles/CBMi0gFBVV95cUxQTUwzS0Y0czlBZmh1VkQxSGZseEVaQlNqVjRuWHJQUWFMazd1ZFFZRGJZV2RFQUtDSmFyTUhVdE5fYVVQb3g1aHhCT0JYSEZSY2pLcjBuWHktc1ZBd3MtZ3pESkl1M2cwbzBHT2ZSMllYajVSQ0ZoUWRQZ3NqM1dpbzcwc0stNWI4VFZ3Unp2WF9uS3RPNjVxRDBFXzlBTWUxWkVzMlJ3bGxZUExpN1ZhWFdDYzJtMW85eEhnaUVqSHFPNkM3Tm9JWE5lN0RIdURiTkE?oc=5" target="_blank">Haberi aç</a></p>
+        <p>Duacı&#x27;da asfalt sevinci: 34 sokak sıcak asfaltla buluşuyor Saray Medya</p>
+        <p><a href="https://news.google.com/rss/articles/CBMingFBVV95cUxNazEwOGtoUWZMQ2J3b0JYZWM5YlpqTENyZ2lJNnhOT2tsNEM0M1htclZ0Z2VybGZIMFZXU3h2eWd0Tl9iaXZZWFctVmlmVkc2ZDl4WnlQZ2xKZlVLdkRmb1pLM19iQUdmR2pzRk03VmE2VlBUOXptLVhoby1SZm8wNFBKa1BfamE0bDhxNlJPYV90MVlXV2MtRWZlZkhqZw?oc=5" target="_blank">Haberi aç</a></p>
     </div>
-    
+    </div>
+<div class="card"><h2>4. Riskli / İzlenmesi Gereken Haberler</h2>
     <div class="item">
-        <h3>Kepez’de inceleme yapıldı, Mesut Kocagöz tepki gösterdi; “Yazıktır, günahtır, yetim hakkıdır” - Antalya Gündem Gazetesi</h3>
+        <h3>&#x27;Teleferik kazası&#x27; davasında karar: Kepez Belediye Başkanı Mesut Kocagöz&#x27;e beraat - T24</h3>
         <p class="muted">Anahtar kelime: Mesut Kocagöz</p>
         <p>
             <span class="pill riskli">Riskli</span>
-            <span class="pill">Risk: 5/10</span>
+            <span class="pill">Risk: 8/10</span>
             <span class="pill">Fırsat: 0/10</span>
         </p>
-        <p>Kepez’de inceleme yapıldı, Mesut Kocagöz tepki gösterdi; “Yazıktır, günahtır, yetim hakkıdır” Antalya Gündem Gazetesi</p>
-        <p><a href="https://news.google.com/rss/articles/CBMivAFBVV95cUxOVzNqTF9zYm1sVFlFal83OVJKRktPU0dWUUVJMDF3N1ItNzJZYWI1Ml9ZRWZmbVliMWhfcXhHVE10dkJNS1JVYnN0Z2pUejFlTWhEbXZFbXFoMERTZjRkTC1zdS1MXzRWei1vTEg4bllZdFZ3UC1uM0JhUVlIYnYyRVVnQTZJRU1BWHJ4V2lSdERFRHk5RGJzSFFHZjZRMmRzbE42RGdUcEloZVJyMzkzbFA4bnYxYnBWbTVsTA?oc=5" target="_blank">Haberi aç</a></p>
+        <p>&#x27;Teleferik kazası&#x27; davasında karar: Kepez Belediye Başkanı Mesut Kocagöz&#x27;e beraat T24</p>
+        <p><a href="https://news.google.com/rss/articles/CBMisAFBVV95cUxNakJoUGNfQS16Q3JDTkV2NXVGNWtzS01YaUt3YU4xOEdQeDFTZE0zMXMzaU5GVFhqb2tOYU9FdGxFU19JM054eWtGVTc5OWpkbVZpT2hLMjcwX0ZsTzZFUUFjWi15aUtGQ2xwaV8wRG1qcGtjR3g2NnNRU3o2d2x2bE91UzdEdjJpbjJZYXphVkt3WE1CcWhaeWVTVzZiUEwtbmtzckJheDAyUmhjdnZ1VA?oc=5" target="_blank">Haberi aç</a></p>
     </div>
     
     <div class="item">
@@ -334,32 +241,7 @@ a {
         <p>Kepez Belediyesi&#x27;nden borç müjdesi: Bütün borçlar kapandı, yağlı güreşler başlıyor! Saray Medya</p>
         <p><a href="https://news.google.com/rss/articles/CBMivAFBVV95cUxOWHplaHlqaENROGJ5ODNKRGhxMnZ1bVc4R0JBOVlOUWJ4RkllbGpJS2s3emdLalB3MmRCaVpCR0VNV015ZldwN2UyTDNVaXg5dFkxOUo0eVEtNU5ZTlpSTUg4cG5TQ2ZSem5kWks4V0c5SlowMmdTd3ZmbXEwUVZ1WlhQSlVXMi1DdEFBZW5qRjNzbDg1Z3FBWTJOSlFiRlRIN3l0c21YczlyVENJYVV0M19uamUzTndhOXM2VA?oc=5" target="_blank">Haberi aç</a></p>
     </div>
-    
-    <div class="item">
-        <h3>Kepez’den trafik kazasında hayatını kaybeden AÜ öğrencileri için lokma hayrı - Kepez Belediyesi</h3>
-        <p class="muted">Anahtar kelime: Kepez Belediyesi borç</p>
-        <p>
-            <span class="pill riskli">Riskli</span>
-            <span class="pill">Risk: 5/10</span>
-            <span class="pill">Fırsat: 0/10</span>
-        </p>
-        <p>Kepez’den trafik kazasında hayatını kaybeden AÜ öğrencileri için lokma hayrı Kepez Belediyesi</p>
-        <p><a href="https://news.google.com/rss/articles/CBMitwFBVV95cUxNb05FR2NoV0x0VXhqaFN6S2VTZmhmLUx0cHRQOU5ZUTZzQklrdE9INXZVSzQ0NjluMnRWZUxOMl9OZ2dCRGdpcXJaMXNQb1g2SmhHOHpGcDRFLWpfaE1NLW02X1JUVUJSd2otVTBQOXVadzg5cGI4di1rTUtBaU5iZ1BuZ1gzbHcwQUFOWDZEYUVhZWxhUjliWkZFM1FncnRCTHpTWXl6aGxYMmhSdXBCZ05Tb3lYUlk?oc=5" target="_blank">Haberi aç</a></p>
     </div>
-    
-    <div class="item">
-        <h3>ALKÜ’deki kahvaltı Alanya’da tartışma yarattı! - Alanya Postası</h3>
-        <p class="muted">Anahtar kelime: alanya postasi</p>
-        <p>
-            <span class="pill riskli">Riskli</span>
-            <span class="pill">Risk: 5/10</span>
-            <span class="pill">Fırsat: 0/10</span>
-        </p>
-        <p>ALKÜ’deki kahvaltı Alanya’da tartışma yarattı! Alanya Postası</p>
-        <p><a href="https://news.google.com/rss/articles/CBMiggFBVV95cUxPczFVbWxxUS1PS3lyQTVaNkdnVkJmWmlwNW14QS1CWE9tWDEzZjQ3QkRnbDFMbVUzNmlDTDQ4aHVRSG1GWk41ZE4zYXQ5M3ExalptZnItbGQ1VlYtcHFrOFp3bUhNMWJ4eUw3WUtZNmtRVkNudDFkTWhBVEM2aXhpTHJB?oc=5" target="_blank">Haberi aç</a></p>
-    </div>
-    
-</div>
 
 <div class="card">
     <h2>5. Sosyal Medya Etkileşim Analizi</h2>
@@ -369,39 +251,23 @@ a {
         <div class="kpi"><b>%5.21</b><span>Beğenme oranı</span></div>
         <div class="kpi"><b>%5.91</b><span>Etkileşim oranı</span></div>
     </div>
-
     <h3>Yorum Duygu Dağılımı</h3>
     
     <div class="bar-row">
-        <div class="bar-label">
-            <span>İyi yorum</span>
-            <b>%54.7</b>
-        </div>
-        <div class="bar">
-            <div class="good" style="width:54.7%"></div>
-        </div>
+        <div class="bar-label"><span>İyi yorum</span><b>%54.7</b></div>
+        <div class="bar"><div class="good" style="width:54.7%"></div></div>
     </div>
     
     
     <div class="bar-row">
-        <div class="bar-label">
-            <span>Nötr yorum</span>
-            <b>%21.4</b>
-        </div>
-        <div class="bar">
-            <div class="neutral" style="width:21.4%"></div>
-        </div>
+        <div class="bar-label"><span>Nötr yorum</span><b>%21.4</b></div>
+        <div class="bar"><div class="neutral" style="width:21.4%"></div></div>
     </div>
     
     
     <div class="bar-row">
-        <div class="bar-label">
-            <span>Kötü yorum</span>
-            <b>%23.9</b>
-        </div>
-        <div class="bar">
-            <div class="bad" style="width:23.9%"></div>
-        </div>
+        <div class="bar-label"><span>Kötü yorum</span><b>%23.9</b></div>
+        <div class="bar"><div class="bad" style="width:23.9%"></div></div>
     </div>
     
 </div>
@@ -422,13 +288,10 @@ a {
             Beğenme oranı: <b>%6.81</b> •
             Etkileşim oranı: <b>%7.52</b>
         </p>
-        <p>
-            Risk: <b>0.6/10</b> •
-            Fırsat: <b>8.3/10</b>
-        </p>
+        <p>Risk: <b>0.6/10</b> • Fırsat: <b>8.3/10</b></p>
         <p>Yorumların çoğu personelin duyarlılığını olumlu buluyor</p>
         <p class="risk-note">Risk düşük; konu siyasi polemiğe çekilmemeli</p>
-        <p><a href="https://example.com" target="_blank">Paylaşımı aç</a></p>
+        <p class="muted"><b>Link:</b> Manuel sosyal medya verisi</p>
     </div>
     
     
@@ -446,13 +309,10 @@ a {
             Beğenme oranı: <b>%6.81</b> •
             Etkileşim oranı: <b>%7.52</b>
         </p>
-        <p>
-            Risk: <b>0.6/10</b> •
-            Fırsat: <b>8.3/10</b>
-        </p>
+        <p>Risk: <b>0.6/10</b> • Fırsat: <b>8.3/10</b></p>
         <p>Yorumların çoğu personelin duyarlılığını olumlu buluyor</p>
         <p class="risk-note">Risk düşük; konu siyasi polemiğe çekilmemeli</p>
-        <p><a href="https://example.com" target="_blank">Paylaşımı aç</a></p>
+        <p class="muted"><b>Link:</b> Manuel sosyal medya verisi</p>
     </div>
     
     
@@ -470,13 +330,10 @@ a {
             Beğenme oranı: <b>%1.75</b> •
             Etkileşim oranı: <b>%2.47</b>
         </p>
-        <p>
-            Risk: <b>6.3/10</b> •
-            Fırsat: <b>1.4/10</b>
-        </p>
+        <p>Risk: <b>6.3/10</b> • Fırsat: <b>1.4/10</b></p>
         <p>Yorumlarda geçmiş hukuki süreç tekrar hatırlatılıyor</p>
         <p class="risk-note">Risk orta; konu büyürse sakin ve hukuki süreç odaklı dil gerekir</p>
-        <p><a href="https://example.com" target="_blank">Paylaşımı aç</a></p>
+        <p class="muted"><b>Link:</b> Manuel sosyal medya verisi</p>
     </div>
     
     
@@ -494,13 +351,10 @@ a {
             Beğenme oranı: <b>%6.81</b> •
             Etkileşim oranı: <b>%7.52</b>
         </p>
-        <p>
-            Risk: <b>0.6/10</b> •
-            Fırsat: <b>8.3/10</b>
-        </p>
+        <p>Risk: <b>0.6/10</b> • Fırsat: <b>8.3/10</b></p>
         <p>Yorumların çoğu personelin duyarlılığını olumlu buluyor</p>
         <p class="risk-note">Risk düşük; konu siyasi polemiğe çekilmemeli</p>
-        <p><a href="https://example.com" target="_blank">Paylaşımı aç</a></p>
+        <p class="muted"><b>Link:</b> Manuel sosyal medya verisi</p>
     </div>
     
 </div>
@@ -509,13 +363,7 @@ a {
     <h2>10. Manuel Sosyal Medya Kayıtları</h2>
     <table>
         <tr>
-            <th>Tarih</th>
-            <th>Platform</th>
-            <th>Konu</th>
-            <th>Ton</th>
-            <th>Beğenme</th>
-            <th>Risk</th>
-            <th>Fırsat</th>
+            <th>Tarih</th><th>Platform</th><th>Konu</th><th>Ton</th><th>Beğenme</th><th>Risk</th><th>Fırsat</th>
         </tr>
         
         <tr>
@@ -553,23 +401,20 @@ a {
 
 <div class="card">
     <h2>11. Kriz Erken Uyarı</h2>
-    <p>Bugün riskli haber sayısı <b>47</b>. Sosyal medyada kötü yorum oranı <b>%23.9</b>.</p>
+    <p>Bugün riskli haber sayısı <b>2</b>. Sosyal medyada kötü yorum oranı <b>%23.9</b>.</p>
     <p>Teleferik, dava, borç, şikayet ve hizmet aksaması içeren başlıklar ayrıca izlenmelidir.</p>
 </div>
 
 <div class="card">
     <h2>12. Stratejik Yorum</h2>
-
     <div class="item">
         <h3>A) Bugün Öne Çıkarılacak Konu</h3>
         <p>Bugün olumlu etki üretme potansiyeli en yüksek alan; hizmet, mahalle çalışması, çocuk/aile teması ve değer odaklı içeriklerdir. Özellikle vatandaşla temas eden, sahadan görüntü içeren ve insan hikayesi taşıyan paylaşımlar öne çıkarılmalıdır.</p>
     </div>
-
     <div class="item">
         <h3>B) Dikkat Edilecek Risk</h3>
         <p>Teleferik, dava, borç, şikayet ve hizmet aksaması içeren başlıklar kontrollü biçimde takip edilmelidir. Bu başlıklarda hızlı tepki yerine; sakin, belgeye dayalı ve hukuki sürece saygılı bir iletişim dili kullanılmalıdır.</p>
     </div>
-
     <div class="item">
         <h3>C) Önerilen İletişim Dili</h3>
         <p>Bugün önerilen dil; sert siyasi polemik değil, sade hizmet dili ve güven veren başkan profili olmalıdır. Mesajlar kısa, anlaşılır, mahalleye dokunan ve vatandaşın gündelik hayatına temas eden şekilde kurulmalıdır.</p>
@@ -578,53 +423,19 @@ a {
 
 <div class="card">
     <h2>13. Bugün Ne Yapılmalı?</h2>
-
-    <div class="item">
-        <h3>1) Paylaşım Önerisi</h3>
-        <p>Bugün sosyal medyada hizmet ve insan hikayesi taşıyan içerikler öne çıkarılmalıdır. Özellikle mahalle çalışması, çocuk/aile teması, personel emeği ve vatandaşla temas içeren kısa videolar tercih edilmelidir.</p>
-    </div>
-
-    <div class="item">
-        <h3>2) Takip Edilecek Risk</h3>
-        <p>Teleferik, dava, borç, şikayet ve hizmet aksaması başlıkları gün içinde tekrar kontrol edilmelidir. Bu konularda yorum artışı olursa ayrıca not alınmalı ve büyüme eğilimi izlenmelidir.</p>
-    </div>
-
-    <div class="item">
-        <h3>3) Sahada Kullanılacak Mesaj</h3>
-        <p>“Kepez’de hizmet mahalle mahalle ilerliyor. Önceliğimiz vatandaşın gündelik hayatına dokunan işleri görünür ve sürdürülebilir hale getirmek.” mesajı sahada ve sosyal medya dilinde kullanılabilir.</p>
-    </div>
-
-    <div class="item">
-        <h3>4) Cevap Verilmemesi Gereken Konu</h3>
-        <p>Kaynağı belirsiz, kişisel saldırı içeren veya büyüme ihtimali düşük yorumlara doğrudan cevap verilmemelidir. Bu tür içerikler sadece takip edilmeli; resmi cevap ancak konu büyürse ve belgeye dayalı biçimde hazırlanmalıdır.</p>
-    </div>
+    <div class="item"><h3>1) Paylaşım Önerisi</h3><p>Bugün sosyal medyada hizmet ve insan hikayesi taşıyan içerikler öne çıkarılmalıdır. Özellikle mahalle çalışması, çocuk/aile teması, personel emeği ve vatandaşla temas içeren kısa videolar tercih edilmelidir.</p></div>
+    <div class="item"><h3>2) Takip Edilecek Risk</h3><p>Teleferik, dava, borç, şikayet ve hizmet aksaması başlıkları gün içinde tekrar kontrol edilmelidir. Bu konularda yorum artışı olursa ayrıca not alınmalı ve büyüme eğilimi izlenmelidir.</p></div>
+    <div class="item"><h3>3) Sahada Kullanılacak Mesaj</h3><p>“Kepez’de hizmet mahalle mahalle ilerliyor. Önceliğimiz vatandaşın gündelik hayatına dokunan işleri görünür ve sürdürülebilir hale getirmek.” mesajı sahada ve sosyal medya dilinde kullanılabilir.</p></div>
+    <div class="item"><h3>4) Cevap Verilmemesi Gereken Konu</h3><p>Kaynağı belirsiz, kişisel saldırı içeren veya büyüme ihtimali düşük yorumlara doğrudan cevap verilmemelidir. Bu tür içerikler sadece takip edilmeli; resmi cevap ancak konu büyürse ve belgeye dayalı biçimde hazırlanmalıdır.</p></div>
 </div>
-<div 
 
 <div class="card">
     <h2>14. Yarın Takip Edilecek Başlıklar</h2>
-
-    <div class="item">
-        <h3>A) Takip Edilecek Fırsat Başlıkları</h3>
-        <p>Hizmet, mahalle çalışmaları, asfalt, çocuk/aile etkinlikleri, spor organizasyonları, personel emeği ve vatandaş memnuniyeti başlıkları takip edilmelidir.</p>
-    </div>
-
-    <div class="item">
-        <h3>B) Takip Edilecek Risk Başlıkları</h3>
-        <p>Teleferik davası, borç söylemi, hizmet şikayetleri, olumsuz yerel basın haberleri ve sosyal medyada büyüme ihtimali olan eleştiriler ayrıca izlenmelidir.</p>
-    </div>
-
-    <div class="item">
-        <h3>C) Sosyal Medyada Bakılacak Başlıklar</h3>
-        <p>Instagram, Facebook, X, YouTube ve TikTok üzerinde beğeni oranı, yorum tonu, kötü yorum artışı ve en çok paylaşılan içerikler kontrol edilmelidir.</p>
-    </div>
-
-    <div class="item">
-        <h3>D) Sistem Anahtar Kelimeleri</h3>
-        <p>Mesut Kocagöz, Kepez Belediyesi, Kepez Belediye Başkanı, Antalya Kepez, Antalya siyaset, Antalya Büyükşehir Belediyesi, Kepez asfalt, Kepez 23 Nisan, Kepez Belediyesi borç, Mesut Kocagöz teleferik</p>
-    </div>
+    <div class="item"><h3>A) Takip Edilecek Fırsat Başlıkları</h3><p>Hizmet, mahalle çalışmaları, asfalt, çocuk/aile etkinlikleri, spor organizasyonları, personel emeği ve vatandaş memnuniyeti başlıkları takip edilmelidir.</p></div>
+    <div class="item"><h3>B) Takip Edilecek Risk Başlıkları</h3><p>Teleferik davası, borç söylemi, hizmet şikayetleri, olumsuz yerel basın haberleri ve sosyal medyada büyüme ihtimali olan eleştiriler ayrıca izlenmelidir.</p></div>
+    <div class="item"><h3>C) Sosyal Medyada Bakılacak Başlıklar</h3><p>Instagram, Facebook, X, YouTube ve TikTok üzerinde beğeni oranı, yorum tonu, kötü yorum artışı ve en çok paylaşılan içerikler kontrol edilmelidir.</p></div>
+    <div class="item"><h3>D) Sistem Anahtar Kelimeleri</h3><p>Mesut Kocagöz, Kepez Belediyesi, Kepez Belediye Başkanı, Antalya Kepez, Antalya siyaset, Antalya Büyükşehir Belediyesi, Kepez asfalt, Kepez 23 Nisan, Kepez Belediyesi borç, Mesut Kocagöz teleferik, Kepez drag pisti, Korkuteli belediyesi</p></div>
 </div>
-
 
 </main>
 </body>

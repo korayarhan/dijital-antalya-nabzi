@@ -576,7 +576,7 @@ def build_report(news, social, undated_news=None):
     risky_html = "".join(news_card(x) for x in risky_news) or "<p>Riskli haber bulunamadı.</p>" 
     undated_html = "".join(news_card(x) for x in unique_by_topic(undated_news, 8)) or """
     <p>Tarihi okunamayan haber bulunamadı.</p>
-"""
+    """
     social_rows = ""
     for item in social:
         social_rows += f"""

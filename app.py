@@ -158,33 +158,52 @@ def is_recent_news(item, max_days=NEWS_MAX_AGE_DAYS):
     return oldest_allowed <= news_date <= today
 
 def fetch_news():
-    rows, seen_topics = [], set()
+    rows, undated_rows, seen_topics = [], [], set()
+
     for keyword in read_keywords():
         feed = feedparser.parse(google_news_url(keyword))
-        for item in feed.entries[:8]:
+
+        for item in feed.entries[:12]:
             title = clean_text(getattr(item, "title", ""))
             link = getattr(item, "link", "")
             date = getattr(item, "published", "")
             summary = clean_text(getattr(item, "summary", ""))
+
             if not title or not is_relevant(title, summary, keyword):
                 continue
+
+            news_date = parse_news_date(item)
+            is_undated = news_date is None
+
+            if news_date is not None and not is_recent_news(item):
+                continue
+
             topic = topic_key(title)
             if topic in seen_topics:
                 continue
+
             seen_topics.add(topic)
+
             tone, risk, opportunity = classify(title + " " + summary)
-            rows.append({
+
+            row = {
                 "keyword": keyword,
                 "title": title,
                 "link": link,
-                "date": date,
+                "date": date if date else "Tarih okunamadı",
                 "summary": summary,
                 "tone": tone,
                 "risk": risk,
                 "opportunity": opportunity,
                 "topic": topic,
-            })
-    return rows
+            }
+
+            if is_undated:
+                undated_rows.append(row)
+            else:
+                rows.append(row)
+
+    return rows, undated_rows
 
 
 def to_float(x):

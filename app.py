@@ -609,13 +609,16 @@ a {{ color:#1f2933; font-weight:800; }}
     out.write_text(html_doc, encoding="utf-8")
     print(f"Rapor hazır: {out}")
 
-
 def main():
-    news = fetch_news()
-    social = read_social_data()
-    save_dynamic_keywords(generate_dynamic_keywords(news, social))
-    build_report(news, social)
+    ensure_dirs()
 
+    news, undated_news = fetch_news()
+    social = read_social_posts()
+
+    save_dynamic_keywords(generate_dynamic_keywords(news, social))
+
+    html = build_report(news, social)
+    save_report(html)
 
 if __name__ == "__main__":
     main()

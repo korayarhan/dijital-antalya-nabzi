@@ -800,7 +800,6 @@ a {{ color:#1f2933; font-weight:800; }}
 <p>{esc(daily_language)}</p>
 
 <p>Bugün kullanılabilecek ana mesaj şudur:</p>
-
 <p><b>“Kepez’de önceliğimiz, vatandaşın günlük hayatına dokunan işleri sahada ve sürdürülebilir biçimde büyütmek. Hizmeti mahalle mahalle görünür hale getirmeye devam ediyoruz.”</b></p>
 </div>
 

@@ -754,58 +754,56 @@ a {{ color:#1f2933; font-weight:800; }}
 </div>
 
 <div class="card">
-    ## 11. Stratejik Erken Uyarı ve Günlük Değerlendirme
+<h2>11. Stratejik Erken Uyarı ve Günlük Değerlendirme</h2>
 
-### A) Alarm Seviyesi
+<h3>A) Alarm Seviyesi</h3>
+<p><b>{esc(alert_level)}</b></p>
+<p>{esc(alert_summary)}</p>
 
-{esc(alert_level)}
+<h3>B) Sayısal Durum</h3>
+<p>Bugün sistemde <b>{total_news}</b> haber tarandı. Bunların <b>{positive_count}</b> tanesi olumlu, <b>{neutral_count}</b> tanesi nötr, <b>{risk_count}</b> tanesi riskli görünüyor.</p>
 
-{esc(alert_summary)}
+<p>Sosyal medyada kötü yorum oranı <b>%{bad_pct:.1f}</b>, iyi yorum oranı <b>%{good_pct:.1f}</b>, nötr yorum oranı <b>%{neutral_pct:.1f}</b> seviyesinde.</p>
 
-### B) Sayısal Durum
+<h3>C) İzlenmesi Gereken Başlıklar</h3>
+<p>Teleferik, dava, borç, şikayet, hizmet aksaması, ulaşım, asfalt, temizlik, park ve sosyal yardım başlıkları gün içinde ayrıca takip edilmelidir.</p>
 
-Bugün sistemde {total_news} haber tarandı. Bunların {positive_count} tanesi olumlu, {neutral_count} tanesi nötr, {risk_count} tanesi riskli görünüyor.
+<p>Bir başlıkta yorum artışı, aynı şikayetin farklı hesaplardan tekrar etmesi veya yerel basında aynı konunun büyütülmesi durumunda konu ayrıca not alınmalıdır.</p>
 
-Sosyal medyada kötü yorum oranı %{bad_pct:.1f}, iyi yorum oranı %{good_pct:.1f}, nötr yorum oranı %{neutral_pct:.1f} seviyesinde.
+<h3>D) Bugünün Ana Fırsatı</h3>
+<p>Bugün öne çıkarılabilecek en güçlü haber başlığı:</p>
+<p><b>{esc(best_news_title)}</b></p>
 
-### C) İzlenmesi Gereken Başlıklar
+<p>Sosyal medya tarafında fırsat olarak izlenecek başlık:</p>
+<p><b>{esc(best_social_topic)}</b></p>
+</div>
 
-Teleferik, dava, borç, şikayet, hizmet aksaması, ulaşım, asfalt, temizlik, park ve sosyal yardım başlıkları gün içinde ayrıca takip edilmelidir.
+<div class="card">
+<h2>12. Stratejik Yorum</h2>
 
-Bir başlıkta yorum artışı, aynı şikayetin farklı hesaplardan tekrar etmesi veya yerel basında aynı konunun büyütülmesi durumunda konu ayrıca not alınmalıdır.
+<h3>A) Bugünün Ana Stratejisi</h3>
+<p>{esc(strategy_focus)}</p>
 
-### D) Bugünün Ana Fırsatı
+<p>Bugün iletişimde amaç sadece haber paylaşmak değil; Mesut Kocagöz algısını “sahada çalışan, gündemi takip eden, hizmeti önceleyen ve krizleri büyütmeden yöneten başkan” çizgisinde güçlendirmek olmalıdır.</p>
 
-Bugün öne çıkarılabilecek en güçlü haber başlığı:
+<h3>B) Öne Çıkarılacak Konu</h3>
+<p>Hizmet, mahalle çalışması, çocuk/aile teması, personel emeği, vatandaş memnuniyeti ve sahadan görüntü içeren içerikler öne çıkarılmalıdır.</p>
 
-{esc(best_news_title)}
+<p>Özellikle fotoğraf veya kısa video ile desteklenen paylaşımlar tercih edilmelidir. Sadece makam dili değil, vatandaşla temas eden sade bir anlatım kullanılmalıdır.</p>
 
-Sosyal medya tarafında fırsat olarak izlenecek başlık:
+<h3>C) Dikkat Edilecek Risk</h3>
+<p>Riskli başlıklarda hızlı ve sert cevap verilmemelidir. Önce konu büyüyor mu, kimler yayıyor, yorumlarda tekrar eden ana şikayet ne, bunlar izlenmelidir.</p>
 
-{esc(best_social_topic)}
+<p>Konu büyürse cevap dili belgeye dayalı, kısa, sakin ve kurumsal olmalıdır. Kişisel tartışmaya girilmemelidir.</p>
 
-## 12. Stratejik Yorum
+<h3>D) Önerilen İletişim Dili</h3>
+<p>{esc(daily_language)}</p>
 
-### A) Bugünün Ana Stratejisi
+<p>Bugün kullanılabilecek ana mesaj şudur:</p>
 
-{esc(strategy_focus)}
-
-Bugün iletişimde amaç sadece haber paylaşmak değil; Mesut Kocagöz algısını “sahada çalışan, gündemi takip eden, hizmeti önceleyen ve krizleri büyütmeden yöneten başkan” çizgisinde güçlendirmek olmalıdır.
-
-### B) Öne Çıkarılacak Konu
-
-Hizmet, mahalle çalışması, çocuk/aile teması, personel emeği, vatandaş memnuniyeti ve sahadan görüntü içeren içerikler öne çıkarılmalıdır.
-
-Özellikle fotoğraf veya kısa video ile desteklenen paylaşımlar tercih edilmelidir. Sadece makam dili değil, vatandaşla temas eden sade bir anlatım kullanılmalıdır.
-
-### C) Dikkat Edilecek Risk
-
-Riskli başlıklarda hızlı ve sert cevap verilmemelidir. Önce konu büyüyor mu, kimler yayıyor, yorumlarda tekrar eden ana şikayet ne, bunlar izlenmelidir.
-
-Konu büyürse cevap dili belgeye dayalı, kısa, sakin ve kurumsal olmalıdır. Kişisel tartışmaya girilmemelidir.
-
-### D) Önerilen İletişim Dili
-
+<p><b>“Kepez’de önceliğimiz, vatandaşın günlük hayatına dokunan işleri sahada ve sürdürülebilir biçimde büyütmek. Hizmeti mahalle mahalle görünür hale getirmeye devam ediyoruz.”</b></p>
+</div>
+    
 {esc(daily_language)}
 
 Bugün kullanılabilecek ana mesaj şudur:

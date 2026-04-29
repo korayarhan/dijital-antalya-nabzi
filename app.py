@@ -1,4 +1,4 @@
-import csv
+şu import csv
 import os
 import datetime as dt
 import html
@@ -587,17 +587,7 @@ def build_report(news, social, undated_news=None):
 
     tomorrow_keywords = ", ".join(read_keywords()[:12])
 
-    ## 4. Riskli / İzlenmesi Gereken Haberler
-
-{risky_html}
-
-## 4.1 Tarihi Okunamayan Ama Takip Edilmesi Gereken Haberler
-
-Bu bölümdeki haberler Kepez / Antalya / Mesut Kocagöz filtresinden geçmiştir; ancak haber tarihi sistem tarafından okunamadığı için ana günlük gündeme doğrudan dahil edilmemiştir.
-
-{undated_html}
-
-## 5. Sosyal Medya Etkileşim Analizi
+    html_doc = f"""
 <html lang="tr">
 <head>
 <meta charset="utf-8">
@@ -712,7 +702,13 @@ a {{ color:#1f2933; font-weight:800; }}
 <div class="card"><h2>4. Riskli / İzlenmesi Gereken Haberler</h2>{risky_html}</div>
 
 <div class="card">
-    <h2>5. Sosyal Medya Etkileşim Analizi</h2>
+ <h2>4.1 Tarihi Okunamayan Ama Takip Edilmesi Gereken Haberler</h2>
+ <p class="muted">Bu bölümdeki haberler Kepez / Antalya / Mesut Kocagöz filtresinden geçmiştir; ancak haber tarihi sistem tarafından okunamadığı için ana günlük gündeme doğrudan dahil edilmemiştir.</p>
+ {undated_html}
+</div>
+
+<div class="card">
+ <h2>5. Sosyal Medya Etkileşim Analizi</h2>
     <div class="kpis">
         <div class="kpi"><b>{int(social_sum["total_likes"])}</b><span>Toplam beğeni</span></div>
         <div class="kpi"><b>{int(social_sum["total_comments"])}</b><span>Toplam yorum</span></div>

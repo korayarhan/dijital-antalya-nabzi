@@ -610,7 +610,8 @@ a {{ color:#1f2933; font-weight:800; }}
     print(f"Rapor hazır: {out}")
 
 def main():
-    ensure_dirs()
+    os.makedirs("reports", exist_ok=True)
+    os.makedirs("data", exist_ok=True)
 
     news, undated_news = fetch_news()
     social = read_social_posts()

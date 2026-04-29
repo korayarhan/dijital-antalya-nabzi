@@ -1,15 +1,16 @@
-name: Yerel Lider AI Günlük Tarama
+name: Daily Yerel Lider AI Report
 
 on:
-  workflow_dispatch:
   schedule:
-    - cron: "0 6 * * *"
+    # Türkiye saati yaklaşık 09:10 için 06:10 UTC
+    - cron: "10 6 * * *"
+  workflow_dispatch:
 
 permissions:
   contents: write
 
 jobs:
-  daily-report:
+  build-report:
     runs-on: ubuntu-latest
 
     steps:
@@ -21,36 +22,19 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Sistem paketlerini kur
+      - name: Gerekli paketleri kur
         run: |
-          sudo apt-get update
-          sudo apt-get install -y wkhtmltopdf
+          python -m pip install --upgrade pip
+          pip install feedparser
 
-      - name: Python paketlerini yükle
-        run: pip install -r requirements.txt
-
-      - name: Günlük raporu üret
-        run: python app.py
-
-      - name: HTML raporu PDF yap
+      - name: Raporu oluştur
         run: |
-          mkdir -p reports
-          wkhtmltopdf reports/daily_report.html reports/daily_report.pdf
-
-      - name: Raporu mail gönder
-        continue-on-error: true
-        env:
-          MAIL_USER: ${{ secrets.MAIL_USER }}
-          MAIL_PASS: ${{ secrets.MAIL_PASS }}
-          MAIL_TO: ${{ secrets.MAIL_TO }}
-          SMTP_SERVER: ${{ secrets.SMTP_SERVER }}
-          SMTP_PORT: ${{ secrets.SMTP_PORT }}
-        run: python send_report.py
+          python app.py
 
       - name: Raporu repoya kaydet
         run: |
-          git config user.name "yerel-lider-ai-bot"
-          git config user.email "bot@example.com"
-          git add reports/daily_report.html reports/daily_report.pdf data/dynamic_keywords.txt
-          git commit -m "Günlük rapor güncellendi" || echo "Değişiklik yok"
-          git push --force-with-lease
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add reports/ data/dynamic_keywords.txt
+          git commit -m "Günlük Yerel Lider AI raporu güncellendi" || echo "Değişiklik yok"
+          git push

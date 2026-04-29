@@ -803,20 +803,6 @@ a {{ color:#1f2933; font-weight:800; }}
 
 <p><b>“Kepez’de önceliğimiz, vatandaşın günlük hayatına dokunan işleri sahada ve sürdürülebilir biçimde büyütmek. Hizmeti mahalle mahalle görünür hale getirmeye devam ediyoruz.”</b></p>
 </div>
-    
-{esc(daily_language)}
-
-Bugün kullanılabilecek ana mesaj şudur:
-
-“Kepez’de önceliğimiz, vatandaşın günlük hayatına dokunan işleri sahada ve sürdürülebilir biçimde büyütmek. Hizmeti mahalle mahalle görünür hale getirmeye devam ediyoruz.”
-</div>
-
-<div class="card">
-    <h2>12. Stratejik Yorum</h2>
-    <div class="item"><h3>A) Bugün Öne Çıkarılacak Konu</h3><p>Bugün olumlu etki üretme potansiyeli en yüksek alan; hizmet, mahalle çalışması, çocuk/aile teması ve değer odaklı içeriklerdir. Özellikle vatandaşla temas eden, sahadan görüntü içeren ve insan hikayesi taşıyan paylaşımlar öne çıkarılmalıdır.</p></div>
-    <div class="item"><h3>B) Dikkat Edilecek Risk</h3><p>Teleferik, dava, borç, şikayet ve hizmet aksaması içeren başlıklar kontrollü biçimde takip edilmelidir. Bu başlıklarda hızlı tepki yerine; sakin, belgeye dayalı ve hukuki sürece saygılı bir iletişim dili kullanılmalıdır.</p></div>
-    <div class="item"><h3>C) Önerilen İletişim Dili</h3><p>Bugün önerilen dil; sert siyasi polemik değil, sade hizmet dili ve güven veren başkan profili olmalıdır. Mesajlar kısa, anlaşılır, mahalleye dokunan ve vatandaşın gündelik hayatına temas eden şekilde kurulmalıdır.</p></div>
-</div>
 
 <div class="card">
     <h2>13. Bugün Ne Yapılmalı?</h2>

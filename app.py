@@ -620,7 +620,7 @@ def main():
     save_dynamic_keywords(generate_dynamic_keywords(news, social))
 
     html = build_report(news, social)
-    save_report(html)
+    # save_report(html)
 
 if __name__ == "__main__":
     main()

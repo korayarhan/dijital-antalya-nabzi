@@ -615,7 +615,7 @@ def main():
     os.makedirs("data", exist_ok=True)
 
     news, undated_news = fetch_news()
-    social = read_social_posts()
+    social = read_social_data()
 
     save_dynamic_keywords(generate_dynamic_keywords(news, social))
 

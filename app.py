@@ -584,7 +584,24 @@ def build_report(news, social, undated_news=None):
         """
     if not social_rows:
         social_rows = "<tr><td colspan='7'>Henüz manuel sosyal medya verisi girilmedi.</td></tr>"
+    if risk_count >= 3 or bad_pct >= 35:
+        alert_level = "Yüksek dikkat"
+        alert_summary = "Bugün riskli haberler veya olumsuz yorum oranı belirgin seviyede. Savunmacı polemik yerine sakin, belgeye dayalı ve hizmet odaklı iletişim tercih edilmelidir."
+        strategy_focus = "Riskleri büyütmeden kontrol etmek, olumlu hizmet başlıklarını görünür tutmak ve başkan profilini güven veren bir çizgide korumak."
+        daily_language = "Sakin, net, polemikten uzak ve vatandaşın gündelik hayatına dokunan bir dil kullanılmalıdır."
+    elif risk_count >= 1 or bad_pct >= 20:
+        alert_level = "Kontrollü takip"
+        alert_summary = "Bugün risk tamamen yüksek değil ancak takip edilmesi gereken başlıklar var. Olumsuz yorumların büyüyüp büyümediği gün içinde izlenmelidir."
+        strategy_focus = "Olumlu gündemi canlı tutarken riskli başlıklara karşı hazırlıklı olmak."
+        daily_language = "Hizmet, mahalle teması ve vatandaş memnuniyeti öne çıkarılmalı; tartışmalı başlıklarda ölçülü kalınmalıdır."
+    else:
+        alert_level = "Normal seyir"
+        alert_summary = "Bugün kriz riski düşük görünüyor. Bu tablo, hizmet ve insan hikayesi anlatımı için uygun bir zemin oluşturuyor."
+        strategy_focus = "Olumlu görünürlüğü artırmak, sahadan güçlü içerikler üretmek ve başkanın çalışkan/ulaşılabilir profilini güçlendirmek."
+        daily_language = "Pozitif, sade, samimi ve mahalleye dokunan bir dil kullanılmalıdır."
 
+    best_news_title = important[0]["title"] if important else "Bugün öne çıkan net haber başlığı yok."
+    best_social_topic = social_sum["opportunity"].get("topic", "") if social_sum["opportunity"] else "Henüz öne çıkan sosyal medya fırsatı yok."
     tomorrow_keywords = ", ".join(read_keywords()[:12])
 
     html_doc = f"""
@@ -737,9 +754,63 @@ a {{ color:#1f2933; font-weight:800; }}
 </div>
 
 <div class="card">
-    <h2>11. Kriz Erken Uyarı</h2>
-    <p>Bugün riskli haber sayısı <b>{risk_count}</b>. Sosyal medyada kötü yorum oranı <b>%{bad_pct:.1f}</b>.</p>
-    <p>Teleferik, dava, borç, şikayet ve hizmet aksaması içeren başlıklar ayrıca izlenmelidir.</p>
+    ## 11. Stratejik Erken Uyarı ve Günlük Değerlendirme
+
+### A) Alarm Seviyesi
+
+{esc(alert_level)}
+
+{esc(alert_summary)}
+
+### B) Sayısal Durum
+
+Bugün sistemde {total_news} haber tarandı. Bunların {positive_count} tanesi olumlu, {neutral_count} tanesi nötr, {risk_count} tanesi riskli görünüyor.
+
+Sosyal medyada kötü yorum oranı %{bad_pct:.1f}, iyi yorum oranı %{good_pct:.1f}, nötr yorum oranı %{neutral_pct:.1f} seviyesinde.
+
+### C) İzlenmesi Gereken Başlıklar
+
+Teleferik, dava, borç, şikayet, hizmet aksaması, ulaşım, asfalt, temizlik, park ve sosyal yardım başlıkları gün içinde ayrıca takip edilmelidir.
+
+Bir başlıkta yorum artışı, aynı şikayetin farklı hesaplardan tekrar etmesi veya yerel basında aynı konunun büyütülmesi durumunda konu ayrıca not alınmalıdır.
+
+### D) Bugünün Ana Fırsatı
+
+Bugün öne çıkarılabilecek en güçlü haber başlığı:
+
+{esc(best_news_title)}
+
+Sosyal medya tarafında fırsat olarak izlenecek başlık:
+
+{esc(best_social_topic)}
+
+## 12. Stratejik Yorum
+
+### A) Bugünün Ana Stratejisi
+
+{esc(strategy_focus)}
+
+Bugün iletişimde amaç sadece haber paylaşmak değil; Mesut Kocagöz algısını “sahada çalışan, gündemi takip eden, hizmeti önceleyen ve krizleri büyütmeden yöneten başkan” çizgisinde güçlendirmek olmalıdır.
+
+### B) Öne Çıkarılacak Konu
+
+Hizmet, mahalle çalışması, çocuk/aile teması, personel emeği, vatandaş memnuniyeti ve sahadan görüntü içeren içerikler öne çıkarılmalıdır.
+
+Özellikle fotoğraf veya kısa video ile desteklenen paylaşımlar tercih edilmelidir. Sadece makam dili değil, vatandaşla temas eden sade bir anlatım kullanılmalıdır.
+
+### C) Dikkat Edilecek Risk
+
+Riskli başlıklarda hızlı ve sert cevap verilmemelidir. Önce konu büyüyor mu, kimler yayıyor, yorumlarda tekrar eden ana şikayet ne, bunlar izlenmelidir.
+
+Konu büyürse cevap dili belgeye dayalı, kısa, sakin ve kurumsal olmalıdır. Kişisel tartışmaya girilmemelidir.
+
+### D) Önerilen İletişim Dili
+
+{esc(daily_language)}
+
+Bugün kullanılabilecek ana mesaj şudur:
+
+“Kepez’de önceliğimiz, vatandaşın günlük hayatına dokunan işleri sahada ve sürdürülebilir biçimde büyütmek. Hizmeti mahalle mahalle görünür hale getirmeye devam ediyoruz.”
 </div>
 
 <div class="card">

@@ -121,7 +121,41 @@ def google_news_url(keyword):
 def is_relevant(title, summary, keyword):
     text = normalize_text(f"{title} {summary} {keyword}")
     return any(term in text for term in CORE_TERMS)
+NEWS_MAX_AGE_DAYS = 7  # Son 7 gün. İstersen 3 yapabiliriz.
 
+
+def parse_news_date(item):
+    try:
+        if hasattr(item, "published_parsed") and item.published_parsed:
+            return dt.date(
+                item.published_parsed.tm_year,
+                item.published_parsed.tm_mon,
+                item.published_parsed.tm_mday
+            )
+        if hasattr(item, "updated_parsed") and item.updated_parsed:
+            return dt.date(
+                item.updated_parsed.tm_year,
+                item.updated_parsed.tm_mon,
+                item.updated_parsed.tm_mday
+            )
+    except Exception:
+        return None
+
+    return None
+
+
+def is_recent_news(item, max_days=NEWS_MAX_AGE_DAYS):
+    news_date = parse_news_date(item)
+
+    # Tarih okunamıyorsa haberi rapora alma.
+    # Çünkü eski haberlerin kaçmasını engellemek istiyoruz.
+    if not news_date:
+        return False
+
+    today = dt.date.today()
+    oldest_allowed = today - dt.timedelta(days=max_days)
+
+    return oldest_allowed <= news_date <= today
 
 def fetch_news():
     rows, seen_topics = [], set()

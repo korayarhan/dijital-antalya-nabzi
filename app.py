@@ -175,9 +175,107 @@ def google_news_url(keyword):
     return f"https://news.google.com/rss/search?q={q}&hl=tr&gl=TR&ceid=TR:tr"
 
 
+LOCAL_INCLUDE_TERMS = [
+    "kepez",
+    "mesut kocagöz",
+    "mesut kocagoz",
+    "antalya kepez",
+    "kepez belediyesi",
+    "kepez belediye başkanı",
+    "kepez belediye baskani",
+    "antalya büyükşehir",
+    "antalya buyuksehir",
+    "antalya büyükşehir belediyesi",
+    "antalya buyuksehir belediyesi",
+    "duacı",
+    "duaci",
+    "varsak",
+    "sütçüler",
+    "sutculer",
+    "güneş mahallesi",
+    "gunes mahallesi",
+    "habibler",
+    "teomanpaşa",
+    "teomanpasa",
+    "fabrikalar mahallesi",
+    "şafak mahallesi",
+    "safak mahallesi",
+]
+
+LOCAL_EXCLUDE_TERMS = [
+    "korkuteli",
+    "alanya",
+    "manavgat",
+    "serik",
+    "kaş",
+    "kas",
+    "kalkan",
+    "finike",
+    "kumluca",
+    "demre",
+    "gazipaşa",
+    "gazipasa",
+    "akseki",
+    "gündoğmuş",
+    "gundogmus",
+    "elmali",
+    "elmalı",
+    "ibradı",
+    "ibradi",
+    "muratpaşa belediyesi",
+    "muratpasa belediyesi",
+    "konyaaltı belediyesi",
+    "konyaalti belediyesi",
+    "döşemealtı belediyesi",
+    "dosemealti belediyesi",
+    "aksu belediyesi",
+]
+
+def contains_any(text, terms):
+    return any(normalize_text(term) in text for term in terms)
+
+
 def is_relevant(title, summary, keyword):
-    text = normalize_text(f"{title} {summary} {keyword}")
-    return any(term in text for term in CORE_TERMS)
+    body_text = normalize_text(f"{title} {summary}")
+    full_text = normalize_text(f"{title} {summary} {keyword}")
+
+    # Haber gövdesinde Kepez / Mesut Kocagöz / Antalya Büyükşehir bağlantısı yoksa alma.
+    has_local_connection = contains_any(body_text, LOCAL_INCLUDE_TERMS)
+    if not has_local_connection:
+        return False
+
+    # Haber başka ilçeye kayıyorsa ve Kepez bağlantısı zayıfsa ele.
+    outside_hit = contains_any(body_text, LOCAL_EXCLUDE_TERMS)
+
+    strong_kepez_or_mesut = contains_any(
+        body_text,
+        [
+            "kepez",
+            "mesut kocagöz",
+            "mesut kocagoz",
+            "duacı",
+            "duaci",
+            "varsak",
+            "sütçüler",
+            "sutculer",
+        ],
+    )
+
+    bigcity_hit = contains_any(
+        body_text,
+        [
+            "antalya büyükşehir",
+            "antalya buyuksehir",
+            "antalya büyükşehir belediyesi",
+            "antalya buyuksehir belediyesi",
+        ],
+    )
+
+    if outside_hit and not strong_kepez_or_mesut and not bigcity_hit:
+        return False
+
+    # Ana takip konularımızdan en az biri de geçsin.
+    return contains_any(full_text, CORE_TERMS)
 NEWS_MAX_AGE_DAYS = 7  # Son 7 gün. İstersen 3 yapabiliriz.
 
 

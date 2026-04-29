@@ -545,7 +545,8 @@ def social_card(title, item):
     """
 
 
-def build_report(news, social):
+def build_report(news, social, undated_news=None):
+    undated_news = undated_news or []
     today = dt.date.today().isoformat()
     important, positive_news, risky_news = top_items(news)
     social_sum = social_summary(social)
@@ -572,8 +573,10 @@ def build_report(news, social):
 
     important_html = "".join(news_card(x) for x in important) or "<p>Öne çıkan haber bulunamadı.</p>"
     positive_html = "".join(news_card(x) for x in positive_news) or "<p>Olumlu haber bulunamadı.</p>"
-    risky_html = "".join(news_card(x) for x in risky_news) or "<p>Riskli haber bulunamadı.</p>"
-
+    risky_html = "".join(news_card(x) for x in risky_news) or "<p>Riskli haber bulunamadı.</p>" 
+    undated_html = "".join(news_card(x) for x in unique_by_topic(undated_news, 8)) or """
+    <p>Tarihi okunamayan haber bulunamadı.</p>
+"""
     social_rows = ""
     for item in social:
         social_rows += f"""
@@ -584,7 +587,17 @@ def build_report(news, social):
 
     tomorrow_keywords = ", ".join(read_keywords()[:12])
 
-    html_doc = f"""<!doctype html>
+    ## 4. Riskli / İzlenmesi Gereken Haberler
+
+{risky_html}
+
+## 4.1 Tarihi Okunamayan Ama Takip Edilmesi Gereken Haberler
+
+Bu bölümdeki haberler Kepez / Antalya / Mesut Kocagöz filtresinden geçmiştir; ancak haber tarihi sistem tarafından okunamadığı için ana günlük gündeme doğrudan dahil edilmemiştir.
+
+{undated_html}
+
+## 5. Sosyal Medya Etkileşim Analizi
 <html lang="tr">
 <head>
 <meta charset="utf-8">
@@ -773,7 +786,7 @@ def main():
 
     save_dynamic_keywords(generate_dynamic_keywords(news, social))
 
-    html = build_report(news, social)
+    html = build_report(news, social, undated_news)
     # save_report(html)
 
 if __name__ == "__main__":

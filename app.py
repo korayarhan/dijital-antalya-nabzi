@@ -542,7 +542,7 @@ def social_summary(social):
         action_text = "Olumlu görünürlük korunmalı, iyi etkileşim alan içerikler büyütülmeli."
 
     opportunity_topic = opportunity.get("topic", "Olumlu görünürlük fırsatı belirlenemedi.")
-    opportunity_text = f"En güçlü fırsat başlığı: {opportunity_topic}. Bu içerik başkanın hizmet ve insan hikayesi diliyle desteklenebilir."
+    opportunity_text = f"En güçlü fırsat başlığı: {opportunity_topic}. Bu içerik Sayın Başkan'ın hizmet ve insan hikayesi diliyle desteklenebilir."
 
     return {
         "total_likes": total_likes,

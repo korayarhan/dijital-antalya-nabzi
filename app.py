@@ -848,7 +848,26 @@ def build_report(news, social, undated_news=None):
     
     active_raw = str(crisis_status.get("active", "")).strip().lower()
     active_label = "Aktif" if active_raw in ["yes", "evet", "true", "1", "aktif"] else "Pasif"
-    
+    risk_level_raw = normalize_text(str(crisis_plan.get("level", "")))
+    risk_alarm_html = ""
+
+    if "yuksek" in risk_level_raw:
+        risk_alarm_html = """
+    <div class="card danger" style="border:3px solid #dc2626;">
+      <h2>🔴 YÜKSEK RİSK ALARMI</h2>
+      <p><b>İlk 30 dakika içinde:</b> Basın birimi, hukuk birimi ve ilgili müdürlük aynı bilgi notunda hizalanmalı.</p>
+      <p><b>Sayın Başkan için uyarı:</b> Konu doğrulanmadan kişisel, duygusal, öfkeli veya savunmacı açıklama yapılmamalı.</p>
+      <p><b>Öncelik:</b> Doğrulama, insani hassasiyet, resmi bilgi, tek merkezden iletişim ve hukuki güvenlik.</p>
+    </div>
+    """
+    elif "orta" in risk_level_raw:
+        risk_alarm_html = """
+    <div class="card human" style="border:2px solid #f97316;">
+      <h2>🟠 ORTA RİSK TAKİBİ</h2>
+      <p><b>Durum:</b> Konu izlenmeli; yayılım, yorum tonu ve yerel basına sıçrama ihtimali takip edilmeli.</p>
+      <p><b>Öneri:</b> Basın birimi ve ilgili birim hazırda beklemeli. Açıklama gerekip gerekmediği gelişmelere göre değerlendirilmeli.</p>
+    </div>
+    """
     crisis_log = read_crisis_log()
 
     crisis_log_html = ""
@@ -1355,6 +1374,8 @@ a {{ color:#1f2933; font-weight:800; }}
         <div><b>Durum</b><br>{esc(crisis_status.get("status", "İzleniyor"))}</div>
       </div>
     </div>
+
+    {risk_alarm_html}
 
     <div class="card info">
       <h2>Manuel Kriz Durum Notu</h2>

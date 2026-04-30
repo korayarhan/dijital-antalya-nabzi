@@ -12,6 +12,7 @@ ROOT = Path(__file__).resolve().parent
 CONFIG = ROOT / "config" / "keywords.txt"
 SOCIAL_CSV = ROOT / "data" / "manual_social" / "social_manual.csv"
 CRISIS_CSV = ROOT / "data" / "manual_crisis" / "crisis_status.csv"
+CRISIS_LOG_CSV = ROOT / "data" / "manual_crisis" / "crisis_log.csv"
 DYNAMIC_KEYWORDS = ROOT / "data" / "dynamic_keywords.txt"
 REPORTS = ROOT / "reports"
 REPORTS.mkdir(exist_ok=True)
@@ -427,6 +428,29 @@ def read_crisis_status():
 
     return default_status
 
+def read_crisis_log():
+    if not CRISIS_LOG_CSV.exists():
+        return []
+
+    rows = []
+    try:
+        with CRISIS_LOG_CSV.open("r", encoding="utf-8-sig", newline="") as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                item = {
+                    "time": str(row.get("time", "") or "").strip(),
+                    "event": str(row.get("event", "") or "").strip(),
+                    "action": str(row.get("action", "") or "").strip(),
+                    "responsible": str(row.get("responsible", "") or "").strip(),
+                    "note": str(row.get("note", "") or "").strip(),
+                }
+                if any(item.values()):
+                    rows.append(item)
+    except Exception:
+        return []
+
+    return rows[-20:]
+
 def generate_dynamic_keywords(news, social):
     candidates = []
     for item in news:
@@ -824,6 +848,22 @@ def build_report(news, social, undated_news=None):
     
     active_raw = str(crisis_status.get("active", "")).strip().lower()
     active_label = "Aktif" if active_raw in ["yes", "evet", "true", "1", "aktif"] else "Pasif"
+    
+    crisis_log = read_crisis_log()
+
+    crisis_log_html = ""
+    for item in crisis_log:
+        crisis_log_html += f"""
+    <div style="padding:12px; border-radius:12px; background:#ffffff; border:1px solid #e2e8f0; margin-bottom:10px;">
+      <div style="font-weight:bold; color:#991b1b;">{esc(item.get("time", ""))} - {esc(item.get("event", ""))}</div>
+      <div><b>Aksiyon:</b> {esc(item.get("action", ""))}</div>
+      <div><b>Sorumlu:</b> {esc(item.get("responsible", ""))}</div>
+      <div><b>Not:</b> {esc(item.get("note", ""))}</div>
+    </div>
+    """
+
+    if not crisis_log_html:
+        crisis_log_html = "<div class='card'>Henüz kriz zaman çizelgesi girilmedi.</div>"
     
     positive_count = sum(1 for x in news if x["tone"] == "Olumlu")
     neutral_count = sum(1 for x in news if x["tone"] == "Nötr")

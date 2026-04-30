@@ -565,6 +565,56 @@ def social_summary(social):
         "action_text": action_text
     }
 
+def crisis_action_plan(social_sum):
+    risky_item = social_sum.get("risky") or {}
+
+    try:
+        risk_score = int(float(risky_item.get("risk_score", 0) or 0))
+    except:
+        risk_score = 0
+
+    risk_topic = risky_item.get("topic", "Riskli başlık belirlenemedi.")
+    social_mood = social_sum.get("social_mood", "Nötr")
+
+    if risk_score >= 7 or social_mood == "Riskli":
+        level = "Yüksek"
+        what_not_to_do = "Başkan doğrudan, duygusal veya suçlayıcı bir açıklama yapmamalı. Konu doğrulanmadan savunmacı dil kullanılmamalı."
+        first_30 = "İlk 30 dakikada olay doğrulanmalı, ekran görüntüleri/linkler kaydedilmeli, ilgili müdürlükten net bilgi istenmeli."
+        first_2h = "İlk 2 saatte kısa, sakin ve kurumsal bir bilgilendirme hazırlanmalı. Gerekirse sahadan fotoğraf, belge veya işlem kaydı alınmalı."
+        first_24h = "İlk 24 saatte konu kapanmadıysa yapılan işlem kamuoyuna sade bir dille anlatılmalı, mağduriyet varsa çözüm adımı görünür kılınmalı."
+        speaker = "İlk açıklamayı doğrudan başkan değil, ilgili başkan yardımcısı veya birim müdürlüğü yapmalı. Başkan ancak konu büyürse devreye girmeli."
+        data_needed = "Olay tarihi, yer bilgisi, ilgili birim kaydı, varsa önceki başvurular, işlem durumu, fotoğraf/video ve resmi belge hazırlanmalı."
+        tone = "Sakin, empatik, kanıta dayalı ve çözüm odaklı dil kullanılmalı."
+    elif risk_score >= 4:
+        level = "Orta"
+        what_not_to_do = "Konu küçümsenmemeli, alaycı veya sert cevap verilmemeli. Yorumlara tek tek duygusal karşılık verilmemeli."
+        first_30 = "İlk 30 dakikada paylaşım ve yorum hızı izlenmeli, iddianın doğru olup olmadığı kontrol edilmeli."
+        first_2h = "İlk 2 saatte ilgili birimden bilgi alınmalı. Gerekirse kısa bir bilgilendirme notu hazırlanmalı."
+        first_24h = "İlk 24 saatte konu büyürse kurumsal açıklama yapılmalı; büyümezse hizmet/hikaye diliyle olumlu gündem desteklenmeli."
+        speaker = "Şimdilik başkanın doğrudan konuşmasına gerek yok. Kurumsal hesap veya ilgili birim yeterli olabilir."
+        data_needed = "Konuya ait temel bilgi, ilgili müdürlük görüşü, varsa işlem kaydı ve kısa açıklama notu hazırlanmalı."
+        tone = "Sakin, ölçülü, açıklayıcı ve tartışmayı büyütmeyen dil kullanılmalı."
+    else:
+        level = "Düşük"
+        what_not_to_do = "Gereksiz açıklama yaparak konu büyütülmemeli."
+        first_30 = "İlk 30 dakikada sadece takip edilmeli."
+        first_2h = "İlk 2 saatte yorumlarda ani artış olup olmadığı kontrol edilmeli."
+        first_24h = "İlk 24 saatte olumlu gündem ve hizmet iletişimi desteklenmeli."
+        speaker = "Açıklama gerekmez. Sosyal medya ekibi takipte kalmalı."
+        data_needed = "Şimdilik özel belge gerekmez; konu büyürse ilgili bilgi toplanmalı."
+        tone = "Doğal, sakin ve pozitif iletişim korunmalı."
+
+    return {
+        "level": level,
+        "risk_topic": risk_topic,
+        "what_not_to_do": what_not_to_do,
+        "first_30": first_30,
+        "first_2h": first_2h,
+        "first_24h": first_24h,
+        "speaker": speaker,
+        "data_needed": data_needed,
+        "tone": tone
+    }
 
 def bar(label, value, color_class):
     value = max(0, min(100, float(value or 0)))

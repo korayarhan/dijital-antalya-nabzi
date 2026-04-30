@@ -2,7 +2,6 @@ name: Daily Yerel Lider AI Report
 
 on:
   schedule:
-    # Türkiye saati 09:10 için 06:10 UTC
     - cron: "10 6 * * *"
   workflow_dispatch:
 

@@ -1,11 +1,10 @@
 # Sistem tarafından otomatik üretilen dinamik anahtar kelimeler
 # Bu dosya her çalışmada güncellenir
 
-Kepez 23 Nisan çocuk etkinliği
 Kepez bayrak personel ödül
+Kepez 23 Nisan çocuk etkinliği
 Antalya Büyükşehir Belediyesi ulaşım
 Kepez asfalt çalışması
-Kepez drag pisti spor
 Bayrağa sahip çıkan belediye personeli
 Duacı asfalt çalışması
 Teleferik davası gündemi

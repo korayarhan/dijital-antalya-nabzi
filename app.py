@@ -865,6 +865,20 @@ a {{ color:#1f2933; font-weight:800; }}
             <p><b>İlk aksiyon önerisi:</b> {esc(social_sum.get("action_text", ""))}</p>
         </div>
         
+        <div class="item">
+  <h3>Kriz Anında Soğukkanlı Aksiyon Planı</h3>
+
+  <p><b>Risk seviyesi:</b> {esc(crisis_plan.get("level", ""))}</p>
+  <p><b>Risk başlığı:</b> {esc(crisis_plan.get("risk_topic", ""))}</p>
+  <p><b>Ne yapılmamalı:</b> {esc(crisis_plan.get("what_not_to_do", ""))}</p>
+  <p><b>İlk 30 dakika:</b> {esc(crisis_plan.get("first_30", ""))}</p>
+  <p><b>İlk 2 saat:</b> {esc(crisis_plan.get("first_2h", ""))}</p>
+  <p><b>İlk 24 saat:</b> {esc(crisis_plan.get("first_24h", ""))}</p>
+  <p><b>Kim konuşmalı:</b> {esc(crisis_plan.get("speaker", ""))}</p>
+  <p><b>Hazırlanacak veri / belge:</b> {esc(crisis_plan.get("data_needed", ""))}</p>
+  <p><b>İletişim dili:</b> {esc(crisis_plan.get("tone", ""))}</p>
+</div>
+
     <h3>Yorum Duygu Dağılımı</h3>
     {bar("İyi yorum", good_pct, "good")}
     {bar("Nötr yorum", neutral_pct, "neutral")}

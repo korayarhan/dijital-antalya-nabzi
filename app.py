@@ -1367,6 +1367,12 @@ a {{ color:#1f2933; font-weight:800; }}
       <p><b>Güncelleyen:</b><br>{esc(crisis_status.get("updated_by", ""))}</p>
     </div>
 
+    <div class="card soft">
+      <h2>🕒 Kriz Zaman Çizelgesi / Olay Akışı</h2>
+      <p class="small">Bu bölüm kriz boyunca yapılan işlemleri, alınan aksiyonları ve sorumlu kişileri takip etmek için kullanılır.</p>
+      {crisis_log_html}
+    </div>
+
     <div class="card danger">
       <h2>Sayın Başkan İçin İlk Uyarı</h2>
       <p><b>Şu an yapılmaması gereken:</b><br>{esc(crisis_plan.get("what_not_to_do", ""))}</p>

@@ -940,6 +940,14 @@ a {{ color:#1f2933; font-weight:800; }}
 <header>
     <h1>Yerel Liderlik AI Günlük Raporu</h1>
     <p>Takip edilen isim: Mesut Kocagöz • Bölge: Antalya / Kepez • Tarih: {today} • Güncelleme saati: {report_time}
+<div style="margin:18px 0; padding:14px; border:2px solid #dc2626; border-radius:14px; background:#fff7ed;">
+  <a href="crisis_panel.html" style="font-size:18px; font-weight:bold; color:#991b1b; text-decoration:none;">
+    🚨 Acil Eylem Planı / Kriz Panelini Aç
+  </a>
+  <div style="margin-top:6px; color:#7f1d1d;">
+    Risk seviyesi: {esc(crisis_plan.get("level", ""))} • Son güncelleme: {report_time}
+  </div>
+</div>
 </header>
 
 <main>
@@ -1166,6 +1174,186 @@ a {{ color:#1f2933; font-weight:800; }}
 </main>
 </body>
 </html>"""
+
+    crisis_news_html = "".join(news_card(x) for x in risky_news[:3]) or "<div class='card'>Krizle ilişkili riskli haber bulunamadı.</div>"
+
+    crisis_panel_doc = f"""<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Acil Eylem Planı / Kriz Paneli</title>
+  <style>
+    body {{
+      margin:0;
+      font-family: Arial, sans-serif;
+      background:#f8fafc;
+      color:#0f172a;
+      line-height:1.55;
+    }}
+    .wrap {{
+      max-width:980px;
+      margin:0 auto;
+      padding:18px;
+    }}
+    .top {{
+      background:#7f1d1d;
+      color:white;
+      border-radius:18px;
+      padding:20px;
+      margin-bottom:16px;
+    }}
+    .top h1 {{
+      margin:0 0 10px 0;
+      font-size:28px;
+    }}
+    .status {{
+      display:grid;
+      grid-template-columns:repeat(auto-fit, minmax(190px, 1fr));
+      gap:10px;
+      margin-top:14px;
+    }}
+    .status div {{
+      background:rgba(255,255,255,0.14);
+      padding:12px;
+      border-radius:12px;
+    }}
+    .card {{
+      background:white;
+      border-radius:16px;
+      padding:16px;
+      margin:14px 0;
+      box-shadow:0 2px 10px rgba(15,23,42,0.06);
+    }}
+    .danger {{
+      background:#fee2e2;
+      border:1px solid #fecaca;
+    }}
+    .human {{
+      background:#fff7ed;
+      border:1px solid #fed7aa;
+    }}
+    .info {{
+      background:#ecfeff;
+      border:1px solid #a5f3fc;
+    }}
+    .soft {{
+      background:#f8fafc;
+      border:1px solid #e2e8f0;
+    }}
+    .grid {{
+      display:grid;
+      grid-template-columns:repeat(auto-fit, minmax(240px, 1fr));
+      gap:12px;
+    }}
+    .btn {{
+      display:inline-block;
+      margin-bottom:14px;
+      padding:10px 14px;
+      border-radius:999px;
+      background:#0f172a;
+      color:white;
+      text-decoration:none;
+      font-weight:bold;
+    }}
+    h2 {{
+      margin-top:0;
+      color:#991b1b;
+    }}
+    .small {{
+      color:#64748b;
+      font-size:14px;
+    }}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+
+    <a class="btn" href="daily_report.html">← Günlük rapora dön</a>
+
+    <div class="top">
+      <h1>🚨 Acil Eylem Planı / Kriz Paneli</h1>
+      <div>Takip edilen isim: Mesut Kocagöz • Bölge: Antalya / Kepez</div>
+
+      <div class="status">
+        <div><b>Risk seviyesi</b><br>{esc(crisis_plan.get("level", ""))}</div>
+        <div><b>Kriz başlığı</b><br>{esc(crisis_plan.get("risk_topic", ""))}</div>
+        <div><b>Son güncelleme</b><br>{today} • {report_time}</div>
+        <div><b>Durum</b><br>İzleniyor / Aksiyon planı hazır</div>
+      </div>
+    </div>
+
+    <div class="card danger">
+      <h2>Sayın Başkan İçin İlk Uyarı</h2>
+      <p><b>Şu an yapılmaması gereken:</b><br>{esc(crisis_plan.get("what_not_to_do", ""))}</p>
+      <p><b>İlk doğru hamle:</b><br>{esc(crisis_plan.get("first_30", ""))}</p>
+      <p><b>Sayın Başkan konuşmalı mı?</b><br>{esc(crisis_plan.get("speaker_decision", crisis_plan.get("speaker", "")))}</p>
+    </div>
+
+    <div class="card human">
+      <h2>İnsani Hassasiyet Analizi</h2>
+      <p><b>İnsani hassasiyet seviyesi:</b><br>{esc(crisis_plan.get("human_sensitivity", ""))}</p>
+      <p><b>Duygusal zemin:</b><br>{esc(crisis_plan.get("emotional_context", ""))}</p>
+      <p><b>Kamuoyu beklentisi:</b><br>{esc(crisis_plan.get("public_expectation", ""))}</p>
+      <p><b>İlk cümle nasıl olmalı?</b><br>{esc(crisis_plan.get("opening_line", ""))}</p>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <h2>⏱ İlk 30 Dakika</h2>
+        <p>{esc(crisis_plan.get("first_30", ""))}</p>
+      </div>
+
+      <div class="card">
+        <h2>🕑 İlk 2 Saat</h2>
+        <p>{esc(crisis_plan.get("first_2h", ""))}</p>
+      </div>
+
+      <div class="card">
+        <h2>📅 İlk 24 Saat</h2>
+        <p>{esc(crisis_plan.get("first_24h", ""))}</p>
+      </div>
+    </div>
+
+    <div class="card danger">
+      <h2>Kesinlikle Kaçınılacak Dil</h2>
+      <p>{esc(crisis_plan.get("avoid_language", ""))}</p>
+    </div>
+
+    <div class="card soft">
+      <h2>Açıklama Taslağı</h2>
+      <p>{esc(crisis_plan.get("statement_draft", ""))}</p>
+      <p class="small">Not: Bu metin yayınlanmadan önce hukuk ve basın birimi tarafından kontrol edilmelidir.</p>
+    </div>
+
+    <div class="card info">
+      <h2>Açıklamayı Kim Yapmalı?</h2>
+      <p>{esc(crisis_plan.get("speaker_decision", crisis_plan.get("speaker", "")))}</p>
+    </div>
+
+    <div class="card">
+      <h2>Hazırlanacak Veri / Belge</h2>
+      <p>{esc(crisis_plan.get("data_needed", ""))}</p>
+    </div>
+
+    <div class="card">
+      <h2>İletişim Dili</h2>
+      <p>{esc(crisis_plan.get("tone", ""))}</p>
+    </div>
+
+    <div class="card">
+      <h2>Son Riskli Haberler</h2>
+      {crisis_news_html}
+    </div>
+
+  </div>
+</body>
+</html>
+"""
+
+    crisis_out = REPORTS / "crisis_panel.html"
+    crisis_out.write_text(crisis_panel_doc, encoding="utf-8")
+    print(f"Kriz paneli hazır: {crisis_out}")
 
     out = REPORTS / "daily_report.html"
     out.write_text(html_doc, encoding="utf-8")

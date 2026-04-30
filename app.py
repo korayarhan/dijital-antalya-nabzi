@@ -794,6 +794,65 @@ def social_summary(social):
         "action_text": action_text
     }
 
+def build_auto_crisis_summary(news, social_sum):
+    result = dict(social_sum or {})
+    risky_social = result.get("risky") or {}
+
+    try:
+        social_score = float(risky_social.get("risk_score", 0) or 0)
+    except:
+        social_score = 0
+
+    risky_news = sorted(
+        [x for x in news if str(x.get("tone", "")) == "Riskli" or float(x.get("risk", 0) or 0) >= 4],
+        key=lambda x: float(x.get("risk", 0) or 0),
+        reverse=True
+    )
+
+    if not risky_news:
+        return result
+
+    best_news = risky_news[0]
+
+    try:
+        news_score = float(best_news.get("risk", 0) or 0)
+    except:
+        news_score = 0
+
+    # Haber riski sosyal riskten yüksekse veya 7 üstüyse kriz kaynağını haber yap.
+    if news_score >= social_score or news_score >= 7 or not risky_social:
+        title = clean_text(best_news.get("title", "Riskli haber başlığı"))
+        summary = clean_text(best_news.get("summary", ""))
+
+        result["risky"] = {
+            "date": best_news.get("date", ""),
+            "platform": "Google News / İnternet Haberi",
+            "account": best_news.get("keyword", ""),
+            "topic": title,
+            "tone": "Kötü",
+            "risk_score": news_score,
+            "opportunity_score": best_news.get("opportunity", 0),
+            "likes": 0,
+            "comments": 0,
+            "shares": 0,
+            "views": 0,
+            "good_comments": 0,
+            "neutral_comments": 0,
+            "bad_comments": 1,
+            "like_rate": 0,
+            "engagement_rate": 0,
+            "notes": summary[:260],
+            "risk_note": f"Otomatik haber taramasından riskli başlık yakalandı. Anahtar kelime: {best_news.get('keyword', '')}",
+            "link": best_news.get("link", "")
+        }
+
+        result["social_mood"] = "Riskli" if news_score >= 7 else "Nötr"
+        result["main_topic"] = title
+        result["risk_text"] = f"Otomatik haber taramasında riskli başlık yakalandı: {title}"
+        result["action_text"] = "Haber kaynağı, yayılım hızı ve yerel basına sıçrama ihtimali kontrol edilmeli."
+
+    return result
+
 def crisis_action_plan(social_sum):
     risky_item = social_sum.get("risky") or {}
 
@@ -1019,12 +1078,13 @@ def build_report(news, social, undated_news=None):
     report_time = now_tr.strftime("%H:%M")
     important, positive_news, risky_news = top_items(news)
     social_sum = social_summary(social)
+    crisis_sum = build_auto_crisis_summary(news, social_sum)
     crisis_plan = crisis_action_plan(social_sum)
     crisis_status = read_crisis_status()
     
     active_raw = str(crisis_status.get("active", "")).strip().lower()
     active_label = "Aktif" if active_raw in ["yes", "evet", "true", "1", "aktif"] else "Pasif"
-    early_warning = early_warning_decision(crisis_plan, crisis_status, social_sum)
+    early_warning = early_warning_decision(crisis_plan, crisis_status, crisis_sum)
     risk_level_raw = normalize_text(str(crisis_plan.get("level", "")))
     risk_alarm_html = ""
 
@@ -1461,7 +1521,7 @@ a {{ color:#1f2933; font-weight:800; }}
     if crisis_related:
         crisis_news_html = "".join(news_card(x) for x in crisis_related)
     else:
-        risky_social = social_sum.get("risky") or {}
+        risky_social = crisis_sum.get("risky") or {}
         crisis_news_html = f"""
     <div class="card" style="background:#fff7ed; border:1px solid #fed7aa;">
       <h2>Kriz sosyal medya verisinden tespit edildi</h2>
@@ -1605,6 +1665,14 @@ a {{ color:#1f2933; font-weight:800; }}
       <h2>🕒 Yapılan İşlemler / Müdahale Kayıtları</h2>
       <p class="small">Bu bölüm kriz boyunca yapılan işlemleri, alınan aksiyonları, sonuçları ve sıradaki adımları takip etmek için kullanılır.</p>
       {crisis_log_html}
+    </div>
+
+    <div class="card soft">
+      <h2>🔎 Otomatik Kriz Kaynağı</h2>
+      <p><b>Kaynak:</b><br>{esc((crisis_sum.get("risky") or {}).get("platform", ""))}</p>
+      <p><b>Konu:</b><br>{esc((crisis_sum.get("risky") or {}).get("topic", ""))}</p>
+      <p><b>Risk skoru:</b><br>{esc(str((crisis_sum.get("risky") or {}).get("risk_score", "")))}</p>
+      <p><b>Not:</b><br>{esc((crisis_sum.get("risky") or {}).get("risk_note", ""))}</p>
     </div>
 
     <div class="card danger">

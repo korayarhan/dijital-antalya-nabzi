@@ -672,6 +672,7 @@ def build_report(news, social, undated_news=None):
     report_time = now_tr.strftime("%H:%M")
     important, positive_news, risky_news = top_items(news)
     social_sum = social_summary(social)
+    crisis_plan = crisis_action_plan(social_sum)
 
     positive_count = sum(1 for x in news if x["tone"] == "Olumlu")
     neutral_count = sum(1 for x in news if x["tone"] == "Nötr")

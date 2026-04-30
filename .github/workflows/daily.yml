@@ -2,7 +2,10 @@ name: Daily Yerel Lider AI Report
 
 on:
   schedule:
-    - cron: "10 6 * * *"
+    # Türkiye saatiyle 09:00 - 23:30 arası 30 dakikada bir çalışır
+    # GitHub cron UTC çalışır. Türkiye UTC+3 olduğu için 06:00 UTC = 09:00 TR
+    - cron: "0,30 6-20 * * *"
+
   workflow_dispatch:
 
 permissions:
@@ -35,5 +38,5 @@ jobs:
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
           git add reports/ data/dynamic_keywords.txt
-          git commit -m "Günlük Yerel Lider AI raporu güncellendi" || echo "Değişiklik yok"
+          git commit -m "Yerel Lider AI raporu güncellendi" || echo "Değişiklik yok"
           git push

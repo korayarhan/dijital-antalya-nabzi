@@ -5,8 +5,9 @@ import html
 import re
 import urllib.parse
 from pathlib import Path
-
 import feedparser
+import smtplib
+from email.message import EmailMessage
 
 ROOT = Path(__file__).resolve().parent
 CONFIG = ROOT / "config" / "keywords.txt"
@@ -544,6 +545,82 @@ def early_warning_decision(crisis_plan, crisis_status, social_sum):
         "reason": "Şu an acil bildirim gerektiren güçlü kriz sinyali görünmüyor.",
         "first_action": "Rutin takip sürdürülmeli. Yeni haber, yorum artışı veya olumsuz yayılım olursa karar tekrar değerlendirilmeli."
     }
+
+def send_early_warning_email(early_warning, crisis_plan, crisis_status, report_time):
+    enabled = str(os.getenv("ALERT_EMAIL_ENABLED", "false")).lower() in ["1", "true", "yes", "evet"]
+    if not enabled:
+        print("E-posta bildirimi kapalı.")
+        return
+
+    decision = early_warning.get("decision", "")
+    notify_medium = str(os.getenv("ALERT_NOTIFY_ON_MEDIUM", "false")).lower() in ["1", "true", "yes", "evet"]
+
+    should_send = "ACİL ALARM" in decision or "ACIL ALARM" in decision
+    if notify_medium and "TAKİPTE KAL" in decision:
+        should_send = True
+
+    if not should_send:
+        print("E-posta gönderilmedi: karar seviyesi mail için yeterli değil.")
+        return
+
+    smtp_host = os.getenv("SMTP_HOST", "")
+    smtp_port = int(os.getenv("SMTP_PORT", "587"))
+    smtp_user = os.getenv("SMTP_USER", "")
+    smtp_password = os.getenv("SMTP_PASSWORD", "")
+    mail_to = os.getenv("ALERT_EMAIL_TO", "")
+    mail_from = os.getenv("ALERT_EMAIL_FROM", smtp_user)
+
+    if not smtp_host or not smtp_user or not smtp_password or not mail_to:
+        print("E-posta gönderilmedi: SMTP secret bilgileri eksik.")
+        return
+
+    risk_topic = crisis_plan.get("risk_topic", "")
+    risk_level = crisis_plan.get("level", "")
+    status = crisis_status.get("status", "")
+
+    subject = f"Yerel Lider AI - {decision} - {risk_topic}"
+
+    body = f"""
+Yerel Lider AI Erken Uyarı
+
+Karar: {early_warning.get("decision", "")}
+Bildirim seviyesi: {early_warning.get("notify_level", "")}
+Sayın Başkan’a acil gösterilsin mi?: {early_warning.get("show_to_president", "")}
+
+Risk seviyesi: {risk_level}
+Kriz başlığı: {risk_topic}
+Durum: {status}
+Güncelleme saati: {report_time}
+
+Neden:
+{early_warning.get("reason", "")}
+
+İlk aksiyon:
+{early_warning.get("first_action", "")}
+
+Kriz paneli:
+https://korayarhan.github.io/dijital-antalya-nabzi/reports/crisis_panel.html
+
+Günlük rapor:
+https://korayarhan.github.io/dijital-antalya-nabzi/reports/daily_report.html
+"""
+
+    try:
+        msg = EmailMessage()
+        msg["From"] = mail_from
+        msg["To"] = mail_to
+        msg["Subject"] = subject
+        msg.set_content(body)
+
+        with smtplib.SMTP(smtp_host, smtp_port, timeout=30) as smtp:
+            smtp.starttls()
+            smtp.login(smtp_user, smtp_password)
+            smtp.send_message(msg)
+
+        print(f"Erken uyarı e-postası gönderildi: {mail_to}")
+
+    except Exception as e:
+        print(f"E-posta gönderilemedi: {e}")
 
 def crisis_related_news(items, risk_topic, limit=5):
     topic_text = normalize_text(risk_topic)

@@ -505,6 +505,46 @@ def unique_by_topic(items, limit):
             break
     return result
 
+def early_warning_decision(crisis_plan, crisis_status, social_sum):
+    level_text = normalize_text(crisis_plan.get("level", ""))
+    human_text = normalize_text(crisis_plan.get("human_sensitivity", ""))
+    status_text = normalize_text(crisis_status.get("status", ""))
+
+    risky_item = social_sum.get("risky") or {}
+
+    try:
+        social_risk_score = float(risky_item.get("risk_score", 0) or 0)
+    except:
+        social_risk_score = 0
+
+    risk_topic = crisis_plan.get("risk_topic", "Riskli başlık belirlenemedi.")
+
+    if "yuksek" in level_text or "cok yuksek" in human_text or social_risk_score >= 7:
+        return {
+            "decision": "ACİL ALARM",
+            "notify_level": "Sayın Başkan + Basın + Hukuk + ilgili birim",
+            "show_to_president": "Evet",
+            "reason": f"{risk_topic} başlığında risk seviyesi veya insani hassasiyet yüksek görünüyor. Konu hızlı büyümeden tek merkezli kriz koordinasyonu gerekir.",
+            "first_action": "İlk 30 dakika içinde basın, hukuk ve ilgili birim aynı bilgi notunda hizalanmalı. Sayın Başkan’a kısa, sakin ve yönlendirici bir özet sunulmalı."
+        }
+
+    if "orta" in level_text or social_risk_score >= 4 or "müdahale" in status_text:
+        return {
+            "decision": "TAKİPTE KAL / HAZIR BEKLE",
+            "notify_level": "Ekip içi takip: Basın + ilgili birim",
+            "show_to_president": "Şimdilik hayır",
+            "reason": f"{risk_topic} başlığında orta seviye takip ihtiyacı var. Konu izlenmeli; yayılım artarsa Sayın Başkan’a kısa bilgi notu hazırlanmalı.",
+            "first_action": "Yorum hızı, paylaşım artışı ve yerel basına sıçrama ihtimali izlenmeli. Açıklama taslağı hazır tutulmalı ama hemen yayınlanmamalı."
+        }
+
+    return {
+        "decision": "NORMAL TAKİP",
+        "notify_level": "Sosyal medya / basın ekibi rutin takip",
+        "show_to_president": "Hayır",
+        "reason": "Şu an acil bildirim gerektiren güçlü kriz sinyali görünmüyor.",
+        "first_action": "Rutin takip sürdürülmeli. Yeni haber, yorum artışı veya olumsuz yayılım olursa karar tekrar değerlendirilmeli."
+    }
+
 def crisis_related_news(items, risk_topic, limit=5):
     topic_text = normalize_text(risk_topic)
 
@@ -907,6 +947,7 @@ def build_report(news, social, undated_news=None):
     
     active_raw = str(crisis_status.get("active", "")).strip().lower()
     active_label = "Aktif" if active_raw in ["yes", "evet", "true", "1", "aktif"] else "Pasif"
+    early_warning = early_warning_decision(crisis_plan, crisis_status, social_sum)
     risk_level_raw = normalize_text(str(crisis_plan.get("level", "")))
     risk_alarm_html = ""
 
@@ -1102,7 +1143,10 @@ a {{ color:#1f2933; font-weight:800; }}
   </a>
   <div style="margin-top:6px; color:#7f1d1d;">
     Risk seviyesi: {esc(crisis_plan.get("level", ""))} • Durum: {esc(crisis_status.get("status", ""))} • Son güncelleme: {report_time}
+  <div style="margin-top:8px; color:#7f1d1d;">
+    Erken uyarı: {esc(early_warning.get("decision", ""))} • Bildirim: {esc(early_warning.get("notify_level", ""))}
   </div>
+</div>
 </div>
 </header>
 
@@ -1459,6 +1503,15 @@ a {{ color:#1f2933; font-weight:800; }}
     </div>
 
     {risk_alarm_html}
+
+    <div class="card info" style="border:2px solid #0ea5e9;">
+      <h2>📣 Bildirim / Erken Uyarı Kararı</h2>
+      <p><b>Karar:</b><br>{esc(early_warning.get("decision", ""))}</p>
+      <p><b>Bildirim seviyesi:</b><br>{esc(early_warning.get("notify_level", ""))}</p>
+      <p><b>Sayın Başkan’a acil gösterilsin mi?</b><br>{esc(early_warning.get("show_to_president", ""))}</p>
+      <p><b>Neden:</b><br>{esc(early_warning.get("reason", ""))}</p>
+      <p><b>İlk aksiyon:</b><br>{esc(early_warning.get("first_action", ""))}</p>
+    </div>
 
     <div class="card info">
       <h2>Manuel Kriz Durum Notu</h2>

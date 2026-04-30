@@ -575,46 +575,108 @@ def crisis_action_plan(social_sum):
 
     risk_topic = risky_item.get("topic", "Riskli başlık belirlenemedi.")
     social_mood = social_sum.get("social_mood", "Nötr")
+    topic_text = normalize_text(risk_topic)
 
+    def make_plan(level, what_not_to_do, first_30, first_2h, first_24h, speaker, data_needed, tone):
+        return {
+            "level": level,
+            "risk_topic": risk_topic,
+            "what_not_to_do": what_not_to_do,
+            "first_30": first_30,
+            "first_2h": first_2h,
+            "first_24h": first_24h,
+            "speaker": speaker,
+            "data_needed": data_needed,
+            "tone": tone
+        }
+
+    # 1) Teleferik / dava / yargı gündemi
+    if any(k in topic_text for k in ["teleferik", "dava", "yargi", "yargı", "sorusturma", "soruşturma", "facia"]):
+        return make_plan(
+            "Yüksek" if risk_score >= 7 or social_mood == "Riskli" else "Orta",
+            "Sayın Başkan doğrudan hukuki sürece dair kesin hüküm içeren, öfkeli veya savunmacı bir açıklama yapmamalı. Yargı süreci küçümsenmemeli, mağduriyet algısını artıracak ifadelerden kaçınılmalı.",
+            "İlk 30 dakikada haberin kaynağı, paylaşım hızı, yorum tonu ve iddianın yeni mi eski mi olduğu kontrol edilmeli. Ekran görüntüleri ve linkler kaydedilmeli.",
+            "İlk 2 saatte hukuk birimi, basın birimi ve ilgili kurumsal ekipten kısa bilgi alınmalı. Gerekirse sadece sürece saygılı, sakin ve kurumsal bir bilgilendirme notu hazırlanmalı.",
+            "İlk 24 saatte konu büyürse açıklama hukuk diline uygun yapılmalı. Sayın Başkan’ın kişisel tartışmaya çekilmemesi, kurumsal ve insani hassasiyetin öne çıkarılması gerekir.",
+            "İlk açıklamayı doğrudan Sayın Başkan değil, kurumsal hesap, hukuk birimi veya yetkilendirilmiş ilgili birim yapmalı. Sayın Başkan ancak konu çok büyürse sakin ve kısa bir çerçeveyle devreye girmeli.",
+            "Haber linkleri, dava/süreç bilgisi, resmi açıklama geçmişi, varsa mahkeme takvimi, basın notu ve daha önce yapılan açıklamalar hazırlanmalı.",
+            "Hukuka saygılı, sakin, mağduriyetleri önemseyen, polemiğe girmeyen ve kurumsal bir dil kullanılmalı."
+        )
+
+    # 2) Hizmet şikayeti / asfalt / temizlik / park / ulaşım
+    if any(k in topic_text for k in ["asfalt", "yol", "temizlik", "park", "ulasim", "ulaşım", "hizmet", "mahalle", "sikayet", "şikayet"]):
+        return make_plan(
+            "Orta" if risk_score >= 4 else "Düşük",
+            "Sayın Başkan şikayeti küçümseyen, vatandaşı suçlayan veya 'zaten yapıyoruz' gibi savunmacı bir dil kullanmamalı.",
+            "İlk 30 dakikada şikayetin hangi mahalle, hangi sokak ve hangi hizmet başlığıyla ilgili olduğu netleştirilmeli. Aynı şikayetin farklı hesaplarda tekrar edip etmediği kontrol edilmeli.",
+            "İlk 2 saatte ilgili müdürlükten mevcut durum ve işlem takvimi alınmalı. Çözüm varsa kısa not, çözüm yoksa sahaya kontrol talimatı hazırlanmalı.",
+            "İlk 24 saatte sahadan fotoğraf, ekip çalışması veya planlanan işlem bilgisi alınmalı. Konu büyürse 'tespit ettik, programa aldık, takip ediyoruz' diliyle açıklama yapılmalı.",
+            "Öncelik kurumsal hesapta olmalı. Gerekiyorsa ilgili müdürlük veya başkan yardımcısı teknik bilgi verebilir. Sayın Başkan doğrudan polemiğe girmemeli.",
+            "Mahalle/sokak bilgisi, talep kayıtları, çalışma programı, ekip yönlendirme bilgisi, önce/sonra fotoğrafı ve tahmini çözüm süresi hazırlanmalı.",
+            "Vatandaşı anlayan, çözüm odaklı, sahaya inen ve net takvim veren bir dil kullanılmalı."
+        )
+
+    # 3) Siyasi saldırı / rakip görünürlüğü / polemik
+    if any(k in topic_text for k in ["rakip", "ak parti", "chp", "polemik", "siyasi", "elestiri", "eleştiri", "iddia"]):
+        return make_plan(
+            "Orta" if risk_score >= 4 else "Düşük",
+            "Sayın Başkan kişisel tartışmaya girmemeli, rakibin diline aynı sertlikle cevap vermemeli ve gündemi rakibin belirlemesine izin vermemeli.",
+            "İlk 30 dakikada iddianın kimden çıktığı, ne kadar yayıldığı ve yerel basına taşınıp taşınmadığı kontrol edilmeli.",
+            "İlk 2 saatte cevap verilip verilmeyeceğine karar verilmeli. Cevap gerekiyorsa kişiye değil konuya odaklanan kısa bir çerçeve hazırlanmalı.",
+            "İlk 24 saatte polemik büyürse hizmet verisi, saha görüntüsü ve vatandaş faydası üzerinden gündem geri alınmalı.",
+            "Cevap gerekiyorsa önce kurumsal hesap veya parti/iletişim ekibi konuşmalı. Sayın Başkan sadece stratejik ve sakin bir üst mesajla görünmeli.",
+            "İddia metni, paylaşım linkleri, karşı veri, hizmet bilgisi, önceki açıklamalar ve kullanılabilecek kısa mesaj notu hazırlanmalı.",
+            "Sakin, özgüvenli, hizmet odaklı ve polemiği büyütmeyen bir dil kullanılmalı."
+        )
+
+    # 4) Borç / mali disiplin / bütçe tartışması
+    if any(k in topic_text for k in ["borc", "borç", "mali", "butce", "bütçe", "para", "ihale"]):
+        return make_plan(
+            "Orta" if risk_score >= 4 else "Düşük",
+            "Sayın Başkan rakamsal konu netleşmeden açıklama yapmamalı. Eksik veriyle iddialı cümle kurulması ileride ters tepebilir.",
+            "İlk 30 dakikada iddianın hangi rakama, hangi döneme ve hangi kaynağa dayandığı belirlenmeli.",
+            "İlk 2 saatte mali işler biriminden net ve sade veri istenmeli. Gerekirse teknik tablo değil, vatandaşın anlayacağı kısa özet hazırlanmalı.",
+            "İlk 24 saatte konu büyürse mali disiplin, şeffaflık ve hizmetlerin aksamaması çerçevesinde açıklama yapılmalı.",
+            "İlk açıklama teknik ekip veya kurumsal hesap üzerinden yapılmalı. Sayın Başkan gerekiyorsa daha sonra güven veren genel mesajla desteklemeli.",
+            "Borç tablosu, dönem karşılaştırması, ödeme planı, hizmetlere etkisi ve resmi belge notları hazırlanmalı.",
+            "Şeffaf, sakin, rakama dayalı ve güven veren bir dil kullanılmalı."
+        )
+
+    # 5) Genel risk seviyesi
     if risk_score >= 7 or social_mood == "Riskli":
-        level = "Yüksek"
-        what_not_to_do = "Başkan doğrudan, duygusal veya suçlayıcı bir açıklama yapmamalı. Konu doğrulanmadan savunmacı dil kullanılmamalı."
-        first_30 = "İlk 30 dakikada olay doğrulanmalı, ekran görüntüleri/linkler kaydedilmeli, ilgili müdürlükten net bilgi istenmeli."
-        first_2h = "İlk 2 saatte kısa, sakin ve kurumsal bir bilgilendirme hazırlanmalı. Gerekirse sahadan fotoğraf, belge veya işlem kaydı alınmalı."
-        first_24h = "İlk 24 saatte konu kapanmadıysa yapılan işlem kamuoyuna sade bir dille anlatılmalı, mağduriyet varsa çözüm adımı görünür kılınmalı."
-        speaker = "İlk açıklamayı doğrudan başkan değil, ilgili başkan yardımcısı veya birim müdürlüğü yapmalı. Başkan ancak konu büyürse devreye girmeli."
-        data_needed = "Olay tarihi, yer bilgisi, ilgili birim kaydı, varsa önceki başvurular, işlem durumu, fotoğraf/video ve resmi belge hazırlanmalı."
-        tone = "Sakin, empatik, kanıta dayalı ve çözüm odaklı dil kullanılmalı."
-    elif risk_score >= 4:
-        level = "Orta"
-        what_not_to_do = "Konu küçümsenmemeli, alaycı veya sert cevap verilmemeli. Yorumlara tek tek duygusal karşılık verilmemeli."
-        first_30 = "İlk 30 dakikada paylaşım ve yorum hızı izlenmeli, iddianın doğru olup olmadığı kontrol edilmeli."
-        first_2h = "İlk 2 saatte ilgili birimden bilgi alınmalı. Gerekirse kısa bir bilgilendirme notu hazırlanmalı."
-        first_24h = "İlk 24 saatte konu büyürse kurumsal açıklama yapılmalı; büyümezse hizmet/hikaye diliyle olumlu gündem desteklenmeli."
-        speaker = "Şimdilik başkanın doğrudan konuşmasına gerek yok. Kurumsal hesap veya ilgili birim yeterli olabilir."
-        data_needed = "Konuya ait temel bilgi, ilgili müdürlük görüşü, varsa işlem kaydı ve kısa açıklama notu hazırlanmalı."
-        tone = "Sakin, ölçülü, açıklayıcı ve tartışmayı büyütmeyen dil kullanılmalı."
-    else:
-        level = "Düşük"
-        what_not_to_do = "Gereksiz açıklama yaparak konu büyütülmemeli."
-        first_30 = "İlk 30 dakikada sadece takip edilmeli."
-        first_2h = "İlk 2 saatte yorumlarda ani artış olup olmadığı kontrol edilmeli."
-        first_24h = "İlk 24 saatte olumlu gündem ve hizmet iletişimi desteklenmeli."
-        speaker = "Açıklama gerekmez. Sosyal medya ekibi takipte kalmalı."
-        data_needed = "Şimdilik özel belge gerekmez; konu büyürse ilgili bilgi toplanmalı."
-        tone = "Doğal, sakin ve pozitif iletişim korunmalı."
+        return make_plan(
+            "Yüksek",
+            "Sayın Başkan doğrudan, duygusal veya suçlayıcı bir açıklama yapmamalı. Konu doğrulanmadan savunmacı dil kullanılmamalı.",
+            "İlk 30 dakikada olay doğrulanmalı, ekran görüntüleri/linkler kaydedilmeli, ilgili müdürlükten net bilgi istenmeli.",
+            "İlk 2 saatte kısa, sakin ve kurumsal bir bilgilendirme hazırlanmalı. Gerekirse sahadan fotoğraf, belge veya işlem kaydı alınmalı.",
+            "İlk 24 saatte konu kapanmadıysa yapılan işlem kamuoyuna sade bir dille anlatılmalı, mağduriyet varsa çözüm adımı görünür kılınmalı.",
+            "İlk açıklamayı doğrudan Sayın Başkan değil, ilgili başkan yardımcısı veya birim müdürlüğü yapmalı. Sayın Başkan ancak konu büyürse devreye girmeli.",
+            "Olay tarihi, yer bilgisi, ilgili birim kaydı, varsa önceki başvurular, işlem durumu, fotoğraf/video ve resmi belge hazırlanmalı.",
+            "Sakin, empatik, kanıta dayalı ve çözüm odaklı dil kullanılmalı."
+        )
 
-    return {
-        "level": level,
-        "risk_topic": risk_topic,
-        "what_not_to_do": what_not_to_do,
-        "first_30": first_30,
-        "first_2h": first_2h,
-        "first_24h": first_24h,
-        "speaker": speaker,
-        "data_needed": data_needed,
-        "tone": tone
-    }
+    if risk_score >= 4:
+        return make_plan(
+            "Orta",
+            "Konu küçümsenmemeli, alaycı veya sert cevap verilmemeli. Yorumlara tek tek duygusal karşılık verilmemeli.",
+            "İlk 30 dakikada paylaşım ve yorum hızı izlenmeli, iddianın doğru olup olmadığı kontrol edilmeli.",
+            "İlk 2 saatte ilgili birimden bilgi alınmalı. Gerekirse kısa bir bilgilendirme notu hazırlanmalı.",
+            "İlk 24 saatte konu büyürse kurumsal açıklama yapılmalı; büyümezse hizmet/hikaye diliyle olumlu gündem desteklenmeli.",
+            "Şimdilik Sayın Başkan’ın doğrudan konuşmasına gerek yok. Kurumsal hesap veya ilgili birim yeterli olabilir.",
+            "Konuya ait temel bilgi, ilgili müdürlük görüşü, varsa işlem kaydı ve kısa açıklama notu hazırlanmalı.",
+            "Sakin, ölçülü, açıklayıcı ve tartışmayı büyütmeyen dil kullanılmalı."
+        )
+
+    return make_plan(
+        "Düşük",
+        "Gereksiz açıklama yaparak konu büyütülmemeli.",
+        "İlk 30 dakikada sadece takip edilmeli.",
+        "İlk 2 saatte yorumlarda ani artış olup olmadığı kontrol edilmeli.",
+        "İlk 24 saatte olumlu gündem ve hizmet iletişimi desteklenmeli.",
+        "Açıklama gerekmez. Sosyal medya ekibi takipte kalmalı.",
+        "Şimdilik özel belge gerekmez; konu büyürse ilgili bilgi toplanmalı.",
+        "Doğal, sakin ve pozitif iletişim korunmalı."
+    )
 
 def bar(label, value, color_class):
     value = max(0, min(100, float(value or 0)))
@@ -710,7 +772,7 @@ def build_report(news, social, undated_news=None):
     if risk_count >= 3 or bad_pct >= 35:
         alert_level = "Yüksek dikkat"
         alert_summary = "Bugün riskli haberler veya olumsuz yorum oranı belirgin seviyede. Savunmacı polemik yerine sakin, belgeye dayalı ve hizmet odaklı iletişim tercih edilmelidir."
-        strategy_focus = "Riskleri büyütmeden kontrol etmek, olumlu hizmet başlıklarını görünür tutmak ve başkan profilini güven veren bir çizgide korumak."
+        strategy_focus = "Riskleri büyütmeden kontrol etmek, olumlu hizmet başlıklarını görünür tutmak ve Sayın Başkanın profilini güven veren bir çizgide korumak."
         daily_language = "Sakin, net, polemikten uzak ve vatandaşın gündelik hayatına dokunan bir dil kullanılmalıdır."
     elif risk_count >= 1 or bad_pct >= 20:
         alert_level = "Kontrollü takip"
@@ -857,7 +919,7 @@ a {{ color:#1f2933; font-weight:800; }}
     </div>
     
         <div class="item">
-            <h3>Başkan İçin Sosyal Medya Özeti</h3>
+            <h3>Sayın Başkan İçin Sosyal Medya Özeti</h3>
             <p><b>Genel ton:</b> {esc(social_sum.get("social_mood", ""))}</p>
             <p><b>Öne çıkan konu:</b> {esc(social_sum.get("main_topic", ""))}</p>
             <p><b>Risk yorumu:</b> {esc(social_sum.get("risk_text", ""))}</p>
@@ -879,7 +941,7 @@ a {{ color:#1f2933; font-weight:800; }}
   </div>
 
   <div style="padding:12px; border-radius:12px; background:#fee2e2; margin-bottom:12px;">
-    <b>Başkanın yapmaması gereken şey:</b><br>
+    <b>Sayın Başkan'ın yapmaması gereken şey:</b><br>
     {esc(crisis_plan.get("what_not_to_do", ""))}
   </div>
 
@@ -971,7 +1033,7 @@ a {{ color:#1f2933; font-weight:800; }}
 <h3>A) Bugünün Ana Stratejisi</h3>
 <p>{esc(strategy_focus)}</p>
 
-<p>Bugün iletişimde amaç sadece haber paylaşmak değil; Mesut Kocagöz algısını “sahada çalışan, gündemi takip eden, hizmeti önceleyen ve krizleri büyütmeden yöneten başkan” çizgisinde güçlendirmek olmalıdır.</p>
+<p>Bugün iletişimde amaç sadece haber paylaşmak değil; Mesut Kocagöz algısını “sahada çalışan, gündemi takip eden, hizmeti önceleyen ve krizleri büyütmeden yöneten Sayın Başkan” çizgisinde güçlendirmek olmalıdır.</p>
 
 <h3>B) Öne Çıkarılacak Konu</h3>
 <p>Hizmet, mahalle çalışması, çocuk/aile teması, personel emeği, vatandaş memnuniyeti ve sahadan görüntü içeren içerikler öne çıkarılmalıdır.</p>

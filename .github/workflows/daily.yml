@@ -1,12 +1,9 @@
-we name: Daily Yerel Lider AI Report
+name: Daily Yerel Lider AI Report
 
 on:
-  schedule:
-    # Türkiye saatiyle 09:00 - 23:30 arası 30 dakikada bir çalışır
-    # GitHub cron UTC çalışır. Türkiye UTC+3 olduğu için 06:00 UTC = 09:00 TR
-    - cron: "0,30 6-20 * * *"
-
   workflow_dispatch:
+  schedule:
+    - cron: "*/30 * * * *"
 
 permissions:
   contents: write
@@ -16,18 +13,24 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Repoyu indir
+      - name: Depoyu al
         uses: actions/checkout@v4
+        with:
+          persist-credentials: true
 
       - name: Python kur
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
-      - name: Gerekli paketleri kur
+      - name: Bağımlılıkları yükle
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt
+          else
+            pip install feedparser
+          fi
 
       - name: Raporu oluştur
         env:
@@ -40,12 +43,16 @@ jobs:
           ALERT_EMAIL_TO: ${{ secrets.ALERT_EMAIL_TO }}
           ALERT_EMAIL_FROM: ${{ secrets.ALERT_EMAIL_FROM }}
         run: |
-           python app.py
+          python app.py
 
-      - name: Raporu repoya kaydet
+      - name: Raporları kaydet
         run: |
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
-          git add reports/ data/dynamic_keywords.txt
-          git commit -m "Yerel Lider AI raporu güncellendi" || echo "Değişiklik yok"
-          git push
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add reports data/manual_social data/manual_crisis || true
+          if git diff --cached --quiet; then
+            echo "Kaydedilecek değişiklik yok."
+          else
+            git commit -m "Daily Yerel Lider AI Report"
+            git push
+          fi

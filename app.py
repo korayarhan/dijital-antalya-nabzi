@@ -547,7 +547,9 @@ def social_card(title, item):
 
 def build_report(news, social, undated_news=None):
     undated_news = undated_news or []
-    today = dt.date.today().isoformat()
+    now_tr = dt.datetime.utcnow() + dt.timedelta(hours=3)
+    today = now_tr.date().isoformat()
+    report_time = now_tr.strftime("%H:%M")
     important, positive_news, risky_news = top_items(news)
     social_sum = social_summary(social)
 

@@ -823,7 +823,7 @@ def build_report(news, social, undated_news=None):
     crisis_status = read_crisis_status()
     
     active_raw = str(crisis_status.get("active", "")).strip().lower()
-active_label = "Aktif" if active_raw in ["yes", "evet", "true", "1", "aktif"] else "Pasif"
+    active_label = "Aktif" if active_raw in ["yes", "evet", "true", "1", "aktif"] else "Pasif"
     
     positive_count = sum(1 for x in news if x["tone"] == "Olumlu")
     neutral_count = sum(1 for x in news if x["tone"] == "Nötr")

@@ -11,6 +11,7 @@ import feedparser
 ROOT = Path(__file__).resolve().parent
 CONFIG = ROOT / "config" / "keywords.txt"
 SOCIAL_CSV = ROOT / "data" / "manual_social" / "social_manual.csv"
+CRISIS_CSV = ROOT / "data" / "manual_crisis" / "crisis_status.csv"
 DYNAMIC_KEYWORDS = ROOT / "data" / "dynamic_keywords.txt"
 REPORTS = ROOT / "reports"
 REPORTS.mkdir(exist_ok=True)
@@ -397,6 +398,34 @@ def read_social_data():
             rows.append(row)
     return rows
 
+def read_crisis_status():
+    default_status = {
+        "active": "yes",
+        "status": "İzleniyor",
+        "manual_note": "Manuel kriz notu henüz girilmedi.",
+        "last_action": "Son aksiyon henüz girilmedi.",
+        "next_action": "Sıradaki aksiyon henüz belirlenmedi.",
+        "responsible": "Basın / ilgili birim",
+        "updated_by": "Sistem"
+    }
+
+    if not CRISIS_CSV.exists():
+        return default_status
+
+    try:
+        with CRISIS_CSV.open("r", encoding="utf-8-sig", newline="") as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                result = default_status.copy()
+                for key in result:
+                    value = str(row.get(key, "") or "").strip()
+                    if value:
+                        result[key] = value
+                return result
+    except Exception:
+        return default_status
+
+    return default_status
 
 def generate_dynamic_keywords(news, social):
     candidates = []
@@ -791,7 +820,8 @@ def build_report(news, social, undated_news=None):
     important, positive_news, risky_news = top_items(news)
     social_sum = social_summary(social)
     crisis_plan = crisis_action_plan(social_sum)
-
+    crisis_status = read_crisis_status()
+    
     positive_count = sum(1 for x in news if x["tone"] == "Olumlu")
     neutral_count = sum(1 for x in news if x["tone"] == "Nötr")
     risk_count = sum(1 for x in news if x["tone"] == "Riskli")
@@ -945,7 +975,7 @@ a {{ color:#1f2933; font-weight:800; }}
     🚨 Acil Eylem Planı / Kriz Panelini Aç
   </a>
   <div style="margin-top:6px; color:#7f1d1d;">
-    Risk seviyesi: {esc(crisis_plan.get("level", ""))} • Son güncelleme: {report_time}
+    Risk seviyesi: {esc(crisis_plan.get("level", ""))} • Durum: {esc(crisis_status.get("status", ""))} • Son güncelleme: {report_time}
   </div>
 </div>
 </header>
@@ -1281,6 +1311,17 @@ a {{ color:#1f2933; font-weight:800; }}
         <div><b>Son güncelleme</b><br>{today} • {report_time}</div>
         <div><b>Durum</b><br>İzleniyor / Aksiyon planı hazır</div>
       </div>
+    </div>
+
+    <div class="card info">
+      <h2>Manuel Kriz Durum Notu</h2>
+      <p><b>Aktif kriz durumu:</b><br>{esc(crisis_status.get("active", ""))}</p>
+      <p><b>Güncel durum:</b><br>{esc(crisis_status.get("status", ""))}</p>
+      <p><b>Manuel not:</b><br>{esc(crisis_status.get("manual_note", ""))}</p>
+      <p><b>Son yapılan aksiyon:</b><br>{esc(crisis_status.get("last_action", ""))}</p>
+      <p><b>Sıradaki aksiyon:</b><br>{esc(crisis_status.get("next_action", ""))}</p>
+      <p><b>Sorumlu ekip / kişi:</b><br>{esc(crisis_status.get("responsible", ""))}</p>
+      <p><b>Güncelleyen:</b><br>{esc(crisis_status.get("updated_by", ""))}</p>
     </div>
 
     <div class="card danger">

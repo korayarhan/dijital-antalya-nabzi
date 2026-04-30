@@ -1,4 +1,4 @@
-name: Daily Yerel Lider AI Report
+we name: Daily Yerel Lider AI Report
 
 on:
   schedule:
@@ -30,17 +30,17 @@ jobs:
           pip install -r requirements.txt
 
       - name: Raporu oluştur
-  env:
-    ALERT_EMAIL_ENABLED: "true"
-    ALERT_NOTIFY_ON_MEDIUM: "true"
-    SMTP_HOST: ${{ secrets.SMTP_HOST }}
-    SMTP_PORT: ${{ secrets.SMTP_PORT }}
-    SMTP_USER: ${{ secrets.SMTP_USER }}
-    SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
-    ALERT_EMAIL_TO: ${{ secrets.ALERT_EMAIL_TO }}
-    ALERT_EMAIL_FROM: ${{ secrets.ALERT_EMAIL_FROM }}
-  run: |
-    python app.py
+        env:
+          ALERT_EMAIL_ENABLED: "true"
+          ALERT_NOTIFY_ON_MEDIUM: "true"
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT }}
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASSWORD: ${{ secrets.SMTP_PASSWORD }}
+          ALERT_EMAIL_TO: ${{ secrets.ALERT_EMAIL_TO }}
+          ALERT_EMAIL_FROM: ${{ secrets.ALERT_EMAIL_FROM }}
+        run: |
+           python app.py
 
       - name: Raporu repoya kaydet
         run: |

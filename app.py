@@ -804,6 +804,16 @@ a {{ color:#1f2933; font-weight:800; }}
         <div class="kpi"><b>%{social_sum["like_rate"]:.2f}</b><span>Beğenme oranı</span></div>
         <div class="kpi"><b>%{social_sum["engagement_rate"]:.2f}</b><span>Etkileşim oranı</span></div>
     </div>
+    
+        <div class="item">
+            <h3>Başkan İçin Sosyal Medya Özeti</h3>
+            <p><b>Genel ton:</b> {esc(social_sum.get("social_mood", ""))}</p>
+            <p><b>Öne çıkan konu:</b> {esc(social_sum.get("main_topic", ""))}</p>
+            <p><b>Risk yorumu:</b> {esc(social_sum.get("risk_text", ""))}</p>
+            <p><b>Fırsat yorumu:</b> {esc(social_sum.get("opportunity_text", ""))}</p>
+            <p><b>İlk aksiyon önerisi:</b> {esc(social_sum.get("action_text", ""))}</p>
+        </div>
+        
     <h3>Yorum Duygu Dağılımı</h3>
     {bar("İyi yorum", good_pct, "good")}
     {bar("Nötr yorum", neutral_pct, "neutral")}

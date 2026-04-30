@@ -374,30 +374,53 @@ def to_float(x):
 def read_social_data():
     if not SOCIAL_CSV.exists():
         return []
+
     rows = []
-    with SOCIAL_CSV.open("r", encoding="utf-8-sig", newline="") as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            likes = to_float(row.get("likes"))
-            comments = to_float(row.get("comments"))
-            shares = to_float(row.get("shares"))
-            views = to_float(row.get("views"))
-            good = to_float(row.get("good_comments"))
-            neutral = to_float(row.get("neutral_comments"))
-            bad = to_float(row.get("bad_comments"))
-            like_rate = (likes / views * 100) if views else 0
-            engagement_rate = ((likes + comments + shares) / views * 100) if views else 0
-            total = good + neutral + bad
-            bad_ratio = bad / total if total else 0
-            good_ratio = good / total if total else 0
-            row.update({
-                "likes": likes, "comments": comments, "shares": shares, "views": views,
-                "good_comments": good, "neutral_comments": neutral, "bad_comments": bad,
-                "like_rate": like_rate, "engagement_rate": engagement_rate,
-                "risk_score": min(10, round(bad_ratio * 8 + (2 if row.get("tone") == "Kötü" else 0), 1)),
-                "opportunity_score": min(10, round(good_ratio * 8 + (2 if like_rate > 5 else 0), 1)),
-            })
-            rows.append(row)
+
+    def to_float(value, default=0):
+        try:
+            return float(str(value).replace(",", ".").strip())
+        except:
+            return default
+
+    def get_value(row, *keys, default=""):
+        for key in keys:
+            value = row.get(key)
+            if value is not None and str(value).strip() != "":
+                return str(value).strip()
+        return default
+
+    try:
+        with SOCIAL_CSV.open("r", encoding="utf-8-sig", newline="") as f:
+            reader = csv.DictReader(f)
+
+            for row in reader:
+                item = {
+                    "date": get_value(row, "date", "tarih"),
+                    "platform": get_value(row, "platform", "Platform"),
+                    "account": get_value(row, "account", "hesap", "account_name"),
+                    "content": get_value(row, "content", "icerik", "içerik", "text"),
+                    "topic": get_value(row, "topic", "konu"),
+                    "sentiment": get_value(row, "sentiment", "duygu", "tone"),
+                    "risk_score": to_float(get_value(row, "risk_score", "risk", default="0")),
+                    "opportunity_score": to_float(get_value(row, "opportunity_score", "opportunity", default="0")),
+                    "likes": to_float(get_value(row, "likes", "like", "begeni", "beğeni", default="0")),
+                    "comments": to_float(get_value(row, "comments", "comment", "yorum", default="0")),
+                    "shares": to_float(get_value(row, "shares", "share", "paylasim", "paylaşım", default="0")),
+                    "views": to_float(get_value(row, "views", "view", "goruntulenme", "görüntülenme", default="0")),
+                    "url": get_value(row, "url", "link"),
+                    "action_note": get_value(row, "action_note", "action", "aksiyon", "not"),
+                }
+
+                item["engagement"] = item["likes"] + item["comments"] + item["shares"]
+
+                if any(str(v).strip() for v in item.values()):
+                    rows.append(item)
+
+    except Exception as e:
+        print(f"Sosyal medya verisi okunamadı: {e}")
+        return []
+
     return rows
 
 def read_crisis_status():

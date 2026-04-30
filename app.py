@@ -822,6 +822,9 @@ def build_report(news, social, undated_news=None):
     crisis_plan = crisis_action_plan(social_sum)
     crisis_status = read_crisis_status()
     
+    active_raw = str(crisis_status.get("active", "")).strip().lower()
+active_label = "Aktif" if active_raw in ["yes", "evet", "true", "1", "aktif"] else "Pasif"
+    
     positive_count = sum(1 for x in news if x["tone"] == "Olumlu")
     neutral_count = sum(1 for x in news if x["tone"] == "Nötr")
     risk_count = sum(1 for x in news if x["tone"] == "Riskli")
@@ -1309,13 +1312,13 @@ a {{ color:#1f2933; font-weight:800; }}
         <div><b>Risk seviyesi</b><br>{esc(crisis_plan.get("level", ""))}</div>
         <div><b>Kriz başlığı</b><br>{esc(crisis_plan.get("risk_topic", ""))}</div>
         <div><b>Son güncelleme</b><br>{today} • {report_time}</div>
-        <div><b>Durum</b><br>İzleniyor / Aksiyon planı hazır</div>
+        <div><b>Durum</b><br>{esc(crisis_status.get("status", "İzleniyor"))}</div>
       </div>
     </div>
 
     <div class="card info">
       <h2>Manuel Kriz Durum Notu</h2>
-      <p><b>Aktif kriz durumu:</b><br>{esc(crisis_status.get("active", ""))}</p>
+      <p><b>Aktif kriz durumu:</b><br>{esc(active_label)}</p>
       <p><b>Güncel durum:</b><br>{esc(crisis_status.get("status", ""))}</p>
       <p><b>Manuel not:</b><br>{esc(crisis_status.get("manual_note", ""))}</p>
       <p><b>Son yapılan aksiyon:</b><br>{esc(crisis_status.get("last_action", ""))}</p>

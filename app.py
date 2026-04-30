@@ -475,24 +475,94 @@ def top_items(news):
 
 
 def social_summary(social):
-    total_likes = sum(x["likes"] for x in social)
-    total_comments = sum(x["comments"] for x in social)
-    total_shares = sum(x["shares"] for x in social)
-    total_views = sum(x["views"] for x in social)
-    total_good = sum(x["good_comments"] for x in social)
-    total_neutral = sum(x["neutral_comments"] for x in social)
-    total_bad = sum(x["bad_comments"] for x in social)
+    def safe_int(item, key):
+        try:
+            return int(float(item.get(key, 0) or 0))
+        except:
+            return 0
+
+    if not social:
+        return {
+            "total_likes": 0,
+            "total_comments": 0,
+            "total_shares": 0,
+            "total_views": 0,
+            "total_good": 0,
+            "total_neutral": 0,
+            "total_bad": 0,
+            "like_rate": 0,
+            "engagement_rate": 0,
+            "best_like": None,
+            "most_comments": None,
+            "risky": None,
+            "opportunity": None,
+            "social_mood": "Veri yok",
+            "main_topic": "Bugün sosyal medya verisi yok.",
+            "risk_text": "Sosyal medya tarafında ölçülebilir risk bulunamadı.",
+            "opportunity_text": "Bugün sosyal medya tarafında özel bir fırsat görünmüyor.",
+            "action_text": "Sosyal medya verisi geldiğinde tekrar değerlendirme yapılmalı."
+        }
+
+    total_likes = sum(safe_int(x, "likes") for x in social)
+    total_comments = sum(safe_int(x, "comments") for x in social)
+    total_shares = sum(safe_int(x, "shares") for x in social)
+    total_views = sum(safe_int(x, "views") for x in social)
+
+    total_good = sum(safe_int(x, "good_comments") for x in social)
+    total_neutral = sum(safe_int(x, "neutral_comments") for x in social)
+    total_bad = sum(safe_int(x, "bad_comments") for x in social)
+
     like_rate = (total_likes / total_views * 100) if total_views else 0
     engagement_rate = ((total_likes + total_comments + total_shares) / total_views * 100) if total_views else 0
+
+    best_like = max(social, key=lambda x: safe_int(x, "likes"))
+    most_comments = max(social, key=lambda x: safe_int(x, "comments"))
+    risky = max(social, key=lambda x: safe_int(x, "risk_score"))
+    opportunity = max(social, key=lambda x: safe_int(x, "likes") + safe_int(x, "shares") + safe_int(x, "good_comments"))
+
+    max_risk = safe_int(risky, "risk_score")
+
+    if total_bad > total_good and max_risk >= 5:
+        social_mood = "Riskli"
+    elif total_good >= total_bad and total_good >= total_neutral:
+        social_mood = "Olumlu"
+    else:
+        social_mood = "Nötr"
+
+    main_topic = most_comments.get("topic", "Sosyal medyada öne çıkan konu belirlenemedi.")
+
+    if max_risk >= 7:
+        risk_text = "Yüksek riskli bir sosyal medya başlığı var. Konu büyümeden soğukkanlı ve kontrollü aksiyon alınmalı."
+        action_text = "İlk 30 dakikada konu doğrulanmalı, ilgili birimden bilgi alınmalı ve acele açıklama yapılmamalı."
+    elif max_risk >= 4:
+        risk_text = "Orta seviye sosyal medya riski var. Yorumlar ve paylaşım hızı takip edilmeli."
+        action_text = "Konu izlenmeli, gerekirse kısa ve sakin bir bilgilendirme dili hazırlanmalı."
+    else:
+        risk_text = "Şu an sosyal medya tarafında belirgin kriz sinyali görünmüyor."
+        action_text = "Olumlu görünürlük korunmalı, iyi etkileşim alan içerikler büyütülmeli."
+
+    opportunity_topic = opportunity.get("topic", "Olumlu görünürlük fırsatı belirlenemedi.")
+    opportunity_text = f"En güçlü fırsat başlığı: {opportunity_topic}. Bu içerik başkanın hizmet ve insan hikayesi diliyle desteklenebilir."
+
     return {
-        "total_likes": total_likes, "total_comments": total_comments,
-        "total_shares": total_shares, "total_views": total_views,
-        "total_good": total_good, "total_neutral": total_neutral, "total_bad": total_bad,
-        "like_rate": like_rate, "engagement_rate": engagement_rate,
-        "best_like": max(social, key=lambda x: x["like_rate"], default=None),
-        "most_comments": max(social, key=lambda x: x["comments"], default=None),
-        "risky": max(social, key=lambda x: x["risk_score"], default=None),
-        "opportunity": max(social, key=lambda x: x["opportunity_score"], default=None),
+        "total_likes": total_likes,
+        "total_comments": total_comments,
+        "total_shares": total_shares,
+        "total_views": total_views,
+        "total_good": total_good,
+        "total_neutral": total_neutral,
+        "total_bad": total_bad,
+        "like_rate": like_rate,
+        "engagement_rate": engagement_rate,
+        "best_like": best_like,
+        "most_comments": most_comments,
+        "risky": risky,
+        "opportunity": opportunity,
+        "social_mood": social_mood,
+        "main_topic": main_topic,
+        "risk_text": risk_text,
+        "opportunity_text": opportunity_text,
+        "action_text": action_text
     }
 
 

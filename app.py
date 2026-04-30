@@ -1337,7 +1337,20 @@ a {{ color:#1f2933; font-weight:800; }}
         limit=5
     )
 
-    crisis_news_html = "".join(news_card(x) for x in crisis_related) or "<div class='card'>Kriz başlığıyla ilişkili riskli haber bulunamadı.</div>"
+    if crisis_related:
+        crisis_news_html = "".join(news_card(x) for x in crisis_related)
+    else:
+        risky_social = social_sum.get("risky") or {}
+        crisis_news_html = f"""
+    <div class="card" style="background:#fff7ed; border:1px solid #fed7aa;">
+      <h2>Kriz sosyal medya verisinden tespit edildi</h2>
+      <p><b>Haber tarafında durum:</b><br>Kriz başlığıyla ilişkili riskli haber bulunamadı.</p>
+      <p><b>Sosyal medya / manuel kriz konusu:</b><br>{esc(risky_social.get("topic", "Konu bilgisi yok"))}</p>
+      <p><b>Platform:</b><br>{esc(risky_social.get("platform", "Platform bilgisi yok"))}</p>
+      <p><b>Risk skoru:</b><br>{esc(str(risky_social.get("risk_score", "")))}</p>
+      <p><b>Not:</b><br>Bu kriz başlığı haberlerden değil, sosyal medya/manual takip verisinden tetiklenmiş olabilir. Haber tarafı ayrıca izlenmeye devam edilmelidir.</p>
+    </div>
+    """
 
     crisis_panel_doc = f"""<!doctype html>
 <html lang="tr">
@@ -1523,7 +1536,7 @@ a {{ color:#1f2933; font-weight:800; }}
     </div>
 
     <div class="card">
-      <h2>Kriz Başlığıyla İlişkili Riskli Haberler<h2>
+      <h2>Kriz Başlığıyla İlişkili Haber / Sosyal Kaynaklar</h2>
       {crisis_news_html}
     </div>
 

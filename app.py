@@ -865,18 +865,58 @@ a {{ color:#1f2933; font-weight:800; }}
             <p><b>İlk aksiyon önerisi:</b> {esc(social_sum.get("action_text", ""))}</p>
         </div>
         
-        <div class="item">
-  <h3>Kriz Anında Soğukkanlı Aksiyon Planı</h3>
+        <div style="border:2px solid #dc2626; border-radius:16px; padding:16px; margin:18px 0; background:#fff7ed;">
 
-  <p><b>Risk seviyesi:</b> {esc(crisis_plan.get("level", ""))}</p>
-  <p><b>Risk başlığı:</b> {esc(crisis_plan.get("risk_topic", ""))}</p>
-  <p><b>Ne yapılmamalı:</b> {esc(crisis_plan.get("what_not_to_do", ""))}</p>
-  <p><b>İlk 30 dakika:</b> {esc(crisis_plan.get("first_30", ""))}</p>
-  <p><b>İlk 2 saat:</b> {esc(crisis_plan.get("first_2h", ""))}</p>
-  <p><b>İlk 24 saat:</b> {esc(crisis_plan.get("first_24h", ""))}</p>
-  <p><b>Kim konuşmalı:</b> {esc(crisis_plan.get("speaker", ""))}</p>
-  <p><b>Hazırlanacak veri / belge:</b> {esc(crisis_plan.get("data_needed", ""))}</p>
-  <p><b>İletişim dili:</b> {esc(crisis_plan.get("tone", ""))}</p>
+  <h2 style="margin-top:0; color:#991b1b;">🚨 Kriz Anında Soğukkanlı Aksiyon Planı</h2>
+
+  <div style="font-size:18px; font-weight:bold; margin-bottom:10px;">
+    Risk seviyesi: <span style="color:#dc2626;">{esc(crisis_plan.get("level", ""))}</span>
+  </div>
+
+  <div style="padding:12px; border-radius:12px; background:#ffffff; margin-bottom:12px;">
+    <b>Risk başlığı:</b><br>
+    {esc(crisis_plan.get("risk_topic", ""))}
+  </div>
+
+  <div style="padding:12px; border-radius:12px; background:#fee2e2; margin-bottom:12px;">
+    <b>Başkanın yapmaması gereken şey:</b><br>
+    {esc(crisis_plan.get("what_not_to_do", ""))}
+  </div>
+
+  <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:12px; margin-bottom:12px;">
+
+    <div style="padding:12px; border-radius:12px; background:#ffffff;">
+      <b>⏱ İlk 30 dakika</b><br>
+      {esc(crisis_plan.get("first_30", ""))}
+    </div>
+
+    <div style="padding:12px; border-radius:12px; background:#ffffff;">
+      <b>🕑 İlk 2 saat</b><br>
+      {esc(crisis_plan.get("first_2h", ""))}
+    </div>
+
+    <div style="padding:12px; border-radius:12px; background:#ffffff;">
+      <b>📅 İlk 24 saat</b><br>
+      {esc(crisis_plan.get("first_24h", ""))}
+    </div>
+
+  </div>
+
+  <div style="padding:12px; border-radius:12px; background:#fef3c7; margin-bottom:12px;">
+    <b>Kim konuşmalı?</b><br>
+    {esc(crisis_plan.get("speaker", ""))}
+  </div>
+
+  <div style="padding:12px; border-radius:12px; background:#ecfeff; margin-bottom:12px;">
+    <b>Hazırlanacak veri / belge:</b><br>
+    {esc(crisis_plan.get("data_needed", ""))}
+  </div>
+
+  <div style="padding:12px; border-radius:12px; background:#f0fdf4;">
+    <b>İletişim dili:</b><br>
+    {esc(crisis_plan.get("tone", ""))}
+  </div>
+
 </div>
 
     <h3>Yorum Duygu Dağılımı</h3>

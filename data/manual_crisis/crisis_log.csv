@@ -1,4 +1,4 @@
-time,event,action,responsible,note
-23:25,Kriz paneli oluşturuldu,İlk aksiyon planı hazırlandı,Koray,Sistem ilk kriz panelini üretti.
-23:30,Hukuk biriminden bilgi istendi,Güncel süreç bilgisi beklendi,Hukuk birimi,Açıklama yapılmadan önce hukuki çerçeve netleşmeli.
-23:45,Sosyal medya yayılımı kontrol edildi,Yorum ve paylaşım hızı takip edildi,Basın birimi,Yayılım orta seviyede izleniyor.
+time,event,action,result,responsible,next_step,note
+23:25,Kriz paneli oluşturuldu,İlk aksiyon planı hazırlandı,Panel başarıyla çalıştı,Koray,2 saatlik yayılım kontrolü yapılacak,Sistem ilk kriz panelini üretti.
+23:30,Hukuk biriminden bilgi istendi,Güncel süreç bilgisi beklendi,Beklemede,Hukuk birimi,Hukuki çerçeve netleşince açıklama taslağı kontrol edilecek,Açıklama yapılmadan önce hukuki çerçeve netleşmeli.
+23:45,Sosyal medya yayılımı kontrol edildi,Yorum ve paylaşım hızı takip edildi,Yayılım orta seviyede,Basın birimi,Yayılım artarsa kurumsal bilgilendirme hazırlanacak,Yayılım orta seviyede izleniyor.

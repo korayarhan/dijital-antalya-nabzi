@@ -505,6 +505,63 @@ def unique_by_topic(items, limit):
             break
     return result
 
+def crisis_related_news(items, risk_topic, limit=5):
+    topic_text = normalize_text(risk_topic)
+
+    keywords = []
+
+    if any(k in topic_text for k in ["teleferik", "dava", "yargi", "yargı", "sorusturma", "soruşturma", "facia", "mahkeme"]):
+        keywords += ["teleferik", "dava", "yargi", "yargı", "soruşturma", "sorusturma", "facia", "mahkeme"]
+
+    if any(k in topic_text for k in ["asfalt", "yol", "temizlik", "park", "ulasim", "ulaşım", "hizmet", "mahalle", "sikayet", "şikayet"]):
+        keywords += ["asfalt", "yol", "temizlik", "park", "ulaşım", "ulasim", "hizmet", "mahalle", "şikayet", "sikayet"]
+
+    if any(k in topic_text for k in ["rakip", "ak parti", "chp", "polemik", "siyasi", "elestiri", "eleştiri", "iddia"]):
+        keywords += ["rakip", "ak parti", "chp", "polemik", "siyasi", "eleştiri", "elestiri", "iddia"]
+
+    if any(k in topic_text for k in ["borc", "borç", "mali", "butce", "bütçe", "para", "ihale"]):
+        keywords += ["borç", "borc", "mali", "bütçe", "butce", "para", "ihale"]
+
+    for word in topic_text.split():
+        if len(word) > 3 and word not in STOPWORDS:
+            keywords.append(word)
+
+    clean_keywords = []
+    seen = set()
+    for key in keywords:
+        nk = normalize_text(key)
+        if nk and nk not in seen:
+            seen.add(nk)
+            clean_keywords.append(nk)
+
+    scored = []
+    crisis_topic_key = topic_key(risk_topic)
+
+    for item in items:
+        body = normalize_text(
+            f"{item.get('title', '')} {item.get('summary', '')} {item.get('topic', '')} {item.get('keyword', '')}"
+        )
+
+        match_count = sum(1 for key in clean_keywords if key in body)
+        same_topic = item.get("topic") == crisis_topic_key or topic_key(item.get("title", "")) == crisis_topic_key
+
+        if match_count > 0 or same_topic:
+            try:
+                base_risk = int(float(item.get("risk", 0) or 0))
+            except:
+                base_risk = 0
+
+            score = base_risk + (match_count * 5) + (8 if same_topic else 0)
+            scored.append((score, item))
+
+    if scored:
+        scored = sorted(scored, key=lambda x: x[0], reverse=True)
+        return [item for score, item in scored[:limit]]
+
+    return unique_by_topic(
+        sorted(items, key=lambda x: x.get("risk", 0), reverse=True),
+        limit
+    )
 
 def top_items(news):
     positive_candidates = sorted([x for x in news if x["tone"] == "Olumlu"], key=lambda x: x["opportunity"], reverse=True)
@@ -1274,7 +1331,13 @@ a {{ color:#1f2933; font-weight:800; }}
 </body>
 </html>"""
 
-    crisis_news_html = "".join(news_card(x) for x in risky_news[:3]) or "<div class='card'>Krizle ilişkili riskli haber bulunamadı.</div>"
+    crisis_related = crisis_related_news(
+        risky_news,
+        crisis_plan.get("risk_topic", ""),
+        limit=5
+    )
+
+    crisis_news_html = "".join(news_card(x) for x in crisis_related) or "<div class='card'>Kriz başlığıyla ilişkili riskli haber bulunamadı.</div>"
 
     crisis_panel_doc = f"""<!doctype html>
 <html lang="tr">
@@ -1460,7 +1523,7 @@ a {{ color:#1f2933; font-weight:800; }}
     </div>
 
     <div class="card">
-      <h2>Son Riskli Haberler</h2>
+      <h2>Kriz Başlığıyla İlişkili Riskli Haberler<h2>
       {crisis_news_html}
     </div>
 

@@ -700,7 +700,7 @@ a {{ color:#1f2933; font-weight:800; }}
 
 <header>
     <h1>Yerel Liderlik AI Günlük Raporu</h1>
-    <p>Takip edilen isim: <b>Mesut Kocagöz</b> • Bölge: <b>Antalya / Kepez</b> • Tarih: <b>{today}</b></p>
+    <p>Takip edilen isim: Mesut Kocagöz • Bölge: Antalya / Kepez • Tarih: {today} • Güncelleme saati: {report_time}
 </header>
 
 <main>

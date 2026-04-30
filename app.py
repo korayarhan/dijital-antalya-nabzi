@@ -1682,6 +1682,8 @@ a {{ color:#1f2933; font-weight:800; }}
     out = REPORTS / "daily_report.html"
     out.write_text(html_doc, encoding="utf-8")
     print(f"Rapor hazır: {out}")
+    
+    send_early_warning_email(early_warning, crisis_plan, crisis_status, report_time)
 
 def main():
     os.makedirs("reports", exist_ok=True)

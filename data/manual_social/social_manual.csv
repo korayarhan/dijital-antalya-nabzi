@@ -1,6 +1,6 @@
-date,platform,topic,link,likes,comments,shares,views,good_comments,neutral_comments,bad_comments,tone,notes,risk_note
-2026-04-30,Instagram,Bayrağa sahip çıkan belediye personeli,https://example.com,1240,86,42,18200,68,12,6,İyi,Yorumların çoğu personelin duyarlılığını olumlu buluyor,Risk düşük; konu siyasi polemiğe çekilmemeli
-2026-04-30,Facebook,Duacı asfalt çalışması,https://example.com,620,44,18,9500,30,10,4,İyi,Hizmet odaklı olumlu yorumlar var,Bazı mahallelerden yeni talepler gelebilir
-2026-04-30,X / Twitter,Teleferik davası gündemi,https://example.com,210,71,15,12000,12,21,38,Kötü,Yorumlarda geçmiş hukuki süreç tekrar hatırlatılıyor,Risk orta; konu büyürse sakin ve hukuki süreç odaklı dil gerekir
-2026-04-30,Instagram,Kepez çocuk etkinliği,https://example.com,980,63,27,14100,49,11,3,İyi,Aile ve çocuk temalı yorumlar olumlu,Risk düşük; bu içerik sıcak ve insani dil için fırsat
-2026-04-30,Facebook,Temizlik ve mahalle şikayeti,https://example.com,145,58,9,7800,8,17,33,Kötü,Yorumlarda temizlik ve hizmet aksaması şikayetleri var,Risk orta; ilgili birim kontrol etmeli ve sahadan bilgi alınmalı
+date,platform,account,content,topic,sentiment,risk_score,opportunity_score,likes,comments,shares,views,url,action_note
+2026-04-30,X / Twitter,Yerel kullanıcı,"Teleferik davası yeniden gündem oldu, kamuoyu açıklama bekliyor.","Teleferik davası gündemi",negative,6.3,2,18,9,4,1200,https://example.com/teleferik,"Hukuki ve insani hassasiyetle takip edilmeli. Açıklama aceleye getirilmemeli."
+2026-04-30,Instagram,Kepez Belediyesi,"Mahalle parkında bakım çalışması yapıldı.","Park ve yeşil alan çalışması",positive,1.5,7.5,240,32,18,5600,https://example.com/park,"Olumlu hizmet hikayesi olarak büyütülebilir."
+2026-04-30,Facebook,Yerel grup,"Mahallede temizlik talebi tekrar gündeme geldi.","Temizlik şikayeti",negative,4.8,3,35,21,6,2100,https://example.com/temizlik,"İlgili müdürlükten saha bilgisi alınmalı, çözüm takvimi netleştirilmeli."
+2026-04-30,YouTube,Yerel haber kanalı,"Kepez gündeminde belediye hizmetleri tartışıldı.","Belediye hizmetleri yorumu",neutral,3.2,4.5,74,16,3,3400,https://example.com/youtube,"Yorum tonu izlenmeli, olumsuzluk artarsa not alınmalı."
+2026-04-30,TikTok,Yerel kullanıcı,"Kepez’de yol çalışması kısa video ile paylaşıldı.","Yol çalışması",positive,2.1,6.8,410,44,31,9800,https://example.com/tiktok,"Görsel etkisi yüksek; olumlu hizmet iletişimine çevrilebilir."

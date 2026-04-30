@@ -441,7 +441,9 @@ def read_crisis_log():
                     "time": str(row.get("time", "") or "").strip(),
                     "event": str(row.get("event", "") or "").strip(),
                     "action": str(row.get("action", "") or "").strip(),
+                    "result": str(row.get("result", "") or "").strip(),
                     "responsible": str(row.get("responsible", "") or "").strip(),
+                    "next_step": str(row.get("next_step", "") or "").strip(),
                     "note": str(row.get("note", "") or "").strip(),
                 }
                 if any(item.values()):
@@ -875,11 +877,16 @@ def build_report(news, social, undated_news=None):
         crisis_log_html += f"""
     <div style="padding:12px; border-radius:12px; background:#ffffff; border:1px solid #e2e8f0; margin-bottom:10px;">
       <div style="font-weight:bold; color:#991b1b;">{esc(item.get("time", ""))} - {esc(item.get("event", ""))}</div>
-      <div><b>Aksiyon:</b> {esc(item.get("action", ""))}</div>
+      <div><b>Yapılan işlem:</b> {esc(item.get("action", ""))}</div>
+      <div><b>Sonuç:</b> {esc(item.get("result", ""))}</div>
       <div><b>Sorumlu:</b> {esc(item.get("responsible", ""))}</div>
+      <div><b>Sıradaki adım:</b> {esc(item.get("next_step", ""))}</div>
       <div><b>Not:</b> {esc(item.get("note", ""))}</div>
     </div>
     """
+
+    if not crisis_log_html:
+        crisis_log_html = "<div class='card'>Henüz yapılan işlem / müdahale kaydı girilmedi.</div>"
 
     if not crisis_log_html:
         crisis_log_html = "<div class='card'>Henüz kriz zaman çizelgesi girilmedi.</div>"
@@ -1389,8 +1396,8 @@ a {{ color:#1f2933; font-weight:800; }}
     </div>
 
     <div class="card soft">
-      <h2>🕒 Kriz Zaman Çizelgesi / Olay Akışı</h2>
-      <p class="small">Bu bölüm kriz boyunca yapılan işlemleri, alınan aksiyonları ve sorumlu kişileri takip etmek için kullanılır.</p>
+      <h2>🕒 Yapılan İşlemler / Müdahale Kayıtları</h2>
+      <p class="small">Bu bölüm kriz boyunca yapılan işlemleri, alınan aksiyonları, sonuçları ve sıradaki adımları takip etmek için kullanılır.</p>
       {crisis_log_html}
     </div>
 

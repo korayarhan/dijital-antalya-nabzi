@@ -577,7 +577,56 @@ def crisis_action_plan(social_sum):
     social_mood = social_sum.get("social_mood", "Nötr")
     topic_text = normalize_text(risk_topic)
 
+    human_keywords = [
+        "olum", "ölüm", "vefat", "hayatini kaybetti", "hayatını kaybetti",
+        "can kaybi", "can kaybı", "yarali", "yaralı", "yaralanma",
+        "kaza", "facia", "afet", "yangin", "yangın", "sel",
+        "cocuk", "çocuk", "aile", "magdur", "mağdur", "cenaze"
+    ]
+
+    heavy_human_keywords = [
+        "olum", "ölüm", "vefat", "hayatini kaybetti", "hayatını kaybetti",
+        "can kaybi", "can kaybı", "facia", "yarali", "yaralı", "yaralanma"
+    ]
+
+    is_human_sensitive = any(k in topic_text for k in human_keywords)
+    is_heavy_human = any(k in topic_text for k in heavy_human_keywords)
+
+    def human_layer():
+        if is_heavy_human or "teleferik" in topic_text or "facia" in topic_text:
+            return {
+                "human_sensitivity": "Çok yüksek",
+                "emotional_context": "Bu başlık sadece siyasi veya kurumsal risk değildir. İçinde can kaybı, yaralanma, aile acısı veya mağduriyet ihtimali bulunduğu için toplum öncelikle insani hassasiyet, samimi üzüntü ve saygılı bir dil görmek ister.",
+                "public_expectation": "Kamuoyu ilk aşamada savunma değil; acının görüldüğünü, mağdur ailelere saygı duyulduğunu, hukuki sürece saygı gösterildiğini ve bilgi kirliliğinden kaçınıldığını görmek ister.",
+                "opening_line": "İlk cümle insanı merkeze almalı: 'Hayatını kaybeden vatandaşımıza Allah’tan rahmet, ailesine ve yakınlarına başsağlığı diliyoruz.' Can kaybı bilgisi kesin değilse bu cümle doğrulanmadan kullanılmamalı.",
+                "avoid_language": "'Bizim suçumuz yok', 'biz haklıyız', 'siyasi saldırı var', 'zaten süreç devam ediyor' gibi soğuk, savunmacı veya mağdur ailelerin acısını ikinci plana atan ifadeler ilk açıklamada kullanılmamalı.",
+                "statement_draft": "Kamuoyuna yansıyan ve hepimizi derinden üzen bu süreç hassasiyetle takip edilmektedir. Hayatını kaybeden vatandaşımız varsa Allah’tan rahmet, ailesine ve yakınlarına başsağlığı diliyoruz. Hukuki sürece saygımız tamdır. Bilgi kirliliğine yol açmadan, ilgili kurumlarımızla birlikte süreci dikkatle takip etmeye devam edeceğiz.",
+                "speaker_decision": "Teknik ve hukuki açıklamayı kurumsal hesap veya ilgili birim yapmalı. Ancak insani hassasiyet çok yüksek olduğu için Sayın Başkan kısa, sakin ve sadece taziye/hassasiyet çerçevesinde bir mesaj verebilir. Sayın Başkan teknik detaylara ve polemiğe girmemeli."
+            }
+
+        if is_human_sensitive:
+            return {
+                "human_sensitivity": "Yüksek",
+                "emotional_context": "Bu başlıkta vatandaş mağduriyeti, aile hassasiyeti veya sosyal duyarlılık boyutu var. Dil sadece kurumsal değil, insan odaklı kurulmalı.",
+                "public_expectation": "Kamuoyu sorunun görülmesini, vatandaşın yalnız bırakılmamasını ve çözüm iradesinin açıkça gösterilmesini bekler.",
+                "opening_line": "İlk cümle vatandaşın duygusunu kabul etmeli: 'Yaşanan mağduriyeti dikkatle takip ediyoruz; vatandaşlarımızın yanında olduğumuzu özellikle ifade etmek isteriz.'",
+                "avoid_language": "Vatandaşı suçlayan, şikayeti küçümseyen, soğuk bürokratik veya sadece teknik görünen ifadelerden kaçınılmalı.",
+                "statement_draft": "Kamuoyuna yansıyan konu tarafımızca dikkatle takip edilmektedir. Vatandaşlarımızın yaşadığı mağduriyetleri önemsiyoruz. İlgili birimlerimiz süreci incelemekte olup, gerekli adımlar şeffaf ve çözüm odaklı biçimde atılacaktır.",
+                "speaker_decision": "İlk açıklama kurumsal hesap veya ilgili birimden yapılmalı. Konu büyür veya insani hassasiyet artarsa Sayın Başkan kısa ve empatik bir mesajla devreye girebilir."
+            }
+
+        return {
+            "human_sensitivity": "Normal",
+            "emotional_context": "Bu başlıkta belirgin bir can kaybı, yaralanma veya ağır mağduriyet sinyali görünmüyor. Yine de dil ölçülü, sakin ve vatandaş odaklı kalmalı.",
+            "public_expectation": "Kamuoyu net bilgi, sakin üslup ve çözüm odaklı yaklaşım bekler.",
+            "opening_line": "İlk cümle kısa ve sakin olmalı: 'Konu ilgili birimlerimiz tarafından takip edilmektedir.'",
+            "avoid_language": "Sert, alaycı, kişiselleştiren veya polemiği büyüten ifadelerden kaçınılmalı.",
+            "statement_draft": "Kamuoyuna yansıyan konu ilgili birimlerimiz tarafından takip edilmektedir. Gerekli inceleme ve değerlendirmeler yapıldıktan sonra kamuoyu doğru bilgiyle bilgilendirilecektir.",
+            "speaker_decision": "İlk aşamada kurumsal hesap veya ilgili birim yeterlidir. Sayın Başkan’ın doğrudan konuşması ancak konu büyürse değerlendirilmelidir."
+        }
+
     def make_plan(level, what_not_to_do, first_30, first_2h, first_24h, speaker, data_needed, tone):
+        h = human_layer()
         return {
             "level": level,
             "risk_topic": risk_topic,
@@ -587,7 +636,14 @@ def crisis_action_plan(social_sum):
             "first_24h": first_24h,
             "speaker": speaker,
             "data_needed": data_needed,
-            "tone": tone
+            "tone": tone,
+            "human_sensitivity": h["human_sensitivity"],
+            "emotional_context": h["emotional_context"],
+            "public_expectation": h["public_expectation"],
+            "opening_line": h["opening_line"],
+            "avoid_language": h["avoid_language"],
+            "statement_draft": h["statement_draft"],
+            "speaker_decision": h["speaker_decision"]
         }
 
     # 1) Teleferik / dava / yargı gündemi
@@ -598,9 +654,9 @@ def crisis_action_plan(social_sum):
             "İlk 30 dakikada haberin kaynağı, paylaşım hızı, yorum tonu ve iddianın yeni mi eski mi olduğu kontrol edilmeli. Ekran görüntüleri ve linkler kaydedilmeli.",
             "İlk 2 saatte hukuk birimi, basın birimi ve ilgili kurumsal ekipten kısa bilgi alınmalı. Gerekirse sadece sürece saygılı, sakin ve kurumsal bir bilgilendirme notu hazırlanmalı.",
             "İlk 24 saatte konu büyürse açıklama hukuk diline uygun yapılmalı. Sayın Başkan’ın kişisel tartışmaya çekilmemesi, kurumsal ve insani hassasiyetin öne çıkarılması gerekir.",
-            "İlk açıklamayı doğrudan Sayın Başkan değil, kurumsal hesap, hukuk birimi veya yetkilendirilmiş ilgili birim yapmalı. Sayın Başkan ancak konu çok büyürse sakin ve kısa bir çerçeveyle devreye girmeli.",
-            "Haber linkleri, dava/süreç bilgisi, resmi açıklama geçmişi, varsa mahkeme takvimi, basın notu ve daha önce yapılan açıklamalar hazırlanmalı.",
-            "Hukuka saygılı, sakin, mağduriyetleri önemseyen, polemiğe girmeyen ve kurumsal bir dil kullanılmalı."
+            "İlk teknik açıklamayı doğrudan Sayın Başkan değil, kurumsal hesap, hukuk birimi veya yetkilendirilmiş ilgili birim yapmalı. İnsani hassasiyet çok yüksekse Sayın Başkan kısa ve sadece taziye/hassasiyet mesajıyla devreye girebilir.",
+            "Haber linkleri, dava/süreç bilgisi, resmi açıklama geçmişi, varsa mahkeme takvimi, basın notu, mağduriyet bilgisi ve daha önce yapılan açıklamalar hazırlanmalı.",
+            "Hukuka saygılı, sakin, mağdur aileleri önemseyen, polemiğe girmeyen ve insani hassasiyeti öne alan bir dil kullanılmalı."
         )
 
     # 2) Hizmet şikayeti / asfalt / temizlik / park / ulaşım
@@ -939,6 +995,45 @@ a {{ color:#1f2933; font-weight:800; }}
     <b>Risk başlığı:</b><br>
     {esc(crisis_plan.get("risk_topic", ""))}
   </div>
+
+<div style="padding:12px; border-radius:12px; background:#fef2f2; border:1px solid #fecaca; margin-bottom:12px;">
+  <b>İnsani hassasiyet seviyesi:</b><br>
+  {esc(crisis_plan.get("human_sensitivity", ""))}
+</div>
+
+<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:12px; margin-bottom:12px;">
+
+  <div style="padding:12px; border-radius:12px; background:#ffffff;">
+    <b>🫶 Duygusal zemin</b><br>
+    {esc(crisis_plan.get("emotional_context", ""))}
+  </div>
+
+  <div style="padding:12px; border-radius:12px; background:#ffffff;">
+    <b>👥 Kamuoyu beklentisi</b><br>
+    {esc(crisis_plan.get("public_expectation", ""))}
+  </div>
+
+</div>
+
+<div style="padding:12px; border-radius:12px; background:#fff7ed; margin-bottom:12px;">
+  <b>İlk cümle nasıl olmalı?</b><br>
+  {esc(crisis_plan.get("opening_line", ""))}
+</div>
+
+<div style="padding:12px; border-radius:12px; background:#fee2e2; margin-bottom:12px;">
+  <b>Kesinlikle kaçınılacak dil:</b><br>
+  {esc(crisis_plan.get("avoid_language", ""))}
+</div>
+
+<div style="padding:12px; border-radius:12px; background:#f8fafc; margin-bottom:12px;">
+  <b>Açıklama taslağı:</b><br>
+  {esc(crisis_plan.get("statement_draft", ""))}
+</div>
+
+<div style="padding:12px; border-radius:12px; background:#ecfeff; margin-bottom:12px;">
+  <b>Açıklamayı kim yapmalı?</b><br>
+  {esc(crisis_plan.get("speaker_decision", ""))}
+</div>
 
   <div style="padding:12px; border-radius:12px; background:#fee2e2; margin-bottom:12px;">
     <b>Sayın Başkan'ın yapmaması gereken şey:</b><br>

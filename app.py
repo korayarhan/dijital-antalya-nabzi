@@ -8,11 +8,15 @@ from pathlib import Path
 import feedparser
 import smtplib
 from email.message import EmailMessage
+import json
+import urllib.request
+import urllib.error
 
 ROOT = Path(__file__).resolve().parent
 CONFIG = ROOT / "config" / "keywords.txt"
 SOCIAL_CSV = ROOT / "data" / "manual_social" / "social_manual.csv"
 AUTO_SOCIAL_CSV = ROOT / "data" / "auto_social" / "social_auto.csv"
+WATCH_KEYWORDS_CSV = ROOT / "data" / "social_watch" / "watch_keywords.csv"
 CRISIS_CSV = ROOT / "data" / "manual_crisis" / "crisis_status.csv"
 CRISIS_LOG_CSV = ROOT / "data" / "manual_crisis" / "crisis_log.csv"
 DYNAMIC_KEYWORDS = ROOT / "data" / "dynamic_keywords.txt"
@@ -370,6 +374,194 @@ def to_float(x):
         return float(str(x or "0").replace(",", "."))
     except ValueError:
         return 0.0
+
+def read_watch_keywords():
+    if not WATCH_KEYWORDS_CSV.exists():
+        return []
+
+    keywords = []
+    try:
+        with WATCH_KEYWORDS_CSV.open("r", encoding="utf-8-sig", newline="") as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                keyword = str(row.get("keyword", "") or "").strip()
+                category = str(row.get("category", "") or "").strip()
+                priority = str(row.get("priority", "") or "").strip()
+
+                if keyword:
+                    keywords.append({
+                        "keyword": keyword,
+                        "category": category,
+                        "priority": priority,
+                    })
+    except Exception as e:
+        print(f"Takip kelimeleri okunamadı: {e}")
+        return []
+
+    return keywords
+
+
+def score_x_post(text, matched_keyword):
+    text_norm = normalize_text(text)
+    keyword_norm = normalize_text(matched_keyword)
+
+    risk_words = [
+        "şikayet", "sikayet", "tepki", "kriz", "dava", "soruşturma", "sorusturma",
+        "ölüm", "olum", "yaralı", "yarali", "kaza", "facia", "mağdur", "magdur",
+        "ihmal", "skandal", "çöp", "cop", "asfalt", "yol bozuk", "temizlik",
+        "ulaşım", "ulasim", "gecikme", "sorun", "eleştiri", "elestiri"
+    ]
+
+    opportunity_words = [
+        "teşekkür", "tesekkur", "başarılı", "basarili", "hizmet", "çalışma",
+        "calisma", "destek", "ödül", "odul", "memnun", "güzel", "guzel",
+        "park", "sosyal yardım", "yardım", "yol çalışması", "temizlik çalışması"
+    ]
+
+    risk_hits = sum(1 for word in risk_words if word in text_norm)
+    opportunity_hits = sum(1 for word in opportunity_words if word in text_norm)
+
+    risk_score = min(10, 2 + risk_hits * 2)
+    opportunity_score = min(10, 2 + opportunity_hits * 2)
+
+    if any(word in text_norm for word in ["ölüm", "olum", "yaralı", "yarali", "kaza", "facia"]):
+        risk_score = max(risk_score, 7)
+
+    if keyword_norm in text_norm and matched_keyword:
+        risk_score = max(risk_score, 4)
+
+    if risk_score >= 6:
+        sentiment = "negative"
+        action_note = "X üzerinde riskli paylaşım tespit edildi. Yayılım, yorum tonu ve yerel basına sıçrama ihtimali izlenmeli."
+    elif opportunity_score >= 6:
+        sentiment = "positive"
+        action_note = "Olumlu/fırsat içeriği tespit edildi. Hizmet iletişimiyle büyütülebilir."
+    else:
+        sentiment = "neutral"
+        action_note = "İçerik izlemeye alınmalı. Şu aşamada acil aksiyon gerekmiyor."
+
+    topic = matched_keyword if matched_keyword else "X otomatik takip"
+
+    return sentiment, risk_score, opportunity_score, topic, action_note
+
+
+def fetch_x_social_posts():
+    token = os.getenv("X_BEARER_TOKEN", "").strip()
+    if not token:
+        print("X taraması atlandı: X_BEARER_TOKEN yok.")
+        return
+
+    keywords = read_watch_keywords()
+    if not keywords:
+        print("X taraması atlandı: takip kelimesi yok.")
+        return
+
+    AUTO_SOCIAL_CSV.parent.mkdir(parents=True, exist_ok=True)
+
+    # İlk sürümde sorguyu kısa tutuyoruz; X sorgu uzunluk limitine takılmayalım.
+    selected = keywords[:8]
+    query_parts = []
+    for item in selected:
+        kw = item.get("keyword", "")
+        if " " in kw:
+            query_parts.append(f'"{kw}"')
+        else:
+            query_parts.append(kw)
+
+    query = "(" + " OR ".join(query_parts) + ") lang:tr -is:retweet"
+
+    params = urllib.parse.urlencode({
+        "query": query,
+        "max_results": "10",
+        "tweet.fields": "created_at,public_metrics,author_id,text",
+        "expansions": "author_id",
+        "user.fields": "username,name",
+    })
+
+    url = f"https://api.x.com/2/tweets/search/recent?{params}"
+
+    rows = []
+
+    try:
+        req = urllib.request.Request(
+            url,
+            headers={
+                "Authorization": f"Bearer {token}",
+                "User-Agent": "YerelLiderAI/1.0",
+            },
+        )
+
+        with urllib.request.urlopen(req, timeout=30) as response:
+            payload = json.loads(response.read().decode("utf-8"))
+
+        users = {}
+        for user in payload.get("includes", {}).get("users", []):
+            users[user.get("id")] = user
+
+        for post in payload.get("data", []):
+            text = post.get("text", "")
+            matched_keyword = ""
+
+            text_norm = normalize_text(text)
+            for item in selected:
+                kw = item.get("keyword", "")
+                if normalize_text(kw) in text_norm:
+                    matched_keyword = kw
+                    break
+
+            sentiment, risk_score, opportunity_score, topic, action_note = score_x_post(text, matched_keyword)
+
+            metrics = post.get("public_metrics", {}) or {}
+            author = users.get(post.get("author_id"), {}) or {}
+            username = author.get("username", "")
+            account = f"@{username}" if username else "X kullanıcısı"
+
+            likes = metrics.get("like_count", 0) or 0
+            comments = metrics.get("reply_count", 0) or 0
+            shares = (metrics.get("retweet_count", 0) or 0) + (metrics.get("quote_count", 0) or 0)
+
+            post_url = f"https://x.com/{username}/status/{post.get('id')}" if username else ""
+
+            rows.append({
+                "date": str(post.get("created_at", ""))[:10],
+                "platform": "X / Twitter",
+                "account": account,
+                "content": text.replace("\n", " ").strip(),
+                "topic": topic,
+                "sentiment": sentiment,
+                "risk_score": risk_score,
+                "opportunity_score": opportunity_score,
+                "likes": likes,
+                "comments": comments,
+                "shares": shares,
+                "views": 0,
+                "url": post_url,
+                "action_note": action_note,
+                "source_type": "Otomatik X",
+            })
+
+        with AUTO_SOCIAL_CSV.open("w", encoding="utf-8-sig", newline="") as f:
+            fieldnames = [
+                "date", "platform", "account", "content", "topic", "sentiment",
+                "risk_score", "opportunity_score", "likes", "comments", "shares",
+                "views", "url", "action_note", "source_type"
+            ]
+            writer = csv.DictWriter(f, fieldnames=fieldnames)
+            writer.writeheader()
+            writer.writerows(rows)
+
+        print(f"X otomatik tarama tamamlandı. Kayıt sayısı: {len(rows)}")
+
+    except urllib.error.HTTPError as e:
+        detail = ""
+        try:
+            detail = e.read().decode("utf-8")
+        except:
+            pass
+        print(f"X taraması başarısız. HTTP {e.code}: {detail[:500]}")
+
+    except Exception as e:
+        print(f"X taraması başarısız: {e}")
 
 def read_social_data():
     sources = [
@@ -1826,6 +2018,7 @@ def main():
     os.makedirs("data", exist_ok=True)
 
     news, undated_news = fetch_news()
+    fetch_x_social_posts()
     social = read_social_data()
 
     save_dynamic_keywords(generate_dynamic_keywords(news, social))

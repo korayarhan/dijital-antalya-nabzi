@@ -1360,7 +1360,7 @@ def social_link(link):
         return ""
     if "example.com" in link:
         return '<p class="muted"><b>Link:</b> Manuel sosyal medya verisi</p>'
-    return f'<p><a href="{esc(link)}" target="_blank">Paylaşımı aç</a></p>'
+    return f'<p><a href="{esc(link)}" target="_blank">Gönderiyi aç</a></p>'
 
 
 def social_card(title, item):
@@ -1465,10 +1465,10 @@ def build_report(news, social, undated_news=None):
     social_rows = ""
     for item in social:
         social_rows += f"""
-        <tr><td>{esc(item.get("date"))}</td><td>{esc(item.get("platform"))}</td><td>{esc(item.get("topic"))}</td><td>{esc(item.get("tone"))}</td><td>%{item["like_rate"]:.2f}</td><td>{item["risk_score"]}/10</td><td>{item["opportunity_score"]}/10</td></tr>
+            <tr><td>{esc(item.get("date"))}</td><td>{esc(item.get("platform"))}</td><td>{esc(item.get("topic"))}</td><td>{esc(item.get("tone"))}</td><td>%{item["like_rate"]:.2f}</td><td>{item["risk_score"]}/10</td><td>{item["opportunity_score"]}/10</td><td>{social_link(item.get("link", ""))}</td></tr>
         """
     if not social_rows:
-        social_rows = "<tr><td colspan='7'>Henüz manuel sosyal medya verisi girilmedi.</td></tr>"
+        social_rows = "<tr><td colspan='8'>Henüz manuel sosyal medya verisi girilmedi.</td></tr>"
     if risk_count >= 3 or bad_pct >= 35:
         alert_level = "Yüksek dikkat"
         alert_summary = "Bugün riskli haberler veya olumsuz yorum oranı belirgin seviyede. Savunmacı polemik yerine sakin, belgeye dayalı ve hizmet odaklı iletişim tercih edilmelidir."
@@ -1747,7 +1747,7 @@ a {{ color:#1f2933; font-weight:800; }}
 <div class="card">
     <h2>10. Manuel Sosyal Medya Kayıtları</h2>
     <table>
-        <tr><th>Tarih</th><th>Platform</th><th>Konu</th><th>Ton</th><th>Beğenme</th><th>Risk</th><th>Fırsat</th></tr>
+        <tr><th>Tarih</th><th>Platform</th><th>Konu</th><th>Ton</th><th>Beğenme</th><th>Risk</th><th>Fırsat</th><th>Gönderi</th></tr>
         {social_rows}
     </table>
 </div>

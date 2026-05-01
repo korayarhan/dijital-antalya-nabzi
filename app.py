@@ -459,16 +459,43 @@ def fetch_x_social_posts():
     AUTO_SOCIAL_CSV.parent.mkdir(parents=True, exist_ok=True)
 
     # İlk sürümde sorguyu kısa tutuyoruz; X sorgu uzunluk limitine takılmayalım.
-    selected = keywords[:8]
-    query_parts = []
-    for item in selected:
-        kw = item.get("keyword", "")
-        if " " in kw:
-            query_parts.append(f'"{kw}"')
-        else:
-            query_parts.append(kw)
+        # X sorgusunu daraltıyoruz:
+    # Kepez / Mesut Kocagöz / Kepez Belediyesi bağlamı + risk kelimeleri birlikte aranacak.
+    selected = keywords
 
-    query = "(" + " OR ".join(query_parts) + ") lang:tr -is:retweet"
+    context_terms = [
+        '"Mesut Kocagöz"',
+        '"Mesut Kocagoz"',
+        '"Kepez Belediyesi"',
+        '"Kepez Belediye"',
+        '"Kepez Belediye Başkanı"',
+        '"Kepez Belediye Baskani"',
+        "Kepez",
+    ]
+
+    risk_terms = [
+        "şikayet",
+        "sikayet",
+        "tepki",
+        "dava",
+        "teleferik",
+        "asfalt",
+        "temizlik",
+        "park",
+        "ulaşım",
+        "ulasim",
+        "kriz",
+        "soruşturma",
+        "sorusturma",
+        "ihmal",
+        "mağdur",
+        "magdur",
+    ]
+
+    context_query = "(" + " OR ".join(context_terms) + ")"
+    risk_query = "(" + " OR ".join(risk_terms) + ")"
+
+    query = f"({context_query} {risk_query}) lang:tr -is:retweet"
 
     params = urllib.parse.urlencode({
         "query": query,
@@ -502,11 +529,19 @@ def fetch_x_social_posts():
             text = post.get("text", "")
             matched_keyword = ""
 
+                        matched_keyword = ""
             text_norm = normalize_text(text)
-            for item in selected:
-                kw = item.get("keyword", "")
-                if normalize_text(kw) in text_norm:
-                    matched_keyword = kw
+
+            context_hit = any(normalize_text(term.replace('"', "")) in text_norm for term in context_terms)
+            risk_hit = any(normalize_text(term) in text_norm for term in risk_terms)
+
+            if not context_hit or not risk_hit:
+                continue
+
+            for term in context_terms + risk_terms:
+                clean_term = term.replace('"', "")
+                if normalize_text(clean_term) in text_norm:
+                    matched_keyword = clean_term
                     break
 
             sentiment, risk_score, opportunity_score, topic, action_note = score_x_post(text, matched_keyword)

@@ -444,7 +444,6 @@ def score_x_post(text, matched_keyword):
 
     return sentiment, risk_score, opportunity_score, topic, action_note
 
-
 def fetch_x_social_posts():
     token = os.getenv("X_BEARER_TOKEN", "").strip()
     if not token:
@@ -458,11 +457,8 @@ def fetch_x_social_posts():
 
     AUTO_SOCIAL_CSV.parent.mkdir(parents=True, exist_ok=True)
 
-    # İlk sürümde sorguyu kısa tutuyoruz; X sorgu uzunluk limitine takılmayalım.
-        # X sorgusunu daraltıyoruz:
+    # X sorgusunu daraltıyoruz:
     # Kepez / Mesut Kocagöz / Kepez Belediyesi bağlamı + risk kelimeleri birlikte aranacak.
-    selected = keywords
-
     context_terms = [
         '"Mesut Kocagöz"',
         '"Mesut Kocagoz"',
@@ -494,7 +490,6 @@ def fetch_x_social_posts():
 
     context_query = "(" + " OR ".join(context_terms) + ")"
     risk_query = "(" + " OR ".join(risk_terms) + ")"
-
     query = f"({context_query} {risk_query}) lang:tr -is:retweet"
 
     params = urllib.parse.urlencode({
@@ -506,7 +501,6 @@ def fetch_x_social_posts():
     })
 
     url = f"https://api.x.com/2/tweets/search/recent?{params}"
-
     rows = []
 
     try:
@@ -527,24 +521,33 @@ def fetch_x_social_posts():
 
         for post in payload.get("data", []):
             text = post.get("text", "")
-            matched_keyword = ""
-
-                        matched_keyword = ""
             text_norm = normalize_text(text)
 
-            context_hit = any(normalize_text(term.replace('"', "")) in text_norm for term in context_terms)
-            risk_hit = any(normalize_text(term) in text_norm for term in risk_terms)
+            context_hit = any(
+                normalize_text(term.replace('"', "")) in text_norm
+                for term in context_terms
+            )
 
+            risk_hit = any(
+                normalize_text(term) in text_norm
+                for term in risk_terms
+            )
+
+            # Hem Kepez/Mesut/Belediye bağlamı hem risk kelimesi yoksa kayda alma.
             if not context_hit or not risk_hit:
                 continue
 
+            matched_keyword = ""
             for term in context_terms + risk_terms:
                 clean_term = term.replace('"', "")
                 if normalize_text(clean_term) in text_norm:
                     matched_keyword = clean_term
                     break
 
-            sentiment, risk_score, opportunity_score, topic, action_note = score_x_post(text, matched_keyword)
+            sentiment, risk_score, opportunity_score, topic, action_note = score_x_post(
+                text,
+                matched_keyword
+            )
 
             metrics = post.get("public_metrics", {}) or {}
             author = users.get(post.get("author_id"), {}) or {}
@@ -577,9 +580,21 @@ def fetch_x_social_posts():
 
         with AUTO_SOCIAL_CSV.open("w", encoding="utf-8-sig", newline="") as f:
             fieldnames = [
-                "date", "platform", "account", "content", "topic", "sentiment",
-                "risk_score", "opportunity_score", "likes", "comments", "shares",
-                "views", "url", "action_note", "source_type"
+                "date",
+                "platform",
+                "account",
+                "content",
+                "topic",
+                "sentiment",
+                "risk_score",
+                "opportunity_score",
+                "likes",
+                "comments",
+                "shares",
+                "views",
+                "url",
+                "action_note",
+                "source_type",
             ]
             writer = csv.DictWriter(f, fieldnames=fieldnames)
             writer.writeheader()

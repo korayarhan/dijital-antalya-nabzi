@@ -370,16 +370,15 @@ def to_float(x):
     except ValueError:
         return 0.0
 
-
 def read_social_data():
     if not SOCIAL_CSV.exists():
         return []
 
     rows = []
 
-    def to_float(value, default=0):
+    def to_float_local(value, default=0):
         try:
-            return float(str(value).replace(",", ".").strip())
+            return float(str(value or "0").replace(",", ".").strip())
         except:
             return default
 
@@ -395,42 +394,61 @@ def read_social_data():
             reader = csv.DictReader(f)
 
             for row in reader:
+                likes = to_float_local(get_value(row, "likes", "like", "begeni", "beğeni", default="0"))
+                comments = to_float_local(get_value(row, "comments", "comment", "yorum", default="0"))
+                shares = to_float_local(get_value(row, "shares", "share", "paylasim", "paylaşım", default="0"))
+                views = to_float_local(get_value(row, "views", "view", "goruntulenme", "görüntülenme", default="0"))
+
+                good_comments = to_float_local(get_value(row, "good_comments", "iyi_yorum", default="0"))
+                neutral_comments = to_float_local(get_value(row, "neutral_comments", "notr_yorum", "nötr_yorum", default="0"))
+                bad_comments = to_float_local(get_value(row, "bad_comments", "kotu_yorum", "kötü_yorum", default="0"))
+
+                sentiment = get_value(row, "sentiment", "duygu", "tone", default="neutral")
+                if sentiment == "positive":
+                    tone = "İyi"
+                    good_comments = good_comments or 1
+                elif sentiment == "negative":
+                    tone = "Kötü"
+                    bad_comments = bad_comments or 1
+                elif sentiment == "neutral":
+                    tone = "Nötr"
+                    neutral_comments = neutral_comments or 1
+                else:
+                    tone = sentiment
+
+                engagement = likes + comments + shares
+                like_rate = round((likes / views) * 100, 2) if views else 0
+                engagement_rate = round((engagement / views) * 100, 2) if views else 0
+
+                risk_score = to_float_local(get_value(row, "risk_score", "risk", default="0"))
+                opportunity_score = to_float_local(get_value(row, "opportunity_score", "opportunity", default="0"))
+
                 item = {
                     "date": get_value(row, "date", "tarih"),
                     "platform": get_value(row, "platform", "Platform"),
                     "account": get_value(row, "account", "hesap", "account_name"),
                     "content": get_value(row, "content", "icerik", "içerik", "text"),
                     "topic": get_value(row, "topic", "konu"),
-                    "sentiment": get_value(row, "sentiment", "duygu", "tone"),
-                    "risk_score": to_float(get_value(row, "risk_score", "risk", default="0")),
-                    "opportunity_score": to_float(get_value(row, "opportunity_score", "opportunity", default="0")),
-                    "likes": to_float(get_value(row, "likes", "like", "begeni", "beğeni", default="0")),
-                    "comments": to_float(get_value(row, "comments", "comment", "yorum", default="0")),
-                    "shares": to_float(get_value(row, "shares", "share", "paylasim", "paylaşım", default="0")),
-                    "views": to_float(get_value(row, "views", "view", "goruntulenme", "görüntülenme", default="0")),
+                    "tone": tone,
+                    "sentiment": sentiment,
+                    "likes": likes,
+                    "comments": comments,
+                    "shares": shares,
+                    "views": views,
+                    "good_comments": good_comments,
+                    "neutral_comments": neutral_comments,
+                    "bad_comments": bad_comments,
+                    "like_rate": like_rate,
+                    "engagement_rate": engagement_rate,
+                    "risk_score": risk_score,
+                    "opportunity_score": opportunity_score,
                     "url": get_value(row, "url", "link"),
+                    "link": get_value(row, "url", "link"),
                     "action_note": get_value(row, "action_note", "action", "aksiyon", "not"),
+                    "notes": get_value(row, "action_note", "action", "aksiyon", "not"),
+                    "risk_note": get_value(row, "action_note", "action", "aksiyon", "not"),
                 }
 
-                item["engagement"] = item["likes"] + item["comments"] + item["shares"]
-                
-                 item["like_rate"] = to_float(get_value(row, "like_rate", "like_orani", "beğeni_oranı", "begeni_orani", default="0"))
-                item["engagement_rate"] = to_float(get_value(row, "engagement_rate", "etkilesim_orani", "etkileşim_oranı", default="0"))
-
-                if item["views"] > 0:
-                    if item["like_rate"] == 0:
-                        item["like_rate"] = round((item["likes"] / item["views"]) * 100, 2)
-                    if item["engagement_rate"] == 0:
-                        item["engagement_rate"] = round((item["engagement"] / item["views"]) * 100, 2)
-
-                item["good_comments"] = to_float(get_value(row, "good_comments", "iyi_yorum", default="0"))
-                item["neutral_comments"] = to_float(get_value(row, "neutral_comments", "notr_yorum", "nötr_yorum", default="0"))
-                item["bad_comments"] = to_float(get_value(row, "bad_comments", "kotu_yorum", "kötü_yorum", default="0"))
-
-                item["tone"] = item["sentiment"]
-                item["notes"] = item["action_note"]
-                item["risk_note"] = item["action_note"]
-                item["link"] = item["url"]
                 if any(str(v).strip() for v in item.values()):
                     rows.append(item)
 

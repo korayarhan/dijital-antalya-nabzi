@@ -1,0 +1,16 @@
+keyword,category,priority
+Mesut Kocagöz,person,high
+Kepez Belediyesi,institution,high
+Kepez,region,high
+Antalya,region,medium
+teleferik,crisis,high
+dava,crisis,high
+soruşturma,crisis,high
+şikayet,complaint,high
+asfalt,service,medium
+temizlik,service,medium
+park,service,medium
+ulaşım,service,medium
+sosyal yardım,service,medium
+AK Parti,politics,medium
+CHP,politics,medium

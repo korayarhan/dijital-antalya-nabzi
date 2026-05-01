@@ -12,6 +12,7 @@ from email.message import EmailMessage
 ROOT = Path(__file__).resolve().parent
 CONFIG = ROOT / "config" / "keywords.txt"
 SOCIAL_CSV = ROOT / "data" / "manual_social" / "social_manual.csv"
+AUTO_SOCIAL_CSV = ROOT / "data" / "auto_social" / "social_auto.csv"
 CRISIS_CSV = ROOT / "data" / "manual_crisis" / "crisis_status.csv"
 CRISIS_LOG_CSV = ROOT / "data" / "manual_crisis" / "crisis_log.csv"
 DYNAMIC_KEYWORDS = ROOT / "data" / "dynamic_keywords.txt"
@@ -371,8 +372,10 @@ def to_float(x):
         return 0.0
 
 def read_social_data():
-    if not SOCIAL_CSV.exists():
-        return []
+    sources = [
+        (SOCIAL_CSV, "Manuel"),
+        (AUTO_SOCIAL_CSV, "Otomatik"),
+    ]
 
     rows = []
 
@@ -389,72 +392,79 @@ def read_social_data():
                 return str(value).strip()
         return default
 
-    try:
-        with SOCIAL_CSV.open("r", encoding="utf-8-sig", newline="") as f:
-            reader = csv.DictReader(f)
+    for csv_path, default_source_type in sources:
+        if not csv_path.exists():
+            continue
 
-            for row in reader:
-                likes = to_float_local(get_value(row, "likes", "like", "begeni", "beğeni", default="0"))
-                comments = to_float_local(get_value(row, "comments", "comment", "yorum", default="0"))
-                shares = to_float_local(get_value(row, "shares", "share", "paylasim", "paylaşım", default="0"))
-                views = to_float_local(get_value(row, "views", "view", "goruntulenme", "görüntülenme", default="0"))
+        try:
+            with csv_path.open("r", encoding="utf-8-sig", newline="") as f:
+                reader = csv.DictReader(f)
 
-                good_comments = to_float_local(get_value(row, "good_comments", "iyi_yorum", default="0"))
-                neutral_comments = to_float_local(get_value(row, "neutral_comments", "notr_yorum", "nötr_yorum", default="0"))
-                bad_comments = to_float_local(get_value(row, "bad_comments", "kotu_yorum", "kötü_yorum", default="0"))
+                for row in reader:
+                    likes = to_float_local(get_value(row, "likes", "like", "begeni", "beğeni", default="0"))
+                    comments = to_float_local(get_value(row, "comments", "comment", "yorum", default="0"))
+                    shares = to_float_local(get_value(row, "shares", "share", "paylasim", "paylaşım", default="0"))
+                    views = to_float_local(get_value(row, "views", "view", "goruntulenme", "görüntülenme", default="0"))
 
-                sentiment = get_value(row, "sentiment", "duygu", "tone", default="neutral")
-                if sentiment == "positive":
-                    tone = "İyi"
-                    good_comments = good_comments or 1
-                elif sentiment == "negative":
-                    tone = "Kötü"
-                    bad_comments = bad_comments or 1
-                elif sentiment == "neutral":
-                    tone = "Nötr"
-                    neutral_comments = neutral_comments or 1
-                else:
-                    tone = sentiment
+                    good_comments = to_float_local(get_value(row, "good_comments", "iyi_yorum", default="0"))
+                    neutral_comments = to_float_local(get_value(row, "neutral_comments", "notr_yorum", "nötr_yorum", default="0"))
+                    bad_comments = to_float_local(get_value(row, "bad_comments", "kotu_yorum", "kötü_yorum", default="0"))
 
-                engagement = likes + comments + shares
-                like_rate = round((likes / views) * 100, 2) if views else 0
-                engagement_rate = round((engagement / views) * 100, 2) if views else 0
+                    sentiment = get_value(row, "sentiment", "duygu", "tone", default="neutral")
 
-                risk_score = to_float_local(get_value(row, "risk_score", "risk", default="0"))
-                opportunity_score = to_float_local(get_value(row, "opportunity_score", "opportunity", default="0"))
+                    if sentiment == "positive":
+                        tone = "İyi"
+                        good_comments = good_comments or 1
+                    elif sentiment == "negative":
+                        tone = "Kötü"
+                        bad_comments = bad_comments or 1
+                    elif sentiment == "neutral":
+                        tone = "Nötr"
+                        neutral_comments = neutral_comments or 1
+                    else:
+                        tone = sentiment
 
-                item = {
-                    "date": get_value(row, "date", "tarih"),
-                    "platform": get_value(row, "platform", "Platform"),
-                    "account": get_value(row, "account", "hesap", "account_name"),
-                    "content": get_value(row, "content", "icerik", "içerik", "text"),
-                    "topic": get_value(row, "topic", "konu"),
-                    "tone": tone,
-                    "sentiment": sentiment,
-                    "likes": likes,
-                    "comments": comments,
-                    "shares": shares,
-                    "views": views,
-                    "good_comments": good_comments,
-                    "neutral_comments": neutral_comments,
-                    "bad_comments": bad_comments,
-                    "like_rate": like_rate,
-                    "engagement_rate": engagement_rate,
-                    "risk_score": risk_score,
-                    "opportunity_score": opportunity_score,
-                    "url": get_value(row, "url", "link"),
-                    "link": get_value(row, "url", "link"),
-                    "action_note": get_value(row, "action_note", "action", "aksiyon", "not"),
-                    "notes": get_value(row, "action_note", "action", "aksiyon", "not"),
-                    "risk_note": get_value(row, "action_note", "action", "aksiyon", "not"),
-                }
+                    engagement = likes + comments + shares
+                    like_rate = round((likes / views) * 100, 2) if views else 0
+                    engagement_rate = round((engagement / views) * 100, 2) if views else 0
 
-                if any(str(v).strip() for v in item.values()):
-                    rows.append(item)
+                    risk_score = to_float_local(get_value(row, "risk_score", "risk", default="0"))
+                    opportunity_score = to_float_local(get_value(row, "opportunity_score", "opportunity", default="0"))
 
-    except Exception as e:
-        print(f"Sosyal medya verisi okunamadı: {e}")
-        return []
+                    action_note = get_value(row, "action_note", "action", "aksiyon", "not")
+
+                    item = {
+                        "date": get_value(row, "date", "tarih"),
+                        "platform": get_value(row, "platform", "Platform"),
+                        "account": get_value(row, "account", "hesap", "account_name"),
+                        "content": get_value(row, "content", "icerik", "içerik", "text"),
+                        "topic": get_value(row, "topic", "konu"),
+                        "tone": tone,
+                        "sentiment": sentiment,
+                        "likes": likes,
+                        "comments": comments,
+                        "shares": shares,
+                        "views": views,
+                        "good_comments": good_comments,
+                        "neutral_comments": neutral_comments,
+                        "bad_comments": bad_comments,
+                        "like_rate": like_rate,
+                        "engagement_rate": engagement_rate,
+                        "risk_score": risk_score,
+                        "opportunity_score": opportunity_score,
+                        "url": get_value(row, "url", "link"),
+                        "link": get_value(row, "url", "link"),
+                        "action_note": action_note,
+                        "notes": action_note,
+                        "risk_note": action_note,
+                        "source_type": get_value(row, "source_type", default=default_source_type),
+                    }
+
+                    if any(str(v).strip() for v in item.values()):
+                        rows.append(item)
+
+        except Exception as e:
+            print(f"Sosyal medya verisi okunamadı: {csv_path} - {e}")
 
     return rows
 

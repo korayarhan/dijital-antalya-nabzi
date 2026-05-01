@@ -413,7 +413,24 @@ def read_social_data():
                 }
 
                 item["engagement"] = item["likes"] + item["comments"] + item["shares"]
+                
+                 item["like_rate"] = to_float(get_value(row, "like_rate", "like_orani", "beğeni_oranı", "begeni_orani", default="0"))
+                item["engagement_rate"] = to_float(get_value(row, "engagement_rate", "etkilesim_orani", "etkileşim_oranı", default="0"))
 
+                if item["views"] > 0:
+                    if item["like_rate"] == 0:
+                        item["like_rate"] = round((item["likes"] / item["views"]) * 100, 2)
+                    if item["engagement_rate"] == 0:
+                        item["engagement_rate"] = round((item["engagement"] / item["views"]) * 100, 2)
+
+                item["good_comments"] = to_float(get_value(row, "good_comments", "iyi_yorum", default="0"))
+                item["neutral_comments"] = to_float(get_value(row, "neutral_comments", "notr_yorum", "nötr_yorum", default="0"))
+                item["bad_comments"] = to_float(get_value(row, "bad_comments", "kotu_yorum", "kötü_yorum", default="0"))
+
+                item["tone"] = item["sentiment"]
+                item["notes"] = item["action_note"]
+                item["risk_note"] = item["action_note"]
+                item["link"] = item["url"]
                 if any(str(v).strip() for v in item.values()):
                     rows.append(item)
 

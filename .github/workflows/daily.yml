@@ -35,7 +35,7 @@ jobs:
       - name: Raporu oluştur
         env:
           ALERT_EMAIL_ENABLED: "true"
-          ALERT_NOTIFY_ON_MEDIUM: "true"
+          ALERT_NOTIFY_ON_MEDIUM: "false"
           SMTP_HOST: ${{ secrets.SMTP_HOST }}
           SMTP_PORT: ${{ secrets.SMTP_PORT }}
           SMTP_USER: ${{ secrets.SMTP_USER }}

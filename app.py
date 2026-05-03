@@ -1611,6 +1611,74 @@ def social_card(title, item):
     </div>
     """
 
+def read_president_x_posts():
+    if not PRESIDENT_X_CSV.exists():
+        return []
+
+    rows = []
+
+    def to_int_local(value, default=0):
+        try:
+            return int(float(str(value or "0").replace(",", ".").strip()))
+        except:
+            return default
+
+    try:
+        with PRESIDENT_X_CSV.open("r", encoding="utf-8-sig", newline="") as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                item = {
+                    "date": str(row.get("date", "") or "").strip(),
+                    "platform": str(row.get("platform", "") or "").strip(),
+                    "account": str(row.get("account", "") or "").strip(),
+                    "content": str(row.get("content", "") or "").strip(),
+                    "topic": str(row.get("topic", "") or "").strip(),
+                    "likes": to_int_local(row.get("likes", 0)),
+                    "replies": to_int_local(row.get("replies", 0)),
+                    "reposts": to_int_local(row.get("reposts", 0)),
+                    "quotes": to_int_local(row.get("quotes", 0)),
+                    "engagement": to_int_local(row.get("engagement", 0)),
+                    "url": str(row.get("url", "") or "").strip(),
+                    "source_type": str(row.get("source_type", "") or "").strip(),
+                }
+
+                if any(str(v).strip() for v in item.values()):
+                    rows.append(item)
+
+    except Exception as e:
+        print(f"Başkan X gönderileri okunamadı: {e}")
+        return []
+
+    return sorted(rows, key=lambda x: x.get("engagement", 0), reverse=True)
+
+
+def president_x_card(title, item):
+    if not item:
+        return f"""
+<div class="item">
+<h3>{esc(title)}</h3>
+<p>Henüz Başkan X hesabı verisi yok.</p>
+</div>
+"""
+
+    content = esc(item.get("content", ""))[:260]
+
+    return f"""
+<div class="item">
+<h3>{esc(title)}</h3>
+<p><b>Tarih:</b> {esc(item.get("date", ""))}</p>
+<p><b>Konu:</b> {esc(item.get("topic", ""))}</p>
+<p>{content}</p>
+<p>
+<b>Beğeni:</b> {item.get("likes", 0)} •
+<b>Yanıt:</b> {item.get("replies", 0)} •
+<b>Repost:</b> {item.get("reposts", 0)} •
+<b>Quote:</b> {item.get("quotes", 0)} •
+<b>Toplam etkileşim:</b> {item.get("engagement", 0)}
+</p>
+{social_link(item.get("url", ""))}
+</div>
+"""
 
 def build_report(news, social, undated_news=None):
     undated_news = undated_news or []
@@ -1700,6 +1768,15 @@ def build_report(news, social, undated_news=None):
         """
     if not social_rows:
         social_rows = "<tr><td colspan='8'>Henüz manuel sosyal medya verisi girilmedi.</td></tr>"
+        president_posts = read_president_x_posts()
+        president_top3 = president_posts[:3]
+
+        president_x_html = ""
+        for idx, post in enumerate(president_top3, start=1):
+            president_x_html += president_x_card(f"{idx}. Öne Çıkan Gönderi", post)
+
+       if not president_x_html:
+           president_x_html = "<div class='item'>Henüz Sayın Başkan'ın X hesabından gönderi verisi alınamadı.</div>"
     if risk_count >= 3 or bad_pct >= 35:
         alert_level = "Yüksek dikkat"
         alert_summary = "Bugün riskli haberler veya olumsuz yorum oranı belirgin seviyede. Savunmacı polemik yerine sakin, belgeye dayalı ve hizmet odaklı iletişim tercih edilmelidir."

@@ -2090,7 +2090,7 @@ a {{ color:#1f2933; font-weight:800; }}
 
 {section_label("📊 Stratejik Değerlendirme", "#334155", "#f8fafc")}
 
-<div class="card">
+<div class="card" style="border-left:6px solid #334155; background:#f8fafc;">
 <h2>11. Stratejik Erken Uyarı ve Günlük Değerlendirme</h2>
 
 <h3>A) Alarm Seviyesi</h3>

@@ -2119,6 +2119,44 @@ def build_system_learning_note(news, social, alert_logs, team_actions, president
         "risk_level": risk_level,
     }
 
+def team_action_status_badge(status):
+    raw_status = str(status or "").strip()
+    status_norm = normalize_text(raw_status)
+
+    if not raw_status:
+        label = "Durum yok"
+        color = "#64748b"
+        bg = "#f8fafc"
+    elif "baskan" in status_norm and "bilgilendir" in status_norm:
+        label = raw_status
+        color = "#b91c1c"
+        bg = "#fef2f2"
+    elif "kriz" in status_norm or "panele" in status_norm:
+        label = raw_status
+        color = "#b91c1c"
+        bg = "#fef2f2"
+    elif "tamam" in status_norm or "kapandi" in status_norm:
+        label = raw_status
+        color = "#15803d"
+        bg = "#f0fdf4"
+    elif "devam" in status_norm or "mudahale" in status_norm:
+        label = raw_status
+        color = "#d97706"
+        bg = "#fffbeb"
+    elif "bekle" in status_norm or "takip" in status_norm:
+        label = raw_status
+        color = "#2563eb"
+        bg = "#eff6ff"
+    else:
+        label = raw_status
+        color = "#475569"
+        bg = "#f8fafc"
+
+    return f"""
+<span style="display:inline-block; padding:6px 10px; border-radius:999px; border:1px solid {color}; background:{bg}; color:{color}; font-weight:700; font-size:13px;">
+{esc(label)}
+</span>
+"""
 
 def build_team_report(news, social, early_warning, crisis_plan, crisis_status, report_time):
     now_tr = dt.datetime.utcnow() + dt.timedelta(hours=3)
@@ -2183,7 +2221,7 @@ def build_team_report(news, social, early_warning, crisis_plan, crisis_status, r
 <td>{esc(item.get("result", ""))}</td>
 <td>{esc(item.get("responsible", ""))}</td>
 <td>{esc(item.get("next_step", ""))}</td>
-<td>{esc(item.get("status", ""))}</td>
+<td>{team_action_status_badge(item.get("status", ""))}</td>
 </tr>
 """
 

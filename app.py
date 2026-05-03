@@ -1954,6 +1954,8 @@ a {{ color:#1f2933; font-weight:800; }}
             <p><b>İlk aksiyon önerisi:</b> {esc(social_sum.get("action_text", ""))}</p>
         </div>
         
+        {section_label("🚨 Kriz / Soğukkanlı Aksiyon", "#b91c1c", "#fef2f2")}
+        
         <div style="border:2px solid #dc2626; border-radius:16px; padding:16px; margin:18px 0; background:#fff7ed;">
 
   <h2 style="margin-top:0; color:#991b1b;">🚨 Kriz Anında Soğukkanlı Aksiyon Planı</h2>

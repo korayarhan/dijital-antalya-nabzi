@@ -1572,6 +1572,12 @@ def bar(label, value, color_class):
     </div>
     """
 
+def section_label(title, color, bg):
+    return f"""
+<div style="border:2px solid {color}; border-left:8px solid {color}; background:{bg}; border-radius:18px; padding:14px 18px; margin:26px 0 14px 0; font-weight:800; font-size:24px; color:{color};">
+{esc(title)}
+</div>
+"""
 
 def news_card(item):
     return f"""

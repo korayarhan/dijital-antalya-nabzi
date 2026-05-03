@@ -2054,6 +2054,71 @@ def read_alert_log(limit=20):
 
     return rows[-limit:]
 
+def build_system_learning_note(news, social, alert_logs, team_actions, president_replies, crisis_plan, early_warning):
+    def safe_float(value, default=0):
+        try:
+            return float(str(value or "0").replace(",", ".").strip())
+        except:
+            return default
+
+    risky_social_count = len([x for x in social if safe_float(x.get("risk_score", 0)) >= 6])
+    high_risk_social_count = len([x for x in social if safe_float(x.get("risk_score", 0)) >= 8])
+    risky_reply_count = len([x for x in president_replies if safe_float(x.get("risk_score", 0)) >= 6])
+
+    top_social = sorted(
+        social,
+        key=lambda x: safe_float(x.get("risk_score", 0)),
+        reverse=True
+    )
+
+    top_topic = ""
+    if top_social:
+        top_topic = top_social[0].get("topic", "") or top_social[0].get("content", "")[:60]
+
+    risk_level = crisis_plan.get("level", "")
+    decision = early_warning.get("decision", "")
+
+    if high_risk_social_count >= 1 or "ACİL ALARM" in decision or "ACIL ALARM" in decision:
+        main_risk = "Bugün sistem yüksek riskli bir başlık yakaladı. Kriz paneli ve ekip aksiyonları yakından takip edilmeli."
+    elif risky_social_count >= 1 or risky_reply_count >= 1:
+        main_risk = "Bugün takip gerektiren orta seviyede sosyal medya riski var. Yayılım hızı ve tekrar eden konu kontrol edilmeli."
+    else:
+        main_risk = "Bugün belirgin yüksek riskli sosyal medya hareketi görünmüyor. Normal takip yeterli."
+
+    if top_topic:
+        repeated_topic = f"Öne çıkan takip konusu: {top_topic}"
+    else:
+        repeated_topic = "Bugün öne çıkan tekrar eden konu netleşmedi."
+
+    if risky_social_count >= 5:
+        filter_note = "Riskli kayıt sayısı yüksek. X filtreleri ve uygunluk skoru tekrar kontrol edilmeli."
+    elif risky_social_count == 0:
+        filter_note = "Riskli kayıt sayısı düşük. Filtreler şimdilik dengeli görünüyor."
+    else:
+        filter_note = "Filtreler çalışıyor; ancak alakasız kayıt olup olmadığı ekip tarafından gözle kontrol edilmeli."
+
+    if team_actions:
+        action_note = "Ekip aksiyon kayıtları girilmeye başlanmış. Bildirimden sonra alınan aksiyonların düzenli yazılması önemli."
+    else:
+        action_note = "Henüz ekip aksiyon kaydı yok. İlk fırsatta ekip aksiyon giriş alışkanlığı oluşturulmalı."
+
+    if alert_logs:
+        archive_note = "Bildirim geçmişi oluşuyor. Bu kayıtlar ileride arşiv ve geçmiş kriz analizi için kullanılacak."
+    else:
+        archive_note = "Bildirim geçmişi henüz oluşmadı. İlk alarm sonrası kayıt kontrol edilmeli."
+
+    next_improvement = "Bir sonraki küçük gelişim: ekip raporunda aksiyonların durumuna göre 'Beklemede / Tamamlandı / Başkan bilgilendirilmeli' ayrımı güçlendirilebilir."
+
+    return {
+        "main_risk": main_risk,
+        "repeated_topic": repeated_topic,
+        "filter_note": filter_note,
+        "action_note": action_note,
+        "archive_note": archive_note,
+        "next_improvement": next_improvement,
+        "risk_level": risk_level,
+    }
+
 
 def build_team_report(news, social, early_warning, crisis_plan, crisis_status, report_time):
     now_tr = dt.datetime.utcnow() + dt.timedelta(hours=3)

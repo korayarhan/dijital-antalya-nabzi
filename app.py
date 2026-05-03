@@ -533,16 +533,125 @@ def fetch_x_social_posts():
                 for term in risk_terms
             )
 
-            # Hem Kepez/Mesut/Belediye bağlamı hem risk kelimesi yoksa kayda alma.
+            # Üçüncü filtre: uygunluk skoru
+            # Amaç: Sadece "Kepez" geçti diye alakasız gönderileri rapora almamak.
+            strong_context_terms = [
+                "mesut kocagöz",
+                "mesut kocagoz",
+                "kepez belediyesi",
+                "kepez belediye",
+                "kepez belediye başkanı",
+                "kepez belediye baskani",
+            ]
+
+            service_terms = [
+                "belediye",
+                "başkan",
+                "baskan",
+                "hizmet",
+                "asfalt",
+                "yol",
+                "temizlik",
+                "park",
+                "ulaşım",
+                "ulasim",
+                "sosyal yardım",
+                "sosyal yardim",
+                "mahalle",
+                "zabıta",
+                "zabita",
+            ]
+
+            political_terms = [
+                "chp",
+                "ak parti",
+                "meclis",
+                "aday",
+                "seçim",
+                "secim",
+                "polemik",
+                "eleştiri",
+                "elestiri",
+            ]
+
+            exclude_terms = [
+                "kepezspor",
+                "kepez spor",
+                "satılık",
+                "satilik",
+                "kiralık",
+                "kiralik",
+                "emlak",
+                "daire",
+                "konut",
+                "arsa",
+                "otomobil",
+                "araç",
+                "arac",
+                "iş ilanı",
+                "is ilani",
+                "personel alımı",
+                "personel alimi",
+                "okul",
+                "maç",
+                "mac",
+            ]
+
+            strong_context_hit = any(normalize_text(term) in text_norm for term in strong_context_terms)
+            weak_kepez_hit = "kepez" in text_norm
+            service_hit = any(normalize_text(term) in text_norm for term in service_terms)
+            political_hit = any(normalize_text(term) in text_norm for term in political_terms)
+            exclude_hit = any(normalize_text(term) in text_norm for term in exclude_terms)
+
+            relevance_score = 0
+
+            if strong_context_hit:
+                relevance_score += 6
+
+            if weak_kepez_hit:
+                relevance_score += 2
+
+            if service_hit:
+                relevance_score += 3
+
+            if political_hit:
+                relevance_score += 2
+
+            if risk_hit:
+                relevance_score += 3
+
+            if exclude_hit:
+                relevance_score -= 6
+
+            # Hem ana bağlam hem risk kelimesi yoksa alma.
             if not context_hit or not risk_hit:
                 continue
 
-            matched_keyword = ""
-            for term in context_terms + risk_terms:
+            # Sadece zayıf Kepez eşleşmesi varsa ve belediye/hizmet/siyasi bağlam yoksa alma.
+            if weak_kepez_hit and not strong_context_hit and not service_hit and not political_hit:
+                continue
+
+            # Uygunluk skoru düşükse rapora alma.
+            if relevance_score < 7:
+                continue
+
+            matched_context = ""
+            for term in context_terms:
                 clean_term = term.replace('"', "")
                 if normalize_text(clean_term) in text_norm:
-                    matched_keyword = clean_term
+                    matched_context = clean_term
                     break
+
+            matched_risk = ""
+            for term in risk_terms:
+                if normalize_text(term) in text_norm:
+                    matched_risk = term
+                    break
+
+            if matched_context and matched_risk:
+                matched_keyword = f"{matched_context} + {matched_risk}"
+            else:
+                matched_keyword = matched_context or matched_risk or "X otomatik takip"
 
             sentiment, risk_score, opportunity_score, topic, action_note = score_x_post(
                 text,

@@ -2134,7 +2134,15 @@ def build_team_report(news, social, early_warning, crisis_plan, crisis_status, r
     team_actions = read_team_actions(20)
     crisis_log = read_crisis_log()
     president_replies = read_president_x_replies()
-
+    learning_note = build_system_learning_note(
+        news,
+        social,
+        alert_logs,
+        team_actions,
+        president_replies,
+        crisis_plan,
+        early_warning,
+    )
     risky_social = sorted(
         social,
         key=lambda x: safe_float(x.get("risk_score", 0)),
@@ -2299,6 +2307,16 @@ th {{
 <p><b>Karar:</b> {esc(early_warning.get("decision", ""))}</p>
 <p><b>Durum:</b> {esc(crisis_status.get("status", ""))}</p>
 <p><b>İlk aksiyon:</b> {esc(early_warning.get("first_action", ""))}</p>
+</div>
+
+{section_label("🧠 Günlük Sistem Öğrenme Notu", "#4f46e5", "#eef2ff")}
+<div class="card">
+<p><b>Ana risk değerlendirmesi:</b> {esc(learning_note.get("main_risk", ""))}</p>
+<p><b>Tekrarlayan / öne çıkan konu:</b> {esc(learning_note.get("repeated_topic", ""))}</p>
+<p><b>Filtre notu:</b> {esc(learning_note.get("filter_note", ""))}</p>
+<p><b>Ekip aksiyon notu:</b> {esc(learning_note.get("action_note", ""))}</p>
+<p><b>Arşiv notu:</b> {esc(learning_note.get("archive_note", ""))}</p>
+<p><b>Bir sonraki küçük gelişim:</b> {esc(learning_note.get("next_improvement", ""))}</p>
 </div>
 
 {section_label("📣 Bildirim Geçmişi / Alarm Kayıtları", "#0ea5e9", "#f0f9ff")}

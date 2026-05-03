@@ -1913,6 +1913,7 @@ a {{ color:#1f2933; font-weight:800; }}
 
 <main>
 <div class="card notice">
+{section_label("📰 Haberler ve Günlük Genel Özet", "#2563eb", "#eff6ff")}
     <h2>1. Günün Genel Algısı</h2>
     <div class="kpis">
         <div class="kpi"><b>{total_news}</b><span>Toplam haber</span></div>
@@ -1935,6 +1936,7 @@ a {{ color:#1f2933; font-weight:800; }}
 </div>
 
 <div class="card">
+{section_label("📱 Sosyal Medya Nabzı", "#7c3aed", "#f5f3ff")}
  <h2>5. Sosyal Medya Etkileşim Analizi</h2>
     <div class="kpis">
         <div class="kpi"><b>{int(social_sum["total_likes"])}</b><span>Toplam beğeni</span></div>

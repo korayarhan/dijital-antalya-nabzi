@@ -1768,15 +1768,15 @@ def build_report(news, social, undated_news=None):
         """
     if not social_rows:
         social_rows = "<tr><td colspan='8'>Henüz manuel sosyal medya verisi girilmedi.</td></tr>"
-        president_posts = read_president_x_posts()
-        president_top3 = president_posts[:3]
+            president_posts = read_president_x_posts()
+    president_top3 = president_posts[:3]
 
-        president_x_html = ""
-        for idx, post in enumerate(president_top3, start=1):
-            president_x_html += president_x_card(f"{idx}. Öne Çıkan Gönderi", post)
+    president_x_html = ""
+    for idx, post in enumerate(president_top3, start=1):
+        president_x_html += president_x_card(f"{idx}. Öne Çıkan Gönderi", post)
 
-       if not president_x_html:
-           president_x_html = "<div class='item'>Henüz Sayın Başkan'ın X hesabından gönderi verisi alınamadı.</div>"
+    if not president_x_html:
+        president_x_html = "<div class='item'>Henüz Sayın Başkan X hesabından gönderi verisi alınamadı.</div>"
     if risk_count >= 3 or bad_pct >= 35:
         alert_level = "Yüksek dikkat"
         alert_summary = "Bugün riskli haberler veya olumsuz yorum oranı belirgin seviyede. Savunmacı polemik yerine sakin, belgeye dayalı ve hizmet odaklı iletişim tercih edilmelidir."

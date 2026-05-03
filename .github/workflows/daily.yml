@@ -50,7 +50,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add reports data/manual_social data/manual_crisis data/auto_social data/social_watch data/alertsdata/team_actions || true
+          git add reports data/manual_social data/manual_crisis data/auto_social data/social_watch data/alerts data/team_actions || true
           if git diff --cached --quiet; then
             echo "Kaydedilecek değişiklik yok."
           else

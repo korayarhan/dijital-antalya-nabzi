@@ -1903,7 +1903,7 @@ a {{ color:#1f2933; font-weight:800; }}
     <h1>Yerel Liderlik AI Günlük Raporu</h1>
     <p>Takip edilen isim: Mesut Kocagöz • Bölge: Antalya / Kepez • Tarih: {today} • Güncelleme saati: {report_time}
     {section_label("🚨 Acil Durum / Kriz Paneli", "#b91c1c", "#fef2f2")}
-<div style="margin:18px 0; padding:14px; border:2px solid #dc2626; border-radius:14px; background:#fff7ed;">
+<div style="margin:18px 0; padding:16px; border:2px solid #dc2626; border-left:8px solid #b91c1c; border-radius:16px; background:#fef2f2; box-shadow:0 2px 10px rgba(185,28,28,0.10);">
   <a href="crisis_panel.html" style="font-size:18px; font-weight:bold; color:#991b1b; text-decoration:none;">
     🚨 Acil Eylem Planı / Kriz Panelini Aç
   </a>

@@ -2316,6 +2316,8 @@ a {{ color:#1f2933; font-weight:800; }}
       {crisis_log_html}
     </div>
 
+    {section_label("🔎 Otomatik Kriz Kaynağı", "#334155", "#f8fafc")}
+
     <div class="card soft">
       <h2>🔎 Otomatik Kriz Kaynağı</h2>
       <p><b>Kaynak:</b><br>{esc((crisis_sum.get("risky") or {}).get("platform", ""))}</p>

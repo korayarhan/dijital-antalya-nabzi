@@ -2283,6 +2283,8 @@ a {{ color:#1f2933; font-weight:800; }}
     </div>
 
     {risk_alarm_html}
+    
+    {section_label("📣 Bildirim / Erken Uyarı Kararı", "#0ea5e9", "#f0f9ff")}
 
     <div class="card info" style="border:2px solid #0ea5e9;">
       <h2>📣 Bildirim / Erken Uyarı Kararı</h2>

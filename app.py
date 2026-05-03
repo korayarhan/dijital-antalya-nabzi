@@ -1255,14 +1255,17 @@ def append_alert_log(early_warning, crisis_plan, crisis_status, report_time, mai
 
 def send_early_warning_email(early_warning, crisis_plan, crisis_status, report_time):
     enabled = str(os.getenv("ALERT_EMAIL_ENABLED", "false")).lower() in ["1", "true", "yes", "evet"]
+
     if not enabled:
         print("E-posta bildirimi kapalı.")
         return
 
     decision = early_warning.get("decision", "")
+
     notify_medium = str(os.getenv("ALERT_NOTIFY_ON_MEDIUM", "false")).lower() in ["1", "true", "yes", "evet"]
 
     should_send = "ACİL ALARM" in decision or "ACIL ALARM" in decision
+
     if notify_medium and "TAKİPTE KAL" in decision:
         should_send = True
 
@@ -1277,7 +1280,7 @@ def send_early_warning_email(early_warning, crisis_plan, crisis_status, report_t
     mail_to = os.getenv("ALERT_EMAIL_TO", "")
     mail_from = os.getenv("ALERT_EMAIL_FROM", smtp_user)
 
-        if not smtp_host or not smtp_user or not smtp_password or not mail_to:
+    if not smtp_host or not smtp_user or not smtp_password or not mail_to:
         append_alert_log(
             early_warning,
             crisis_plan,
@@ -1289,7 +1292,7 @@ def send_early_warning_email(early_warning, crisis_plan, crisis_status, report_t
         )
         print("E-posta gönderilmedi: SMTP secret bilgileri eksik.")
         return
-        
+
     risk_topic = crisis_plan.get("risk_topic", "")
     risk_level = crisis_plan.get("level", "")
     status = crisis_status.get("status", "")
@@ -1332,14 +1335,15 @@ https://korayarhan.github.io/dijital-antalya-nabzi/reports/daily_report.html
             smtp.starttls()
             smtp.login(smtp_user, smtp_password)
             smtp.send_message(msg)
-            append_alert_log(
-                early_warning,
-                crisis_plan,
-                crisis_status,
-                report_time,
-                mail_to,
-                "Evet",
-                "E-posta gönderildi",
+
+        append_alert_log(
+            early_warning,
+            crisis_plan,
+            crisis_status,
+            report_time,
+            mail_to,
+            "Evet",
+            "E-posta gönderildi",
         )
 
         print(f"Erken uyarı e-postası gönderildi: {mail_to}")
@@ -1353,9 +1357,8 @@ https://korayarhan.github.io/dijital-antalya-nabzi/reports/daily_report.html
             mail_to,
             "Hayır",
             f"E-posta gönderilemedi: {e}",
-      )
-      print(f"E-posta gönderilemedi: {e}")
-
+        )
+        print(f"E-posta gönderilemedi: {e}")
 def crisis_related_news(items, risk_topic, limit=5):
     topic_text = normalize_text(risk_topic)
 

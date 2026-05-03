@@ -22,6 +22,7 @@ PRESIDENT_X_USERNAME = "mesutkocagoztr"
 WATCH_KEYWORDS_CSV = ROOT / "data" / "social_watch" / "watch_keywords.csv"
 CRISIS_CSV = ROOT / "data" / "manual_crisis" / "crisis_status.csv"
 CRISIS_LOG_CSV = ROOT / "data" / "manual_crisis" / "crisis_log.csv"
+ALERT_LOG_CSV = ROOT / "data" / "alerts" / "alert_log.csv"
 DYNAMIC_KEYWORDS = ROOT / "data" / "dynamic_keywords.txt"
 REPORTS = ROOT / "reports"
 REPORTS.mkdir(exist_ok=True)
@@ -1200,6 +1201,58 @@ def early_warning_decision(crisis_plan, crisis_status, social_sum):
         "first_action": "Rutin takip sürdürülmeli. Yeni haber, yorum artışı veya olumsuz yayılım olursa karar tekrar değerlendirilmeli."
     }
 
+def append_alert_log(early_warning, crisis_plan, crisis_status, report_time, mail_to, email_sent, note):
+    ALERT_LOG_CSV.parent.mkdir(parents=True, exist_ok=True)
+
+    now = dt.datetime.now()
+    file_exists = ALERT_LOG_CSV.exists()
+
+    fieldnames = [
+        "date",
+        "time",
+        "risk_level",
+        "decision",
+        "crisis_title",
+        "status",
+        "email_to",
+        "email_sent",
+        "note",
+        "reason",
+        "first_action",
+        "crisis_panel_url",
+        "daily_report_url",
+    ]
+
+    row = {
+        "date": now.strftime("%Y-%m-%d"),
+        "time": report_time or now.strftime("%H:%M"),
+        "risk_level": crisis_plan.get("level", ""),
+        "decision": early_warning.get("decision", ""),
+        "crisis_title": crisis_plan.get("risk_topic", ""),
+        "status": crisis_status.get("status", ""),
+        "email_to": mail_to,
+        "email_sent": email_sent,
+        "note": note,
+        "reason": early_warning.get("reason", ""),
+        "first_action": early_warning.get("first_action", ""),
+        "crisis_panel_url": "https://korayarhan.github.io/dijital-antalya-nabzi/reports/crisis_panel.html",
+        "daily_report_url": "https://korayarhan.github.io/dijital-antalya-nabzi/reports/daily_report.html",
+    }
+
+    try:
+        with ALERT_LOG_CSV.open("a", encoding="utf-8-sig", newline="") as f:
+            writer = csv.DictWriter(f, fieldnames=fieldnames)
+
+            if not file_exists:
+                writer.writeheader()
+
+            writer.writerow(row)
+
+        print("Bildirim geçmişi kaydedildi.")
+
+    except Exception as e:
+        print(f"Bildirim geçmişi kaydedilemedi: {e}")
+
 def send_early_warning_email(early_warning, crisis_plan, crisis_status, report_time):
     enabled = str(os.getenv("ALERT_EMAIL_ENABLED", "false")).lower() in ["1", "true", "yes", "evet"]
     if not enabled:
@@ -1225,8 +1278,17 @@ def send_early_warning_email(early_warning, crisis_plan, crisis_status, report_t
     mail_from = os.getenv("ALERT_EMAIL_FROM", smtp_user)
 
     if not smtp_host or not smtp_user or not smtp_password or not mail_to:
-        print("E-posta gönderilmedi: SMTP secret bilgileri eksik.")
-        return
+        append_alert_log(
+            early_warning,
+            crisis_plan,
+            crisis_status,
+            report_time,
+            mail_to,
+            "Hayır",
+            "SMTP secret bilgileri eksik",
+       )
+       print("E-posta gönderilmedi: SMTP secret bilgileri eksik.")
+       return
 
     risk_topic = crisis_plan.get("risk_topic", "")
     risk_level = crisis_plan.get("level", "")
@@ -1270,11 +1332,29 @@ https://korayarhan.github.io/dijital-antalya-nabzi/reports/daily_report.html
             smtp.starttls()
             smtp.login(smtp_user, smtp_password)
             smtp.send_message(msg)
+            append_alert_log(
+                early_warning,
+                crisis_plan,
+                crisis_status,
+                report_time,
+                mail_to,
+                "Evet",
+                "E-posta gönderildi",
+        )
 
         print(f"Erken uyarı e-postası gönderildi: {mail_to}")
 
     except Exception as e:
-        print(f"E-posta gönderilemedi: {e}")
+        append_alert_log(
+            early_warning,
+            crisis_plan,
+            crisis_status,
+            report_time,
+            mail_to,
+            "Hayır",
+            f"E-posta gönderilemedi: {e}",
+      )
+      print(f"E-posta gönderilemedi: {e}")
 
 def crisis_related_news(items, risk_topic, limit=5):
     topic_text = normalize_text(risk_topic)

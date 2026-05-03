@@ -2068,6 +2068,8 @@ a {{ color:#1f2933; font-weight:800; }}
   {president_x_html}
 </div>
 
+{section_label("🗂 Sosyal Medya Kayıtları", "#d97706", "#fffbeb")}
+
 <div class="card">
     <h2>11. Manuel ve Otomatik Sosyal Medya Kayıtları</h2>
     <table>

@@ -2388,6 +2388,8 @@ a {{ color:#1f2933; font-weight:800; }}
       <p>{esc(crisis_plan.get("tone", ""))}</p>
     </div>
 
+    {section_label("📰 Kriz Başlığıyla İlişkili Haber / Sosyal Kaynaklar", "#2563eb", "#eff6ff")}
+
     <div class="card">
       <h2>Kriz Başlığıyla İlişkili Haber / Sosyal Kaynaklar</h2>
       {crisis_news_html}

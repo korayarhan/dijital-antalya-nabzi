@@ -1953,7 +1953,7 @@ a {{ color:#1f2933; font-weight:800; }}
         <div class="kpi"><b>%{social_sum["engagement_rate"]:.2f}</b><span>Etkileşim oranı</span></div>
     </div>
     
-        <div class="item">
+       <div class="card" style="border-left:6px solid #7c3aed; background:#f5f3ff;">
             <h3>Sayın Başkan İçin Sosyal Medya Özeti</h3>
             <p><b>Genel ton:</b> {esc(social_sum.get("social_mood", ""))}</p>
             <p><b>Öne çıkan konu:</b> {esc(social_sum.get("main_topic", ""))}</p>

@@ -2093,11 +2093,11 @@ def build_team_report(news, social, early_warning, crisis_plan, crisis_status, r
     if not alert_rows:
         alert_rows = "<tr><td colspan='7'>Henüz bildirim geçmişi kaydı yok.</td></tr>"
 
-team_actions = read_team_actions(20)
+        team_actions = read_team_actions(20)
 
-team_action_rows = ""
-for item in team_actions:
-    team_action_rows += f"""
+        team_action_rows = ""
+    for item in team_actions:
+        team_action_rows += f"""
 <tr>
 <td>{esc(item.get("date", ""))}</td>
 <td>{esc(item.get("time", ""))}</td>
@@ -2110,16 +2110,16 @@ for item in team_actions:
 </tr>
 """
 
-if not team_action_rows:
-    team_action_rows = "<tr><td colspan='8'>Henüz ekip aksiyon kaydı yok.</td></tr>"
-
+    if not team_action_rows:
+        team_action_rows = "<tr><td colspan='8'>Henüz ekip aksiyon kaydı yok.</td></tr>"
+  
     risky_social = sorted(
         social,
         key=lambda x: float(x.get("risk_score", 0) or 0),
         reverse=True
     )[:10]
 
-    risky_social_rows = ""
+        risky_social_rows = ""
     for item in risky_social:
         risky_social_rows += f"""
 <tr>

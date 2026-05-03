@@ -2053,7 +2053,13 @@ a {{ color:#1f2933; font-weight:800; }}
 </div>
 
 <div class="card">
-    <h2>10. Manuel Sosyal Medya Kayıtları</h2>
+  <h2>10. Sayın Başkan’ın X Hesabı – Öne Çıkan 3 Gönderi</h2>
+  <p class="small">Bu bölüm günlük raporda sadece en yüksek etkileşimli 3 gönderiyi gösterir. Haftalık ve aylık raporlarda detaylı performans analizi ayrıca yapılacaktır.</p>
+  {president_x_html}
+</div>
+
+<div class="card">
+    <h2>11. Manuel ve Otomatik Sosyal Medya Kayıtları</h2>
     <table>
         <tr><th>Tarih</th><th>Platform</th><th>Konu</th><th>Ton</th><th>Beğenme</th><th>Risk</th><th>Fırsat</th><th>Gönderi</th></tr>
         {social_rows}

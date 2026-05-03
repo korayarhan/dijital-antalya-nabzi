@@ -1277,7 +1277,7 @@ def send_early_warning_email(early_warning, crisis_plan, crisis_status, report_t
     mail_to = os.getenv("ALERT_EMAIL_TO", "")
     mail_from = os.getenv("ALERT_EMAIL_FROM", smtp_user)
 
-    if not smtp_host or not smtp_user or not smtp_password or not mail_to:
+        if not smtp_host or not smtp_user or not smtp_password or not mail_to:
         append_alert_log(
             early_warning,
             crisis_plan,
@@ -1286,10 +1286,10 @@ def send_early_warning_email(early_warning, crisis_plan, crisis_status, report_t
             mail_to,
             "Hayır",
             "SMTP secret bilgileri eksik",
-       )
-       print("E-posta gönderilmedi: SMTP secret bilgileri eksik.")
-       return
-
+        )
+        print("E-posta gönderilmedi: SMTP secret bilgileri eksik.")
+        return
+        
     risk_topic = crisis_plan.get("risk_topic", "")
     risk_level = crisis_plan.get("level", "")
     status = crisis_status.get("status", "")

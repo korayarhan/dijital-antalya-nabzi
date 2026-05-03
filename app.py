@@ -1665,7 +1665,7 @@ def read_president_x_posts():
 def president_x_card(title, item):
     if not item:
         return f"""
-<div class="item">
+<div class="item" style="border-left:6px solid #059669; background:#ecfdf5;">
 <h3>{esc(title)}</h3>
 <p>Henüz Başkan X hesabı verisi yok.</p>
 </div>

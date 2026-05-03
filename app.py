@@ -2060,6 +2060,8 @@ a {{ color:#1f2933; font-weight:800; }}
     {social_card("9. En Büyük Fırsat İçeriği", social_sum["opportunity"])}
 </div>
 
+{section_label("👤 Sayın Başkan’ın X Hesabı", "#059669", "#ecfdf5")}
+
 <div class="card">
   <h2>10. Sayın Başkan’ın X Hesabı – Öne Çıkan 3 Gönderi</h2>
   <p class="small">Bu bölüm günlük raporda sadece en yüksek etkileşimli 3 gönderiyi gösterir. Haftalık ve aylık raporlarda detaylı performans analizi ayrıca yapılacaktır.</p>

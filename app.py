@@ -1768,7 +1768,7 @@ def build_report(news, social, undated_news=None):
         """
     if not social_rows:
         social_rows = "<tr><td colspan='8'>Henüz manuel sosyal medya verisi girilmedi.</td></tr>"
-            president_posts = read_president_x_posts()
+    president_posts = read_president_x_posts()
     president_top3 = president_posts[:3]
 
     president_x_html = ""

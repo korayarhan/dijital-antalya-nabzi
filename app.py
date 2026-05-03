@@ -1803,6 +1803,107 @@ def president_x_card(title, item):
 </div>
 """
 
+def read_president_x_replies():
+    if not PRESIDENT_X_REPLIES_CSV.exists():
+        return []
+
+    rows = []
+
+    def to_float_local(value, default=0):
+        try:
+            return float(str(value or "0").replace(",", ".").strip())
+        except:
+            return default
+
+    try:
+        with PRESIDENT_X_REPLIES_CSV.open("r", encoding="utf-8-sig", newline="") as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                item = {
+                    "post_id": str(row.get("post_id", "") or "").strip(),
+                    "post_date": str(row.get("post_date", "") or "").strip(),
+                    "post_topic": str(row.get("post_topic", "") or "").strip(),
+                    "reply_date": str(row.get("reply_date", "") or "").strip(),
+                    "reply_account": str(row.get("reply_account", "") or "").strip(),
+                    "reply_text": str(row.get("reply_text", "") or "").strip(),
+                    "sentiment": str(row.get("sentiment", "") or "").strip(),
+                    "risk_score": to_float_local(row.get("risk_score", 0)),
+                    "opportunity_score": to_float_local(row.get("opportunity_score", 0)),
+                    "reply_url": str(row.get("reply_url", "") or "").strip(),
+                    "source_type": str(row.get("source_type", "") or "").strip(),
+                }
+
+                if item["reply_text"]:
+                    rows.append(item)
+
+    except Exception as e:
+        print(f"Başkan X yanıtları okunamadı: {e}")
+        return []
+
+    return rows
+
+
+def president_x_replies_summary(replies):
+    total = len(replies)
+    risky = [x for x in replies if x.get("risk_score", 0) >= 6 or x.get("sentiment") == "negative"]
+    positive = [x for x in replies if x.get("sentiment") == "positive"]
+    neutral = [x for x in replies if x.get("sentiment") == "neutral"]
+
+    if total == 0:
+        mood = "Veri yok"
+        comment = "Son gönderiler için okunabilir yanıt verisi bulunamadı."
+        action = "Yorum takibi devam etmeli."
+    elif len(risky) >= 3:
+        mood = "Riskli"
+        comment = "Yanıtlarda dikkat gerektiren bir yoğunluk var. Olumsuz ton ve tekrar eden şikayetler kontrol edilmeli."
+        action = "Basın ekibi riskli yanıtları incelemeli; gerekirse kısa bilgi notu hazırlanmalı."
+    elif len(risky) >= 1:
+        mood = "Kontrollü takip"
+        comment = "Az sayıda riskli yanıt var. Şu aşamada büyüme eğilimi izlenmeli."
+        action = "Yorum hızı ve aynı şikayetin tekrar edip etmediği takip edilmeli."
+    elif len(positive) > len(neutral):
+        mood = "Olumlu"
+        comment = "Yanıt tonu genel olarak olumlu görünüyor."
+        action = "Olumlu etkileşim alan dil ve konu başlıkları sonraki paylaşımlarda güçlendirilebilir."
+    else:
+        mood = "Nötr"
+        comment = "Yanıtlar genel olarak nötr seviyede görünüyor."
+        action = "Takip sürmeli; günlük raporda detay gösterilmesine gerek yok."
+
+    top_risky = sorted(risky, key=lambda x: x.get("risk_score", 0), reverse=True)[:1]
+    top_text = top_risky[0].get("reply_text", "")[:180] if top_risky else ""
+
+    return {
+        "total": total,
+        "risky_count": len(risky),
+        "positive_count": len(positive),
+        "neutral_count": len(neutral),
+        "mood": mood,
+        "comment": comment,
+        "action": action,
+        "top_risky_text": top_text,
+    }
+
+
+def president_x_replies_card(summary):
+    risky_text = summary.get("top_risky_text", "")
+
+    risky_html = ""
+    if risky_text:
+        risky_html = f"""
+<p><b>Dikkat çeken riskli yanıt:</b> {esc(risky_text)}</p>
+"""
+
+    return f"""
+<div class="item" style="border-left:6px solid #059669; background:#ecfdf5;">
+<h3>Başkan X Yanıt Özeti</h3>
+<p><b>Toplam yanıt:</b> {summary.get("total", 0)} • <b>Riskli yanıt:</b> {summary.get("risky_count", 0)} • <b>Genel ton:</b> {esc(summary.get("mood", ""))}</p>
+<p><b>Yorum:</b> {esc(summary.get("comment", ""))}</p>
+<p><b>İlk aksiyon:</b> {esc(summary.get("action", ""))}</p>
+{risky_html}
+</div>
+"""
+
 def build_report(news, social, undated_news=None):
     undated_news = undated_news or []
     now_tr = dt.datetime.utcnow() + dt.timedelta(hours=3)
@@ -1919,6 +2020,9 @@ def build_report(news, social, undated_news=None):
     best_news_title = important[0]["title"] if important else "Bugün öne çıkan net haber başlığı yok."
     best_social_topic = social_sum["opportunity"].get("topic", "") if social_sum["opportunity"] else "Henüz öne çıkan sosyal medya fırsatı yok."
     tomorrow_keywords = ", ".join(read_keywords()[:12])
+    president_replies = read_president_x_replies()
+    president_reply_summary = president_x_replies_summary(president_replies)
+    president_reply_html = president_x_replies_card(president_reply_summary)
 
     html_doc = f"""
 <html lang="tr">
@@ -2189,6 +2293,8 @@ a {{ color:#1f2933; font-weight:800; }}
   <h2>10. Sayın Başkan’ın X Hesabı – Öne Çıkan 3 Gönderi</h2>
   <p class="small">Bu bölüm günlük raporda sadece en yüksek etkileşimli 3 gönderiyi gösterir. Haftalık ve aylık raporlarda detaylı performans analizi ayrıca yapılacaktır.</p>
   {president_x_html}
+
+  {president_reply_html}
 </div>
 
 {section_label("🗂 Sosyal Medya Kayıtları", "#d97706", "#fffbeb")}

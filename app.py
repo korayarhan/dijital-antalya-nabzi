@@ -2059,6 +2059,12 @@ def build_team_report(news, social, early_warning, crisis_plan, crisis_status, r
     now_tr = dt.datetime.utcnow() + dt.timedelta(hours=3)
     today = now_tr.date().isoformat()
 
+    def safe_float(value, default=0):
+        try:
+            return float(str(value or "0").replace(",", ".").strip())
+        except:
+            return default
+
     alert_logs = read_alert_log(20)
     team_actions = read_team_actions(20)
     crisis_log = read_crisis_log()
@@ -2066,13 +2072,13 @@ def build_team_report(news, social, early_warning, crisis_plan, crisis_status, r
 
     risky_social = sorted(
         social,
-        key=lambda x: float(x.get("risk_score", 0) or 0),
+        key=lambda x: safe_float(x.get("risk_score", 0)),
         reverse=True
     )[:10]
 
     risky_replies = sorted(
-        [x for x in president_replies if float(x.get("risk_score", 0) or 0) >= 6],
-        key=lambda x: float(x.get("risk_score", 0) or 0),
+        [x for x in president_replies if safe_float(x.get("risk_score", 0)) >= 6],
+        key=lambda x: safe_float(x.get("risk_score", 0)),
         reverse=True
     )[:10]
 
@@ -2093,9 +2099,7 @@ def build_team_report(news, social, early_warning, crisis_plan, crisis_status, r
     if not alert_rows:
         alert_rows = "<tr><td colspan='7'>Henüz bildirim geçmişi kaydı yok.</td></tr>"
 
-        team_actions = read_team_actions(20)
-
-        team_action_rows = ""
+    team_action_rows = ""
     for item in team_actions:
         team_action_rows += f"""
 <tr>
@@ -2112,14 +2116,8 @@ def build_team_report(news, social, early_warning, crisis_plan, crisis_status, r
 
     if not team_action_rows:
         team_action_rows = "<tr><td colspan='8'>Henüz ekip aksiyon kaydı yok.</td></tr>"
-  
-    risky_social = sorted(
-        social,
-        key=lambda x: float(x.get("risk_score", 0) or 0),
-        reverse=True
-    )[:10]
 
-        risky_social_rows = ""
+    risky_social_rows = ""
     for item in risky_social:
         risky_social_rows += f"""
 <tr>
@@ -2198,6 +2196,7 @@ header {{
     padding:22px;
     margin:18px 0;
     box-shadow:0 8px 24px rgba(0,0,0,0.06);
+    overflow-x:auto;
 }}
 table {{
     width:100%;
@@ -2323,7 +2322,6 @@ th {{
     out = REPORTS / "team_report.html"
     out.write_text(team_doc, encoding="utf-8")
     print(f"Ekip raporu hazır: {out}")
-
 def build_report(news, social, undated_news=None):
     undated_news = undated_news or []
     now_tr = dt.datetime.utcnow() + dt.timedelta(hours=3)

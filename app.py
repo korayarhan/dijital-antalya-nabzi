@@ -16,6 +16,8 @@ ROOT = Path(__file__).resolve().parent
 CONFIG = ROOT / "config" / "keywords.txt"
 SOCIAL_CSV = ROOT / "data" / "manual_social" / "social_manual.csv"
 AUTO_SOCIAL_CSV = ROOT / "data" / "auto_social" / "social_auto.csv"
+PRESIDENT_X_CSV = ROOT / "data" / "auto_social" / "president_x_posts.csv"
+PRESIDENT_X_USERNAME = "mesutkocagoztr"
 WATCH_KEYWORDS_CSV = ROOT / "data" / "social_watch" / "watch_keywords.csv"
 CRISIS_CSV = ROOT / "data" / "manual_crisis" / "crisis_status.csv"
 CRISIS_LOG_CSV = ROOT / "data" / "manual_crisis" / "crisis_log.csv"
@@ -443,6 +445,126 @@ def score_x_post(text, matched_keyword):
     topic = matched_keyword if matched_keyword else "X otomatik takip"
 
     return sentiment, risk_score, opportunity_score, topic, action_note
+
+def fetch_president_x_posts():
+    token = os.getenv("X_BEARER_TOKEN", "").strip()
+    if not token:
+        print("Başkan X gönderileri atlandı: X_BEARER_TOKEN yok.")
+        return
+
+    username = PRESIDENT_X_USERNAME.replace("@", "").strip()
+    if not username:
+        print("Başkan X gönderileri atlandı: kullanıcı adı yok.")
+        return
+
+    PRESIDENT_X_CSV.parent.mkdir(parents=True, exist_ok=True)
+
+    try:
+        # 1) Kullanıcı adından X kullanıcı ID'sini al
+        user_params = urllib.parse.urlencode({
+            "user.fields": "id,name,username,public_metrics"
+        })
+
+        user_url = f"https://api.x.com/2/users/by/username/{urllib.parse.quote(username)}?{user_params}"
+
+        user_req = urllib.request.Request(
+            user_url,
+            headers={
+                "Authorization": f"Bearer {token}",
+                "User-Agent": "YerelLiderAI/1.0",
+            },
+        )
+
+        with urllib.request.urlopen(user_req, timeout=30) as response:
+            user_payload = json.loads(response.read().decode("utf-8"))
+
+        user_data = user_payload.get("data", {}) or {}
+        user_id = user_data.get("id", "")
+
+        if not user_id:
+            print("Başkan X gönderileri atlandı: kullanıcı ID bulunamadı.")
+            return
+
+        # 2) Kullanıcının son gönderilerini al
+        post_params = urllib.parse.urlencode({
+            "max_results": "10",
+            "tweet.fields": "created_at,public_metrics,author_id,text",
+            "exclude": "retweets,replies",
+        })
+
+        posts_url = f"https://api.x.com/2/users/{user_id}/tweets?{post_params}"
+
+        posts_req = urllib.request.Request(
+            posts_url,
+            headers={
+                "Authorization": f"Bearer {token}",
+                "User-Agent": "YerelLiderAI/1.0",
+            },
+        )
+
+        with urllib.request.urlopen(posts_req, timeout=30) as response:
+            posts_payload = json.loads(response.read().decode("utf-8"))
+
+        rows = []
+
+        for post in posts_payload.get("data", []):
+            text = post.get("text", "")
+            metrics = post.get("public_metrics", {}) or {}
+
+            likes = metrics.get("like_count", 0) or 0
+            replies = metrics.get("reply_count", 0) or 0
+            reposts = metrics.get("retweet_count", 0) or 0
+            quotes = metrics.get("quote_count", 0) or 0
+            engagement = likes + replies + reposts + quotes
+
+            post_url = f"https://x.com/{username}/status/{post.get('id')}"
+
+            rows.append({
+                "date": str(post.get("created_at", ""))[:10],
+                "platform": "X / Twitter",
+                "account": f"@{username}",
+                "content": text.replace("\n", " ").strip(),
+                "topic": topic_key(text),
+                "likes": likes,
+                "replies": replies,
+                "reposts": reposts,
+                "quotes": quotes,
+                "engagement": engagement,
+                "url": post_url,
+                "source_type": "Başkan X Hesabı",
+            })
+
+        with PRESIDENT_X_CSV.open("w", encoding="utf-8-sig", newline="") as f:
+            fieldnames = [
+                "date",
+                "platform",
+                "account",
+                "content",
+                "topic",
+                "likes",
+                "replies",
+                "reposts",
+                "quotes",
+                "engagement",
+                "url",
+                "source_type",
+            ]
+            writer = csv.DictWriter(f, fieldnames=fieldnames)
+            writer.writeheader()
+            writer.writerows(rows)
+
+        print(f"Başkan X gönderileri çekildi. Kayıt sayısı: {len(rows)}")
+
+    except urllib.error.HTTPError as e:
+        detail = ""
+        try:
+            detail = e.read().decode("utf-8")
+        except:
+            pass
+        print(f"Başkan X gönderileri alınamadı. HTTP {e.code}: {detail[:500]}")
+
+    except Exception as e:
+        print(f"Başkan X gönderileri alınamadı: {e}")
 
 def fetch_x_social_posts():
     token = os.getenv("X_BEARER_TOKEN", "").strip()
@@ -2178,6 +2300,7 @@ def main():
 
     news, undated_news = fetch_news()
     fetch_x_social_posts()
+    fetch_president_x_posts()
     social = read_social_data()
 
     save_dynamic_keywords(generate_dynamic_keywords(news, social))

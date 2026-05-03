@@ -2475,6 +2475,17 @@ a {{ color:#1f2933; font-weight:800; }}
   </div>
 </div>
 </div>
+... Acil Eylem Planı / Kriz Paneli kartı ...
+
+<div style="margin:10px 0 18px 0; padding:14px; border:2px solid #334155; border-left:8px solid #0f172a; border-radius:16px; background:#f8fafc;">
+  <a href="team_report.html" style="font-size:22px; font-weight:bold; color:#0f172a; text-decoration:none;">
+    👥 Ekip Operasyon Raporunu Aç
+  </a>
+  <div style="margin-top:6px; color:#475569;">
+    Alarm geçmişi, riskli sosyal medya kayıtları, Başkan X yanıtları ve müdahale kayıtları ekip tarafından buradan takip edilir.
+  </div>
+</div>
+
 </header>
 
 <main>

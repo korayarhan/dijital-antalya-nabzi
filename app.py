@@ -1608,7 +1608,7 @@ def social_card(title, item):
     if not item:
         return f'<div class="item"><h3>{esc(title)}</h3><p class="muted">Henüz sosyal medya verisi girilmedi.</p></div>'
     return f"""
-    <div class="item">
+    <div class="item" style="border-left:6px solid #7c3aed; background:#f5f3ff;">
         <h3>{esc(title)}</h3>
         <p><b>{esc(item.get("topic"))}</b></p>
         <p class="muted">{esc(item.get("platform"))} • {esc(item.get("date"))}</p>

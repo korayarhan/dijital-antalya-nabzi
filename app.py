@@ -1932,7 +1932,7 @@ a {{ color:#1f2933; font-weight:800; }}
     <p>{esc(general_comment)}</p>
 </div>
 
-<div class="card" style="border-left:6px solid #2563eb; background:#eff6ff;">
+<div class="card" style="border-left:6px solid #2563eb; background:#eff6ff;"><h2>2. Bugünün En Önemli 3 Başlığı
 <div class="card"><h2>3. Öne Çıkan Olumlu Haberler</h2>{positive_html}</div>
 <div class="card"><h2>4. Riskli / İzlenmesi Gereken Haberler</h2>{risky_html}</div>
 

@@ -2326,6 +2326,8 @@ a {{ color:#1f2933; font-weight:800; }}
       <p><b>Not:</b><br>{esc((crisis_sum.get("risky") or {}).get("risk_note", ""))}</p>
     </div>
 
+    {section_label("🚨 Sayın Başkan İçin İlk Uyarı", "#b91c1c", "#fef2f2")}
+
     <div class="card danger">
       <h2>Sayın Başkan İçin İlk Uyarı</h2>
       <p><b>Şu an yapılmaması gereken:</b><br>{esc(crisis_plan.get("what_not_to_do", ""))}</p>

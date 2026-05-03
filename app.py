@@ -2093,6 +2093,8 @@ def build_team_report(news, social, early_warning, crisis_plan, crisis_status, r
     if not alert_rows:
         alert_rows = "<tr><td colspan='7'>Henüz bildirim geçmişi kaydı yok.</td></tr>"
 
+team_actions = read_team_actions(20)
+
 team_action_rows = ""
 for item in team_actions:
     team_action_rows += f"""

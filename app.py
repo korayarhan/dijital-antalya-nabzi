@@ -1674,7 +1674,7 @@ def president_x_card(title, item):
     content = esc(item.get("content", ""))[:260]
 
     return f"""
-<div class="item">
+<div class="item" style="border-left:6px solid #059669; background:#ecfdf5;">
 <h3>{esc(title)}</h3>
 <p><b>Tarih:</b> {esc(item.get("date", ""))}</p>
 <p><b>Konu:</b> {esc(item.get("topic", ""))}</p>

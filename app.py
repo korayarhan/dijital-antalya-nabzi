@@ -2335,6 +2335,8 @@ a {{ color:#1f2933; font-weight:800; }}
       <p><b>Sayın Başkan konuşmalı mı?</b><br>{esc(crisis_plan.get("speaker_decision", crisis_plan.get("speaker", "")))}</p>
     </div>
 
+    {section_label("🫶 İnsani Hassasiyet Analizi", "#ea580c", "#fff7ed")}
+
     <div class="card human">
       <h2>İnsani Hassasiyet Analizi</h2>
       <p><b>İnsani hassasiyet seviyesi:</b><br>{esc(crisis_plan.get("human_sensitivity", ""))}</p>

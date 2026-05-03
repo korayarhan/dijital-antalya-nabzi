@@ -1987,6 +1987,267 @@ def president_x_replies_card(summary):
 </div>
 """
 
+def read_alert_log(limit=20):
+    if not ALERT_LOG_CSV.exists():
+        return []
+
+    rows = []
+
+    try:
+        with ALERT_LOG_CSV.open("r", encoding="utf-8-sig", newline="") as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                item = {
+                    "date": str(row.get("date", "") or "").strip(),
+                    "time": str(row.get("time", "") or "").strip(),
+                    "risk_level": str(row.get("risk_level", "") or "").strip(),
+                    "decision": str(row.get("decision", "") or "").strip(),
+                    "crisis_title": str(row.get("crisis_title", "") or "").strip(),
+                    "status": str(row.get("status", "") or "").strip(),
+                    "email_to": str(row.get("email_to", "") or "").strip(),
+                    "email_sent": str(row.get("email_sent", "") or "").strip(),
+                    "note": str(row.get("note", "") or "").strip(),
+                    "reason": str(row.get("reason", "") or "").strip(),
+                    "first_action": str(row.get("first_action", "") or "").strip(),
+                    "crisis_panel_url": str(row.get("crisis_panel_url", "") or "").strip(),
+                    "daily_report_url": str(row.get("daily_report_url", "") or "").strip(),
+                }
+
+                if any(item.values()):
+                    rows.append(item)
+
+    except Exception as e:
+        print(f"Bildirim geçmişi okunamadı: {e}")
+        return []
+
+    return rows[-limit:]
+
+
+def build_team_report(news, social, early_warning, crisis_plan, crisis_status, report_time):
+    now_tr = dt.datetime.utcnow() + dt.timedelta(hours=3)
+    today = now_tr.date().isoformat()
+
+    alert_logs = read_alert_log(20)
+    crisis_log = read_crisis_log()
+    president_replies = read_president_x_replies()
+
+    risky_social = sorted(
+        social,
+        key=lambda x: float(x.get("risk_score", 0) or 0),
+        reverse=True
+    )[:10]
+
+    risky_replies = sorted(
+        [x for x in president_replies if float(x.get("risk_score", 0) or 0) >= 6],
+        key=lambda x: float(x.get("risk_score", 0) or 0),
+        reverse=True
+    )[:10]
+
+    alert_rows = ""
+    for item in alert_logs:
+        alert_rows += f"""
+<tr>
+<td>{esc(item.get("date", ""))}</td>
+<td>{esc(item.get("time", ""))}</td>
+<td>{esc(item.get("risk_level", ""))}</td>
+<td>{esc(item.get("decision", ""))}</td>
+<td>{esc(item.get("crisis_title", ""))}</td>
+<td>{esc(item.get("email_sent", ""))}</td>
+<td>{esc(item.get("note", ""))}</td>
+</tr>
+"""
+
+    if not alert_rows:
+        alert_rows = "<tr><td colspan='7'>Henüz bildirim geçmişi kaydı yok.</td></tr>"
+
+    risky_social_rows = ""
+    for item in risky_social:
+        risky_social_rows += f"""
+<tr>
+<td>{esc(item.get("date", ""))}</td>
+<td>{esc(item.get("platform", ""))}</td>
+<td>{esc(item.get("topic", ""))}</td>
+<td>{esc(item.get("tone", ""))}</td>
+<td>{item.get("risk_score", 0)}/10</td>
+<td>{esc(item.get("action_note", ""))}</td>
+<td>{social_link(item.get("link", ""))}</td>
+</tr>
+"""
+
+    if not risky_social_rows:
+        risky_social_rows = "<tr><td colspan='7'>Riskli sosyal medya kaydı bulunamadı.</td></tr>"
+
+    risky_reply_rows = ""
+    for item in risky_replies:
+        risky_reply_rows += f"""
+<tr>
+<td>{esc(item.get("reply_date", ""))}</td>
+<td>{esc(item.get("reply_account", ""))}</td>
+<td>{item.get("risk_score", 0)}/10</td>
+<td>{esc(item.get("reply_text", ""))[:220]}</td>
+<td>{social_link(item.get("reply_url", ""))}</td>
+</tr>
+"""
+
+    if not risky_reply_rows:
+        risky_reply_rows = "<tr><td colspan='5'>Riskli Başkan X yanıtı bulunamadı.</td></tr>"
+
+    crisis_log_rows = ""
+    for item in crisis_log:
+        crisis_log_rows += f"""
+<tr>
+<td>{esc(item.get("time", ""))}</td>
+<td>{esc(item.get("event", ""))}</td>
+<td>{esc(item.get("action", ""))}</td>
+<td>{esc(item.get("result", ""))}</td>
+<td>{esc(item.get("responsible", ""))}</td>
+<td>{esc(item.get("next_step", ""))}</td>
+</tr>
+"""
+
+    if not crisis_log_rows:
+        crisis_log_rows = "<tr><td colspan='6'>Henüz müdahale kaydı yok.</td></tr>"
+
+    team_doc = f"""
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Yerel Lider AI - Ekip Raporu</title>
+<style>
+body {{
+    margin:0;
+    background:#f5f5f4;
+    color:#1f2937;
+    font-family:Arial, sans-serif;
+    line-height:1.55;
+}}
+header {{
+    background:#111827;
+    color:white;
+    padding:28px;
+}}
+.container {{
+    max-width:1120px;
+    margin:0 auto;
+    padding:22px;
+}}
+.card {{
+    background:white;
+    border-radius:18px;
+    padding:22px;
+    margin:18px 0;
+    box-shadow:0 8px 24px rgba(0,0,0,0.06);
+}}
+table {{
+    width:100%;
+    border-collapse:collapse;
+    font-size:14px;
+}}
+th, td {{
+    border-bottom:1px solid #e5e7eb;
+    text-align:left;
+    padding:10px;
+    vertical-align:top;
+}}
+th {{
+    background:#f3f4f6;
+}}
+.small {{
+    color:#6b7280;
+    font-size:14px;
+}}
+</style>
+</head>
+<body>
+
+<header>
+<h1>Yerel Lider AI - Ekip Operasyon Raporu</h1>
+<p>Tarih: {today} • Güncelleme saati: {report_time}</p>
+</header>
+
+<div class="container">
+
+{section_label("🚨 Güncel Kriz / Alarm Özeti", "#b91c1c", "#fef2f2")}
+<div class="card">
+<p><b>Risk seviyesi:</b> {esc(crisis_plan.get("level", ""))}</p>
+<p><b>Kriz başlığı:</b> {esc(crisis_plan.get("risk_topic", ""))}</p>
+<p><b>Karar:</b> {esc(early_warning.get("decision", ""))}</p>
+<p><b>Durum:</b> {esc(crisis_status.get("status", ""))}</p>
+<p><b>İlk aksiyon:</b> {esc(early_warning.get("first_action", ""))}</p>
+</div>
+
+{section_label("📣 Bildirim Geçmişi / Alarm Kayıtları", "#0ea5e9", "#f0f9ff")}
+<div class="card">
+<table>
+<tr>
+<th>Tarih</th>
+<th>Saat</th>
+<th>Risk</th>
+<th>Karar</th>
+<th>Kriz Başlığı</th>
+<th>Mail</th>
+<th>Not</th>
+</tr>
+{alert_rows}
+</table>
+</div>
+
+{section_label("📱 En Riskli Sosyal Medya Kayıtları", "#7c3aed", "#f5f3ff")}
+<div class="card">
+<table>
+<tr>
+<th>Tarih</th>
+<th>Platform</th>
+<th>Konu</th>
+<th>Ton</th>
+<th>Risk</th>
+<th>Aksiyon Notu</th>
+<th>Link</th>
+</tr>
+{risky_social_rows}
+</table>
+</div>
+
+{section_label("👤 Başkan X Riskli Yanıt Takibi", "#059669", "#ecfdf5")}
+<div class="card">
+<table>
+<tr>
+<th>Tarih</th>
+<th>Hesap</th>
+<th>Risk</th>
+<th>Yanıt</th>
+<th>Link</th>
+</tr>
+{risky_reply_rows}
+</table>
+</div>
+
+{section_label("🕒 Müdahale Kayıtları", "#d97706", "#fffbeb")}
+<div class="card">
+<table>
+<tr>
+<th>Saat</th>
+<th>Olay</th>
+<th>Yapılan İşlem</th>
+<th>Sonuç</th>
+<th>Sorumlu</th>
+<th>Sıradaki Adım</th>
+</tr>
+{crisis_log_rows}
+</table>
+</div>
+
+</div>
+</body>
+</html>
+"""
+
+    out = REPORTS / "team_report.html"
+    out.write_text(team_doc, encoding="utf-8")
+    print(f"Ekip raporu hazır: {out}")
+
 def build_report(news, social, undated_news=None):
     undated_news = undated_news or []
     now_tr = dt.datetime.utcnow() + dt.timedelta(hours=3)
@@ -2714,6 +2975,8 @@ a {{ color:#1f2933; font-weight:800; }}
     out = REPORTS / "daily_report.html"
     out.write_text(html_doc, encoding="utf-8")
     print(f"Rapor hazır: {out}")
+    
+    build_team_report(news, social, early_warning, crisis_plan, crisis_status, report_time)
     
     send_early_warning_email(early_warning, crisis_plan, crisis_status, report_time)
 

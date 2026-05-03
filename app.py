@@ -1920,7 +1920,7 @@ a {{ color:#1f2933; font-weight:800; }}
 
 {section_label("📰 Haberler ve Günlük Genel Özet", "#2563eb", "#eff6ff")}
 
-<div class="card notice">
+<div class="card" style="border-left:6px solid #2563eb; background:#eff6ff;">
     <h2>1. Günün Genel Algısı</h2>
     <div class="kpis">
         <div class="kpi"><b>{total_news}</b><span>Toplam haber</span></div>

@@ -2113,6 +2113,12 @@ for item in team_actions:
 if not team_action_rows:
     team_action_rows = "<tr><td colspan='8'>Henüz ekip aksiyon kaydı yok.</td></tr>"
 
+    risky_social = sorted(
+        social,
+        key=lambda x: float(x.get("risk_score", 0) or 0),
+        reverse=True
+    )[:10]
+
     risky_social_rows = ""
     for item in risky_social:
         risky_social_rows += f"""

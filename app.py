@@ -23,6 +23,7 @@ WATCH_KEYWORDS_CSV = ROOT / "data" / "social_watch" / "watch_keywords.csv"
 CRISIS_CSV = ROOT / "data" / "manual_crisis" / "crisis_status.csv"
 CRISIS_LOG_CSV = ROOT / "data" / "manual_crisis" / "crisis_log.csv"
 ALERT_LOG_CSV = ROOT / "data" / "alerts" / "alert_log.csv"
+TEAM_ACTIONS_CSV = ROOT / "data" / "team_actions" / "team_actions.csv"
 DYNAMIC_KEYWORDS = ROOT / "data" / "dynamic_keywords.txt"
 REPORTS = ROOT / "reports"
 REPORTS.mkdir(exist_ok=True)
@@ -1987,6 +1988,37 @@ def president_x_replies_card(summary):
 </div>
 """
 
+def read_team_actions(limit=20):
+    if not TEAM_ACTIONS_CSV.exists():
+        return []
+
+    rows = []
+
+    try:
+        with TEAM_ACTIONS_CSV.open("r", encoding="utf-8-sig", newline="") as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                item = {
+                    "date": str(row.get("date", "") or "").strip(),
+                    "time": str(row.get("time", "") or "").strip(),
+                    "alert_topic": str(row.get("alert_topic", "") or "").strip(),
+                    "action_taken": str(row.get("action_taken", "") or "").strip(),
+                    "result": str(row.get("result", "") or "").strip(),
+                    "responsible": str(row.get("responsible", "") or "").strip(),
+                    "next_step": str(row.get("next_step", "") or "").strip(),
+                    "status": str(row.get("status", "") or "").strip(),
+                    "note": str(row.get("note", "") or "").strip(),
+                }
+
+                if any(item.values()):
+                    rows.append(item)
+
+    except Exception as e:
+        print(f"Ekip aksiyon kayıtları okunamadı: {e}")
+        return []
+
+    return rows[-limit:]
+
 def read_alert_log(limit=20):
     if not ALERT_LOG_CSV.exists():
         return []
@@ -2028,6 +2060,7 @@ def build_team_report(news, social, early_warning, crisis_plan, crisis_status, r
     today = now_tr.date().isoformat()
 
     alert_logs = read_alert_log(20)
+    team_actions = read_team_actions(20)
     crisis_log = read_crisis_log()
     president_replies = read_president_x_replies()
 
@@ -2059,6 +2092,24 @@ def build_team_report(news, social, early_warning, crisis_plan, crisis_status, r
 
     if not alert_rows:
         alert_rows = "<tr><td colspan='7'>Henüz bildirim geçmişi kaydı yok.</td></tr>"
+
+team_action_rows = ""
+for item in team_actions:
+    team_action_rows += f"""
+<tr>
+<td>{esc(item.get("date", ""))}</td>
+<td>{esc(item.get("time", ""))}</td>
+<td>{esc(item.get("alert_topic", ""))}</td>
+<td>{esc(item.get("action_taken", ""))}</td>
+<td>{esc(item.get("result", ""))}</td>
+<td>{esc(item.get("responsible", ""))}</td>
+<td>{esc(item.get("next_step", ""))}</td>
+<td>{esc(item.get("status", ""))}</td>
+</tr>
+"""
+
+if not team_action_rows:
+    team_action_rows = "<tr><td colspan='8'>Henüz ekip aksiyon kaydı yok.</td></tr>"
 
     risky_social_rows = ""
     for item in risky_social:
@@ -2191,6 +2242,23 @@ th {{
 <th>Not</th>
 </tr>
 {alert_rows}
+</table>
+</div>
+
+{section_label("✅ Bekleyen / Alınan Ekip Aksiyonları", "#16a34a", "#f0fdf4")}
+<div class="card">
+<table>
+<tr>
+<th>Tarih</th>
+<th>Saat</th>
+<th>Konu</th>
+<th>Alınan Aksiyon</th>
+<th>Sonuç</th>
+<th>Sorumlu</th>
+<th>Sıradaki Adım</th>
+<th>Durum</th>
+</tr>
+{team_action_rows}
 </table>
 </div>
 

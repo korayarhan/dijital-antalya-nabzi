@@ -1581,14 +1581,18 @@ def section_label(title, color, bg):
 
 def news_card(item):
     return f"""
-    <div class="item">
-        <h3>{esc(item["title"])}</h3>
-        <p class="muted">Anahtar kelime: {esc(item["keyword"])}</p>
-        <p><span class="pill {item["tone"].lower()}">{esc(item["tone"])}</span><span class="pill">Risk: {item["risk"]}/10</span><span class="pill">Fırsat: {item["opportunity"]}/10</span></p>
-        <p>{esc(item.get("summary", ""))[:240]}</p>
-        <p><a href="{esc(item["link"])}" target="_blank">Haberi aç</a></p>
-    </div>
-    """
+<div class="item" style="border-left:6px solid #2563eb; background:#eff6ff;">
+<h3>{esc(item["title"])}</h3>
+<p><b>Anahtar kelime:</b> {esc(item["keyword"])}</p>
+<p>
+<span class="pill">{esc(item["tone"])}</span>
+<span class="pill">Risk: {item["risk"]}/10</span>
+<span class="pill">Fırsat: {item["opportunity"]}/10</span>
+</p>
+<p>{esc(item.get("summary", ""))[:240]}</p>
+<a href="{esc(item.get("link", ""))}" target="_blank" style="display:inline-block; margin-top:8px; padding:9px 12px; border-radius:10px; background:#2563eb; color:white; text-decoration:none; font-weight:700;">Haberi Aç</a>
+</div>
+"""
 
 
 def social_link(link):

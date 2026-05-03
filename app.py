@@ -2078,6 +2078,8 @@ a {{ color:#1f2933; font-weight:800; }}
     </table>
 </div>
 
+{section_label("📊 Stratejik Değerlendirme", "#334155", "#f8fafc")}
+
 <div class="card">
 <h2>11. Stratejik Erken Uyarı ve Günlük Değerlendirme</h2>
 

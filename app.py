@@ -2308,6 +2308,8 @@ a {{ color:#1f2933; font-weight:800; }}
       <p><b>Güncelleyen:</b><br>{esc(crisis_status.get("updated_by", ""))}</p>
     </div>
 
+    {section_label("🕒 Yapılan İşlemler / Müdahale Kayıtları", "#d97706", "#fffbeb")}
+
     <div class="card soft">
       <h2>🕒 Yapılan İşlemler / Müdahale Kayıtları</h2>
       <p class="small">Bu bölüm kriz boyunca yapılan işlemleri, alınan aksiyonları, sonuçları ve sıradaki adımları takip etmek için kullanılır.</p>

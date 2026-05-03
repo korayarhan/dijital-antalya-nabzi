@@ -2295,6 +2295,8 @@ a {{ color:#1f2933; font-weight:800; }}
       <p><b>İlk aksiyon:</b><br>{esc(early_warning.get("first_action", ""))}</p>
     </div>
 
+    {section_label("📝 Manuel Kriz Durum Notu", "#0891b2", "#ecfeff")}
+
     <div class="card info">
       <h2>Manuel Kriz Durum Notu</h2>
       <p><b>Aktif kriz durumu:</b><br>{esc(active_label)}</p>

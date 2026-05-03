@@ -2080,7 +2080,7 @@ a {{ color:#1f2933; font-weight:800; }}
 
 {section_label("🗂 Sosyal Medya Kayıtları", "#d97706", "#fffbeb")}
 
-<div class="card">
+<div class="card" style="border-left:6px solid #d97706; background:#fffbeb;">
     <h2>11. Manuel ve Otomatik Sosyal Medya Kayıtları</h2>
     <table>
         <tr><th>Tarih</th><th>Platform</th><th>Konu</th><th>Ton</th><th>Beğenme</th><th>Risk</th><th>Fırsat</th><th>Gönderi</th></tr>

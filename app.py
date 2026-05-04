@@ -1953,6 +1953,27 @@ def section_label(title, color, bg):
 </div>
 """
 
+def report_main_menu():
+    return """
+<div style="border:2px solid #0f172a; border-left:8px solid #0f172a; background:#f8fafc; border-radius:18px; padding:16px; margin:22px 0;">
+  <div style="font-size:24px; font-weight:800; color:#0f172a; margin-bottom:10px;">📌 Rapor Ana Menüsü / Hızlı Erişim</div>
+  <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:10px;">
+    <a href="#acil-durum" style="padding:12px; border-radius:14px; background:#fef2f2; color:#b91c1c; text-decoration:none; font-weight:800; border:1px solid #fecaca;">🚨 Acil Durum</a>
+    <a href="#haberler" style="padding:12px; border-radius:14px; background:#eff6ff; color:#2563eb; text-decoration:none; font-weight:800; border:1px solid #bfdbfe;">📰 Haberler</a>
+    <a href="#onemli-basliklar" style="padding:12px; border-radius:14px; background:#eff6ff; color:#2563eb; text-decoration:none; font-weight:800; border:1px solid #bfdbfe;">⭐ Önemli Başlıklar</a>
+    <a href="#olumlu-haberler" style="padding:12px; border-radius:14px; background:#f0fdf4; color:#15803d; text-decoration:none; font-weight:800; border:1px solid #bbf7d0;">✅ Olumlu Haberler</a>
+    <a href="#riskli-haberler" style="padding:12px; border-radius:14px; background:#fef2f2; color:#dc2626; text-decoration:none; font-weight:800; border:1px solid #fecaca;">⚠️ Riskli Haberler</a>
+    <a href="#sosyal-medya" style="padding:12px; border-radius:14px; background:#f5f3ff; color:#7c3aed; text-decoration:none; font-weight:800; border:1px solid #ddd6fe;">📱 Sosyal Medya</a>
+    <a href="#kriz-aksiyon" style="padding:12px; border-radius:14px; background:#fef2f2; color:#b91c1c; text-decoration:none; font-weight:800; border:1px solid #fecaca;">🧯 Kriz Aksiyon</a>
+    <a href="#baskan-x" style="padding:12px; border-radius:14px; background:#ecfdf5; color:#059669; text-decoration:none; font-weight:800; border:1px solid #bbf7d0;">👤 Başkan X</a>
+    <a href="#sosyal-kayitlar" style="padding:12px; border-radius:14px; background:#fffbeb; color:#d97706; text-decoration:none; font-weight:800; border:1px solid #fde68a;">🗂 Sosyal Kayıtlar</a>
+    <a href="#strateji" style="padding:12px; border-radius:14px; background:#f8fafc; color:#334155; text-decoration:none; font-weight:800; border:1px solid #cbd5e1;">📊 Strateji</a>
+    <a href="crisis_panel.html" style="padding:12px; border-radius:14px; background:#fee2e2; color:#991b1b; text-decoration:none; font-weight:800; border:1px solid #fecaca;">🚨 Kriz Paneli</a>
+    <a href="team_report.html" style="padding:12px; border-radius:14px; background:#f1f5f9; color:#0f172a; text-decoration:none; font-weight:800; border:1px solid #cbd5e1;">👥 Ekip Raporu</a>
+  </div>
+</div>
+"""
+
 def news_card(item):
     return f"""
 <div class="item" style="border-left:6px solid #2563eb; background:#eff6ff;">
@@ -2835,6 +2856,7 @@ a {{ color:#1f2933; font-weight:800; }}
 <header>
     <h1>Yerel Liderlik AI Günlük Raporu</h1>
     <p>Takip edilen isim: Mesut Kocagöz • Bölge: Antalya / Kepez • Tarih: {today} • Güncelleme saati: {report_time}
+    <div id="acil-durum"></div>
     {section_label("🚨 Acil Durum / Kriz Paneli", "#b91c1c", "#fef2f2")}
 <div style="margin:18px 0; padding:16px; border:2px solid #dc2626; border-left:8px solid #b91c1c; border-radius:16px; background:#fef2f2; box-shadow:0 2px 10px rgba(185,28,28,0.10);">
   <a href="crisis_panel.html" style="font-size:18px; font-weight:bold; color:#991b1b; text-decoration:none;">
@@ -2862,6 +2884,9 @@ a {{ color:#1f2933; font-weight:800; }}
 
 <main>
 
+{report_main_menu()}
+
+<div id="haberler"></div>
 {section_label("📰 Haberler ve Günlük Genel Özet", "#2563eb", "#eff6ff")}
 
 <div class="card" style="border-left:6px solid #2563eb; background:#eff6ff;">
@@ -2876,8 +2901,11 @@ a {{ color:#1f2933; font-weight:800; }}
     <p>{esc(general_comment)}</p>
 </div>
 
+<div id="onemli-basliklar"></div>
 <div class="card"><h2>2. Bugünün En Önemli 3 Başlığı<h2>{important_html}</div>
+<div id="olumlu-haberler"></div>
 <div class="card"><h2>3. Öne Çıkan Olumlu Haberler</h2>{positive_html}</div>
+<div id="riskli-haberler"></div>
 <div class="card"><h2>4. Riskli / İzlenmesi Gereken Haberler</h2>{risky_html}</div>
 
 <div class="card">
@@ -2889,6 +2917,7 @@ a {{ color:#1f2933; font-weight:800; }}
 {section_label("📱 Sosyal Medya Nabzı", "#7c3aed", "#f5f3ff")}
 
 <div class="card">
+<div id="sosyal-medya"></div>
  <h2>5. Sosyal Medya Etkileşim Analizi</h2>
     <div class="kpis">
         <div class="kpi"><b>{int(social_sum["total_likes"])}</b><span>Toplam beğeni</span></div>
@@ -2906,6 +2935,7 @@ a {{ color:#1f2933; font-weight:800; }}
             <p><b>İlk aksiyon önerisi:</b> {esc(social_sum.get("action_text", ""))}</p>
         </div>
         
+        <div id="kriz-aksiyon"></div>
         {section_label("🚨 Kriz / Soğukkanlı Aksiyon", "#b91c1c", "#fef2f2")}
         
         <div style="border:2px solid #dc2626; border-radius:16px; padding:16px; margin:18px 0; background:#fff7ed;">
@@ -3014,6 +3044,7 @@ a {{ color:#1f2933; font-weight:800; }}
     {social_card("9. En Büyük Fırsat İçeriği", social_sum["opportunity"])}
 </div>
 
+<div id="baskan-x"></div>
 {section_label("👤 Sayın Başkan’ın X Hesabı", "#059669", "#ecfdf5")}
 
 <div class="card">
@@ -3024,6 +3055,7 @@ a {{ color:#1f2933; font-weight:800; }}
   {president_reply_html}
 </div>
 
+<div id="sosyal-kayitlar"></div>
 {section_label("🗂 Sosyal Medya Kayıtları", "#d97706", "#fffbeb")}
 
 <div class="card" style="border-left:6px solid #d97706; background:#fffbeb;">
@@ -3034,6 +3066,7 @@ a {{ color:#1f2933; font-weight:800; }}
     </table>
 </div>
 
+<div id="strateji"></div>
 {section_label("📊 Stratejik Değerlendirme", "#334155", "#f8fafc")}
 
 <div class="card" style="border-left:6px solid #334155; background:#f8fafc;">

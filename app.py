@@ -2991,6 +2991,112 @@ def social_account_meta_html(item):
 </div>
 """
 
+def x_social_summary_html(social, president_replies):
+    x_items = []
+
+    for item in social:
+        platform_raw = str(item.get("platform", "") or "").lower()
+
+        if "twitter" in platform_raw or platform_raw.strip() == "x" or platform_raw.startswith("x "):
+            x_items.append(item)
+
+    risky_x_items = sorted(
+        [
+            item for item in x_items
+            if safe_score_value(item.get("account_adjusted_risk_score", item.get("risk_score", 0))) >= 6
+        ],
+        key=lambda x: safe_score_value(x.get("account_adjusted_risk_score", x.get("risk_score", 0))),
+        reverse=True
+    )[:5]
+
+    risky_replies = [
+        item for item in president_replies
+        if safe_score_value(item.get("risk_score", 0)) >= 6
+    ]
+
+    if len(risky_x_items) >= 3 or len(risky_replies) >= 2:
+        status_text = "X tarafında ekip kontrolü gerektiren riskli hareket var."
+        status_color = "#b91c1c"
+        status_bg = "#fef2f2"
+    elif len(risky_x_items) >= 1 or len(risky_replies) >= 1:
+        status_text = "X tarafında takip gerektiren sınırlı risk var."
+        status_color = "#d97706"
+        status_bg = "#fffbeb"
+    else:
+        status_text = "X tarafında şu an belirgin yüksek riskli hareket görünmüyor."
+        status_color = "#15803d"
+        status_bg = "#f0fdf4"
+
+    rows_html = ""
+
+    for item in risky_x_items:
+        adjusted_risk = item.get("account_adjusted_risk_score", item.get("risk_score", 0))
+        reason = item.get("account_risk_reason", "")
+        account_type = item.get("account_type", "bilinmeyen")
+        account_side = item.get("account_side", "bilinmeyen")
+        influence = item.get("account_influence_level", "dusuk")
+        watch = item.get("account_watch_level", "normal")
+
+        content = item.get("content", "") or item.get("text", "") or ""
+        if len(content) > 180:
+            content = content[:180] + "..."
+
+        rows_html += f"""
+<tr>
+<td>{esc(item.get("date", ""))}</td>
+<td>{esc(item.get("account", ""))}</td>
+<td>{esc(item.get("topic", ""))}</td>
+<td>{item.get("risk_score", 0)}/10</td>
+<td>{adjusted_risk}/10</td>
+<td>
+{esc(content)}
+<div class="small" style="margin-top:6px;">
+<b>Hesap tipi:</b> {esc(account_type)} •
+<b>Taraf:</b> {esc(account_side)} •
+<b>Etki:</b> {esc(influence)} •
+<b>Takip:</b> {esc(watch)}
+</div>
+<div class="small" style="margin-top:4px;">
+<b>Risk nedeni:</b> {esc(reason)}
+</div>
+</td>
+<td>{social_link(item.get("link", ""))}</td>
+</tr>
+"""
+
+    if not rows_html:
+        rows_html = "<tr><td colspan='7'>Riskli X kaydı bulunamadı.</td></tr>"
+
+    return f"""
+<div class="card">
+<p>
+<b>Toplam X kaydı:</b> {len(x_items)} •
+<b>Riskli X kaydı:</b> {len(risky_x_items)} •
+<b>Başkan X yanıtı:</b> {len(president_replies)} •
+<b>Riskli Başkan X yanıtı:</b> {len(risky_replies)}
+</p>
+
+<p>
+<span style="display:inline-block; padding:6px 10px; border-radius:999px; border:1px solid {status_color}; background:{status_bg}; color:{status_color}; font-weight:700;">
+{esc(status_text)}
+</span>
+</p>
+
+<table>
+<tr>
+<th>Tarih</th>
+<th>Hesap</th>
+<th>Konu</th>
+<th>Risk</th>
+<th>Hesap Etkili Risk</th>
+<th>İçerik / Hesap Yorumu</th>
+<th>Link</th>
+</tr>
+{rows_html}
+</table>
+</div>
+"""
+
 def build_team_report(news, social, early_warning, crisis_plan, crisis_status, report_time):
     now_tr = dt.datetime.utcnow() + dt.timedelta(hours=3)
     today = now_tr.date().isoformat()
@@ -3017,6 +3123,7 @@ def build_team_report(news, social, early_warning, crisis_plan, crisis_status, r
     )
     
     youtube_summary = read_youtube_summary()
+    x_summary_html = x_social_summary_html(social, president_replies)
     
     risky_social = sorted(
         social,
@@ -3219,6 +3326,9 @@ th {{
 <p class="small">Yerel YouTube kanallarında kontrol edilen videolar ve yerel gündemle alakalı bulunan yorum sayıları.</p>
 {youtube_summary_html(youtube_summary)}
 </div>
+
+{section_label("🐦 X Sosyal Ağ Özeti", "#111827", "#f8fafc")}
+{x_summary_html}
 
 {section_label("📣 Bildirim Geçmişi / Alarm Kayıtları", "#0ea5e9", "#f0f9ff")}
 <div class="card">

@@ -20,6 +20,7 @@ PRESIDENT_X_CSV = ROOT / "data" / "auto_social" / "president_x_posts.csv"
 PRESIDENT_X_REPLIES_CSV = ROOT / "data" / "auto_social" / "president_x_replies.csv"
 YOUTUBE_SOCIAL_CSV = ROOT / "data" / "auto_social" / "youtube_social.csv"
 YOUTUBE_WATCH_CSV = ROOT / "data" / "social_watch" / "youtube_watch.csv"
+YOUTUBE_SUMMARY_CSV = ROOT / "data" / "auto_social" / "youtube_summary.csv"
 PRESIDENT_X_USERNAME = "mesutkocagoztr"
 WATCH_KEYWORDS_CSV = ROOT / "data" / "social_watch" / "watch_keywords.csv"
 CRISIS_CSV = ROOT / "data" / "manual_crisis" / "crisis_status.csv"
@@ -683,6 +684,37 @@ def fetch_president_x_replies():
     except Exception as e:
         print(f"Başkan X yanıtları alınamadı: {e}")
 
+def is_relevant_youtube_comment(video_title, comment_text, watch_topic):
+    combined = normalize_text(f"{video_title} {comment_text} {watch_topic}")
+
+    relevance_terms = [
+        "kepez",
+        "mesut",
+        "kocagoz",
+        "kocagöz",
+        "kepez belediyesi",
+        "antalya kepez",
+        "teleferik",
+        "dava",
+        "sikayet",
+        "şikayet",
+        "asfalt",
+        "temizlik",
+        "park",
+        "ulasim",
+        "ulaşim",
+        "ulaşım",
+        "mahalle",
+        "varsak",
+        "duaci",
+        "duacı",
+        "belediye",
+        "baskan",
+        "başkan",
+    ]
+
+    return any(normalize_text(term) in combined for term in relevance_terms)
+
 def read_youtube_watch_list():
     default_items = [
         {
@@ -862,13 +894,15 @@ def fetch_youtube_social_comments():
         return
 
     YOUTUBE_SOCIAL_CSV.parent.mkdir(parents=True, exist_ok=True)
+    YOUTUBE_SUMMARY_CSV.parent.mkdir(parents=True, exist_ok=True)
 
     watch_items = read_youtube_watch_list()
 
     rows = []
+    summary_rows = []
     seen_comments = set()
-    skipped_videos = 0
-    checked_videos = 0
+    total_skipped_videos = 0
+    total_checked_videos = 0
 
     try:
         for watch in watch_items:
@@ -878,6 +912,12 @@ def fetch_youtube_social_comments():
             watch_note = watch.get("note", "")
 
             video_candidates = []
+
+            source_name = watch_topic or term
+            checked_videos = 0
+            skipped_videos = 0
+            relevant_comments = 0
+            saved_comments = 0
 
             if item_type == "video":
                 direct_video_id = youtube_video_id_from_value(term)
@@ -894,6 +934,16 @@ def fetch_youtube_social_comments():
                     video_candidates = youtube_channel_video_candidates(term, api_key, max_results=50)
                 except Exception as e:
                     print(f"YouTube kanal taraması atlandı: {term} / {e}")
+                    summary_rows.append({
+                        "source": source_name,
+                        "type": item_type,
+                        "topic": watch_topic,
+                        "checked_videos": 0,
+                        "relevant_comments": 0,
+                        "saved_comments": 0,
+                        "skipped_videos": 0,
+                        "note": f"Kanal taraması atlandı: {e}",
+                    })
                     continue
 
             elif item_type == "query":
@@ -926,6 +976,16 @@ def fetch_youtube_social_comments():
                         })
 
             else:
+                summary_rows.append({
+                    "source": source_name,
+                    "type": item_type,
+                    "topic": watch_topic,
+                    "checked_videos": 0,
+                    "relevant_comments": 0,
+                    "saved_comments": 0,
+                    "skipped_videos": 0,
+                    "note": "Bilinmeyen YouTube takip tipi",
+                })
                 continue
 
             for video_data in video_candidates:
@@ -939,6 +999,10 @@ def fetch_youtube_social_comments():
                     continue
 
                 checked_videos += 1
+                total_checked_videos += 1
+
+                if channel_title and source_name in [watch_topic, term]:
+                    source_name = channel_title
 
                 try:
                     video_params = urllib.parse.urlencode({
@@ -955,16 +1019,19 @@ def fetch_youtube_social_comments():
                     video_items = video_info_payload.get("items", [])
                     if not video_items:
                         skipped_videos += 1
+                        total_skipped_videos += 1
                         continue
 
                     comment_count = int(video_items[0].get("statistics", {}).get("commentCount", 0) or 0)
 
                     if comment_count <= 0:
                         skipped_videos += 1
+                        total_skipped_videos += 1
                         continue
 
                 except Exception:
                     skipped_videos += 1
+                    total_skipped_videos += 1
                     continue
 
                 comment_params = urllib.parse.urlencode({
@@ -984,6 +1051,7 @@ def fetch_youtube_social_comments():
 
                 except urllib.error.HTTPError:
                     skipped_videos += 1
+                    total_skipped_videos += 1
                     continue
 
                 for comment in comment_payload.get("items", []):
@@ -1007,6 +1075,11 @@ def fetch_youtube_social_comments():
                     if not text:
                         continue
 
+                    if not is_relevant_youtube_comment(video_title, text, watch_topic):
+                        continue
+
+                    relevant_comments += 1
+
                     combined_text = f"{video_title} {text}"
                     sentiment, risk_score, opportunity_score, topic, action_note = score_x_post(combined_text, watch_topic)
 
@@ -1027,6 +1100,19 @@ def fetch_youtube_social_comments():
                         "action_note": f"YouTube yorumu takip edildi. Video: {video_title} / Kanal: {channel_title}. {action_note}",
                         "source_type": "Otomatik YouTube",
                     })
+
+                    saved_comments += 1
+
+            summary_rows.append({
+                "source": source_name,
+                "type": item_type,
+                "topic": watch_topic,
+                "checked_videos": checked_videos,
+                "relevant_comments": relevant_comments,
+                "saved_comments": saved_comments,
+                "skipped_videos": skipped_videos,
+                "note": watch_note,
+            })
 
         with YOUTUBE_SOCIAL_CSV.open("w", encoding="utf-8-sig", newline="") as f:
             fieldnames = [
@@ -1050,7 +1136,22 @@ def fetch_youtube_social_comments():
             writer.writeheader()
             writer.writerows(rows)
 
-        print(f"YouTube otomatik tarama tamamlandı. Kayıt sayısı: {len(rows)} / Kontrol edilen video: {checked_videos} / Atlanan video: {skipped_videos}")
+        with YOUTUBE_SUMMARY_CSV.open("w", encoding="utf-8-sig", newline="") as f:
+            fieldnames = [
+                "source",
+                "type",
+                "topic",
+                "checked_videos",
+                "relevant_comments",
+                "saved_comments",
+                "skipped_videos",
+                "note",
+            ]
+            writer = csv.DictWriter(f, fieldnames=fieldnames)
+            writer.writeheader()
+            writer.writerows(summary_rows)
+
+        print(f"YouTube otomatik tarama tamamlandı. Kayıt sayısı: {len(rows)} / Kontrol edilen video: {total_checked_videos} / Atlanan video: {total_skipped_videos}")
 
     except urllib.error.HTTPError as e:
         detail = ""

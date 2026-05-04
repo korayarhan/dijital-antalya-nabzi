@@ -2818,6 +2818,7 @@ def build_team_report(news, social, early_warning, crisis_plan, crisis_status, r
     team_actions = read_team_actions(20)
     crisis_log = read_crisis_log()
     president_replies = read_president_x_replies()
+    accounts_map = read_accounts_map()
     learning_note = build_system_learning_note(
         news,
         social,
@@ -2874,16 +2875,33 @@ def build_team_report(news, social, early_warning, crisis_plan, crisis_status, r
     if not team_action_rows:
         team_action_rows = "<tr><td colspan='8'>Henüz ekip aksiyon kaydı yok.</td></tr>"
 
-    risky_social_rows = ""
-    for item in risky_social:
+        risky_social_rows = ""
+        for item in risky_social:
+            acc_info = account_map_info(
+            item.get("platform", ""),
+            item.get("account", ""),
+            accounts_map
+        )
+
+        account_meta = f"""
+<div class="small" style="margin-top:6px;">
+<b>Hesap tipi:</b> {esc(acc_info.get("type", ""))} •
+<b>Taraf:</b> {esc(acc_info.get("side", ""))} •
+<b>Etki:</b> {esc(acc_info.get("influence_level", ""))} •
+<b>Takip:</b> {esc(acc_info.get("watch_level", ""))}
+</div>
+"""
+
         risky_social_rows += f"""
+    
+    
 <tr>
 <td>{esc(item.get("date", ""))}</td>
 <td>{esc(item.get("platform", ""))}</td>
 <td>{esc(item.get("topic", ""))}</td>
 <td>{esc(item.get("tone", ""))}</td>
 <td>{item.get("risk_score", 0)}/10</td>
-<td>{esc(item.get("action_note", ""))}</td>
+<td>{esc(item.get("action_note", ""))}{account_meta}</td>
 <td>{social_link(item.get("link", ""))}</td>
 </tr>
 """

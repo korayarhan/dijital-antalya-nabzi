@@ -1504,6 +1504,31 @@ def account_map_info(platform, account, accounts_map):
         "notes": "Hesap haritasında kayıt yok.",
     }
 
+def account_influence_comment(acc_info):
+    account_type = normalize_text(acc_info.get("type", ""))
+    side = normalize_text(acc_info.get("side", ""))
+    influence = normalize_text(acc_info.get("influence_level", ""))
+    watch = normalize_text(acc_info.get("watch_level", ""))
+
+    if "baskan" in account_type:
+        return "Başkan hesabı olduğu için görünürlük ve yorum tonu ayrıca takip edilmeli."
+
+    if "yerel_medya" in account_type or "medya" in side:
+        if "yuksek" in influence:
+            return "Yüksek etkili yerel medya kaynağı. Alakalı yorum varsa ekip tarafından öncelikli kontrol edilmeli."
+        return "Yerel medya kaynağı. Alakalı yorumlar kamuoyu tonu açısından takip edilmeli."
+
+    if "rakip" in side or "siyasi" in account_type:
+        return "Siyasi çevreye yakın kaynak olabilir. Yorum ve paylaşım dili algı yönetimi açısından izlenmeli."
+
+    if "yuksek" in influence or "yuksek" in watch:
+        return "Etkisi yüksek kaynak. Yayılım riski veya fırsat etkisi normal kayıtlardan daha önemli görülmeli."
+
+    if "bilinmeyen" in account_type:
+        return "Hesap haritasında kayıt bulunamadı. Gerekirse bu kaynak daha sonra sınıflandırılmalı."
+
+    return "Kaynak takipte. Şimdilik standart izleme yeterli."
+
 def read_youtube_summary(limit=20):
     if not YOUTUBE_SUMMARY_CSV.exists():
         return []
@@ -1555,6 +1580,7 @@ def youtube_summary_html(items):
         skipped = item.get("skipped_videos", "0")
 
         acc_info = account_map_info("YouTube", source, accounts_map)
+        influence_comment = account_influence_comment(acc_info)
 
         account_meta = f"""
 <p class="muted" style="margin-top:6px;">
@@ -1562,6 +1588,9 @@ def youtube_summary_html(items):
   <b>Taraf:</b> {esc(acc_info.get("side", ""))} •
   <b>Etki:</b> {esc(acc_info.get("influence_level", ""))} •
   <b>Takip:</b> {esc(acc_info.get("watch_level", ""))}
+</p>
+<p class="muted" style="margin-top:4px;">
+  <b>Kaynak yorumu:</b> {esc(influence_comment)}
 </p>
 """
 

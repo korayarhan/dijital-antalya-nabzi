@@ -2906,6 +2906,9 @@ def build_team_report(news, social, early_warning, crisis_plan, crisis_status, r
 </tr>
 """
 
+    if "risky_social_rows" not in locals():
+        risky_social_rows = ""
+        
     if not risky_social_rows:
         risky_social_rows = "<tr><td colspan='7'>Riskli sosyal medya kaydı bulunamadı.</td></tr>"
         

@@ -1598,6 +1598,30 @@ def account_adjusted_risk_note(base_risk, acc_info):
 
     return f"Hesap etkili risk: {adjusted}/10. +{bonus} etki eklendi. Neden: {reason}."
 
+def youtube_channel_base_risk(relevant_comments):
+    relevant = safe_score_value(relevant_comments, 0)
+
+    if relevant >= 10:
+        return 7
+    if relevant >= 5:
+        return 6
+    if relevant >= 2:
+        return 5
+    if relevant >= 1:
+        return 4
+
+    return 2
+
+
+def youtube_channel_risk_note(relevant_comments, acc_info):
+    base_risk = youtube_channel_base_risk(relevant_comments)
+    adjusted, bonus, reason = account_adjusted_risk_score(base_risk, acc_info)
+
+    if bonus > 0:
+        return f"Kanal etkili risk: {adjusted}/10. Temel risk {base_risk}/10, hesap etkisi +{bonus}. Neden: {reason}."
+
+    return f"Kanal etkili risk: {adjusted}/10. Temel risk {base_risk}/10, hesap etkisi standart."
+
 def read_youtube_summary(limit=20):
     if not YOUTUBE_SUMMARY_CSV.exists():
         return []
@@ -1650,6 +1674,7 @@ def youtube_summary_html(items):
 
         acc_info = account_map_info("YouTube", source, accounts_map)
         influence_comment = account_influence_comment(acc_info)
+        risk_note = youtube_channel_risk_note(relevant, acc_info)
 
         account_meta = f"""
 <p class="muted" style="margin-top:6px;">
@@ -1660,6 +1685,10 @@ def youtube_summary_html(items):
 </p>
 <p class="muted" style="margin-top:4px;">
   <b>Kaynak yorumu:</b> {esc(influence_comment)}
+</p>
+</p>
+<p class="muted" style="margin-top:4px;">
+  <b>Kanal risk yorumu:</b> {esc(risk_note)}
 </p>
 """
 

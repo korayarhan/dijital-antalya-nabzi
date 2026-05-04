@@ -1548,8 +1548,13 @@ def youtube_summary_html(items):
 
     for item in items:
         source = item.get("source", "")
-        
-                acc_info = account_map_info("YouTube", source, accounts_map)
+        item_type = item.get("type", "")
+        checked = item.get("checked_videos", "0")
+        relevant = item.get("relevant_comments", "0")
+        saved = item.get("saved_comments", "0")
+        skipped = item.get("skipped_videos", "0")
+
+        acc_info = account_map_info("YouTube", source, accounts_map)
 
         account_meta = f"""
 <p class="muted" style="margin-top:6px;">
@@ -1559,12 +1564,6 @@ def youtube_summary_html(items):
   <b>Takip:</b> {esc(acc_info.get("watch_level", ""))}
 </p>
 """
-
-        item_type = item.get("type", "")
-        checked = item.get("checked_videos", "0")
-        relevant = item.get("relevant_comments", "0")
-        saved = item.get("saved_comments", "0")
-        skipped = item.get("skipped_videos", "0")
 
         try:
             relevant_int = int(float(str(relevant).replace(",", ".") or 0))

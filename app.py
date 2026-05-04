@@ -745,6 +745,115 @@ def youtube_video_id_from_value(value):
 
     return ""
 
+def youtube_channel_handle_from_value(value):
+    value = str(value or "").strip()
+
+    if "youtube.com/@" in value:
+        path = urllib.parse.urlparse(value).path.strip("/")
+        return path if path.startswith("@") else f"@{path}"
+
+    if value.startswith("@"):
+        return value
+
+    return ""
+
+
+def youtube_channel_id_from_value(value, api_key):
+    value = str(value or "").strip()
+
+    if "/channel/" in value:
+        path = urllib.parse.urlparse(value).path
+        parts = [x for x in path.split("/") if x]
+        if "channel" in parts:
+            idx = parts.index("channel")
+            if len(parts) > idx + 1:
+                return parts[idx + 1]
+
+    if value.startswith("UC") and len(value) > 15:
+        return value
+
+    handle = youtube_channel_handle_from_value(value)
+    if not handle:
+        return ""
+
+    params = urllib.parse.urlencode({
+        "part": "contentDetails",
+        "forHandle": handle,
+        "key": api_key,
+    })
+
+    url = f"https://www.googleapis.com/youtube/v3/channels?{params}"
+
+    with urllib.request.urlopen(url, timeout=30) as response:
+        payload = json.loads(response.read().decode("utf-8"))
+
+    items = payload.get("items", [])
+    if not items:
+        return ""
+
+    return items[0].get("id", "")
+
+
+def youtube_channel_video_candidates(channel_value, api_key, max_results=5):
+    channel_id = youtube_channel_id_from_value(channel_value, api_key)
+
+    if not channel_id:
+        return []
+
+    channel_params = urllib.parse.urlencode({
+        "part": "contentDetails",
+        "id": channel_id,
+        "key": api_key,
+    })
+
+    channel_url = f"https://www.googleapis.com/youtube/v3/channels?{channel_params}"
+
+    with urllib.request.urlopen(channel_url, timeout=30) as response:
+        channel_payload = json.loads(response.read().decode("utf-8"))
+
+    channel_items = channel_payload.get("items", [])
+    if not channel_items:
+        return []
+
+    uploads_playlist = (
+        channel_items[0]
+        .get("contentDetails", {})
+        .get("relatedPlaylists", {})
+        .get("uploads", "")
+    )
+
+    if not uploads_playlist:
+        return []
+
+    playlist_params = urllib.parse.urlencode({
+        "part": "snippet",
+        "playlistId": uploads_playlist,
+        "maxResults": str(max_results),
+        "key": api_key,
+    })
+
+    playlist_url = f"https://www.googleapis.com/youtube/v3/playlistItems?{playlist_params}"
+
+    with urllib.request.urlopen(playlist_url, timeout=30) as response:
+        playlist_payload = json.loads(response.read().decode("utf-8"))
+
+    candidates = []
+
+    for item in playlist_payload.get("items", []):
+        snippet = item.get("snippet", {}) or {}
+        resource = snippet.get("resourceId", {}) or {}
+        video_id = resource.get("videoId", "")
+
+        if video_id:
+            candidates.append({
+                "video_id": video_id,
+                "video_title": snippet.get("title", ""),
+                "channel_title": snippet.get("channelTitle", ""),
+                "published_at": snippet.get("publishedAt", ""),
+            })
+
+    return candidates
+
 def fetch_youtube_social_comments():
     api_key = os.getenv("YOUTUBE_API_KEY", "").strip()
 
@@ -759,10 +868,11 @@ def fetch_youtube_social_comments():
     rows = []
     seen_comments = set()
     skipped_videos = 0
+    checked_videos = 0
 
     try:
         for watch in watch_items:
-            item_type = watch.get("type", "query")
+            item_type = str(watch.get("type", "query") or "query").strip().lower()
             term = watch.get("value", "")
             watch_topic = watch.get("topic", term)
             watch_note = watch.get("note", "")
@@ -779,12 +889,19 @@ def fetch_youtube_social_comments():
                         "published_at": "",
                     })
 
-            else:
+            elif item_type == "channel":
+                try:
+                    video_candidates = youtube_channel_video_candidates(term, api_key, max_results=5)
+                except Exception as e:
+                    print(f"YouTube kanal taraması atlandı: {term} / {e}")
+                    continue
+
+            elif item_type == "query":
                 search_params = urllib.parse.urlencode({
                     "part": "snippet",
                     "q": term,
                     "type": "video",
-                    "maxResults": "3",
+                    "maxResults": "2",
                     "order": "date",
                     "regionCode": "TR",
                     "relevanceLanguage": "tr",
@@ -808,6 +925,9 @@ def fetch_youtube_social_comments():
                             "published_at": snippet.get("publishedAt", ""),
                         })
 
+            else:
+                continue
+
             for video_data in video_candidates:
                 video_id = video_data.get("video_id", "")
                 video_title = video_data.get("video_title", "")
@@ -817,6 +937,8 @@ def fetch_youtube_social_comments():
 
                 if not video_id:
                     continue
+
+                checked_videos += 1
 
                 try:
                     video_params = urllib.parse.urlencode({
@@ -928,7 +1050,7 @@ def fetch_youtube_social_comments():
             writer.writeheader()
             writer.writerows(rows)
 
-        print(f"YouTube otomatik tarama tamamlandı. Kayıt sayısı: {len(rows)} / Atlanan video: {skipped_videos}")
+        print(f"YouTube otomatik tarama tamamlandı. Kayıt sayısı: {len(rows)} / Kontrol edilen video: {checked_videos} / Atlanan video: {skipped_videos}")
 
     except urllib.error.HTTPError as e:
         detail = ""
@@ -940,6 +1062,7 @@ def fetch_youtube_social_comments():
 
     except Exception as e:
         print(f"YouTube taraması başarısız: {e}")
+        
 def fetch_x_social_posts():
     token = os.getenv("X_BEARER_TOKEN", "").strip()
     if not token:

@@ -891,7 +891,7 @@ def fetch_youtube_social_comments():
 
             elif item_type == "channel":
                 try:
-                    video_candidates = youtube_channel_video_candidates(term, api_key, max_results=5)
+                    video_candidates = youtube_channel_video_candidates(term, api_key, max_results=20)
                 except Exception as e:
                     print(f"YouTube kanal taraması atlandı: {term} / {e}")
                     continue

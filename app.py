@@ -3097,6 +3097,88 @@ def x_social_summary_html(social, president_replies):
 </div>
 """
 
+def president_x_replies_detail_html(replies):
+    if not replies:
+        return """
+<div class="card">
+<p class="small">Başkan X yanıtlarında okunabilir veri bulunamadı.</p>
+</div>
+"""
+
+    risky_replies = sorted(
+        [
+            item for item in replies
+            if safe_score_value(item.get("risk_score", 0)) >= 6
+            or normalize_text(item.get("sentiment", "")) == "negative"
+        ],
+        key=lambda x: safe_score_value(x.get("risk_score", 0)),
+        reverse=True
+    )
+
+    if len(risky_replies) >= 3:
+        status_text = "Başkan X yanıtlarında dikkat gerektiren risk yoğunluğu var."
+        status_color = "#b91c1c"
+        status_bg = "#fef2f2"
+        action_text = "Basın ekibi riskli yanıtları tek tek incelemeli; tekrar eden şikayet varsa kısa bilgi notu hazırlanmalı."
+    elif len(risky_replies) >= 1:
+        status_text = "Başkan X yanıtlarında sınırlı riskli yorum var."
+        status_color = "#d97706"
+        status_bg = "#fffbeb"
+        action_text = "Yorumların yayılımı ve aynı konunun tekrar edip etmediği takip edilmeli."
+    else:
+        status_text = "Başkan X yanıtlarında belirgin yüksek risk görünmüyor."
+        status_color = "#15803d"
+        status_bg = "#f0fdf4"
+        action_text = "Takip sürmeli; günlük detay müdahalesi gerekmiyor."
+
+    rows_html = ""
+
+    for item in risky_replies[:5]:
+        reply_text = item.get("reply_text", "")
+        if len(reply_text) > 220:
+            reply_text = reply_text[:220] + "..."
+
+        rows_html += f"""
+<tr>
+<td>{esc(item.get("reply_date", ""))}</td>
+<td>{esc(item.get("reply_account", ""))}</td>
+<td>{item.get("risk_score", 0)}/10</td>
+<td>{esc(reply_text)}</td>
+<td>{social_link(item.get("reply_url", ""))}</td>
+</tr>
+"""
+
+    if not rows_html:
+        rows_html = "<tr><td colspan='5'>Riskli Başkan X yanıtı bulunamadı.</td></tr>"
+
+    return f"""
+<div class="card">
+<p>
+<b>Toplam Başkan X yanıtı:</b> {len(replies)} •
+<b>Riskli yanıt:</b> {len(risky_replies)}
+</p>
+
+<p>
+<span style="display:inline-block; padding:6px 10px; border-radius:999px; border:1px solid {status_color}; background:{status_bg}; color:{status_color}; font-weight:700;">
+{esc(status_text)}
+</span>
+</p>
+
+<p><b>İlk aksiyon:</b> {esc(action_text)}</p>
+
+<table>
+<tr>
+<th>Tarih</th>
+<th>Hesap</th>
+<th>Risk</th>
+<th>Yanıt</th>
+<th>Link</th>
+</tr>
+{rows_html}
+</table>
+</div>
+"""
+
 def build_team_report(news, social, early_warning, crisis_plan, crisis_status, report_time):
     now_tr = dt.datetime.utcnow() + dt.timedelta(hours=3)
     today = now_tr.date().isoformat()
@@ -3124,6 +3206,7 @@ def build_team_report(news, social, early_warning, crisis_plan, crisis_status, r
     
     youtube_summary = read_youtube_summary()
     x_summary_html = x_social_summary_html(social, president_replies)
+    president_replies_detail = president_x_replies_detail_html(president_replies)
     
     risky_social = sorted(
         social,
@@ -3329,6 +3412,10 @@ th {{
 
 {section_label("🐦 X Sosyal Ağ Özeti", "#111827", "#f8fafc")}
 {x_summary_html}
+
+{section_label("💬 Başkan X Yanıt Detayı", "#059669", "#ecfdf5")}
+{president_replies_detail}
+
 
 {section_label("📣 Bildirim Geçmişi / Alarm Kayıtları", "#0ea5e9", "#f0f9ff")}
 <div class="card">

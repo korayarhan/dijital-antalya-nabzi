@@ -2107,7 +2107,7 @@ def build_system_learning_note(news, social, alert_logs, team_actions, president
     else:
         archive_note = "Bildirim geçmişi henüz oluşmadı. İlk alarm sonrası kayıt kontrol edilmeli."
 
-    next_improvement = "Bir sonraki küçük gelişim: ekip raporunda aksiyonların durumuna göre 'Beklemede / Tamamlandı / Başkan bilgilendirilmeli' ayrımı güçlendirilebilir."
+    next_improvement = "Ekip raporunda aksiyonların durumuna göre 'Beklemede / Tamamlandı / Başkan bilgilendirilmeli' ayrımı güçlendirilebilir."
 
     return {
         "main_risk": main_risk,

@@ -2875,11 +2875,11 @@ def build_team_report(news, social, early_warning, crisis_plan, crisis_status, r
     if not team_action_rows:
         team_action_rows = "<tr><td colspan='8'>Henüz ekip aksiyon kaydı yok.</td></tr>"
 
-            accounts_map = read_accounts_map()
+            
 
-    risky_social_rows = ""
-    for item in risky_social:
-        acc_info = account_map_info(
+        risky_social_rows = ""
+        for item in risky_social:
+            acc_info = account_map_info(
             item.get("platform", ""),
             item.get("account", ""),
             accounts_map

@@ -1544,9 +1544,22 @@ def youtube_summary_html(items):
 """
 
     rows_html = ""
+    accounts_map = read_accounts_map()
 
     for item in items:
         source = item.get("source", "")
+        
+                acc_info = account_map_info("YouTube", source, accounts_map)
+
+        account_meta = f"""
+<p class="muted" style="margin-top:6px;">
+  <b>Hesap tipi:</b> {esc(acc_info.get("type", ""))} •
+  <b>Taraf:</b> {esc(acc_info.get("side", ""))} •
+  <b>Etki:</b> {esc(acc_info.get("influence_level", ""))} •
+  <b>Takip:</b> {esc(acc_info.get("watch_level", ""))}
+</p>
+"""
+
         item_type = item.get("type", "")
         checked = item.get("checked_videos", "0")
         relevant = item.get("relevant_comments", "0")
@@ -1570,6 +1583,7 @@ def youtube_summary_html(items):
         rows_html += f"""
 <div class="item" style="border-left:6px solid #dc2626; background:#fff7ed;">
   <h3>{esc(source)}</h3>
+  {account_meta}
   <p><b>Kaynak tipi:</b> {esc(item_type)}</p>
   <p><b>Kontrol edilen video:</b> {esc(checked)} • <b>Alakalı yorum:</b> {esc(relevant)} • <b>Kaydedilen yorum:</b> {esc(saved)} • <b>Atlanan video:</b> {esc(skipped)}</p>
   <p>

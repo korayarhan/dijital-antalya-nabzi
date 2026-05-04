@@ -1442,6 +1442,84 @@ def fetch_x_social_posts():
     except Exception as e:
         print(f"X taraması başarısız: {e}")
 
+def read_youtube_summary(limit=20):
+    if not YOUTUBE_SUMMARY_CSV.exists():
+        return []
+
+    rows = []
+
+    try:
+        with YOUTUBE_SUMMARY_CSV.open("r", encoding="utf-8-sig", newline="") as f:
+            reader = csv.DictReader(f)
+
+            for row in reader:
+                item = {
+                    "source": str(row.get("source", "") or "").strip(),
+                    "type": str(row.get("type", "") or "").strip(),
+                    "topic": str(row.get("topic", "") or "").strip(),
+                    "checked_videos": str(row.get("checked_videos", "") or "0").strip(),
+                    "relevant_comments": str(row.get("relevant_comments", "") or "0").strip(),
+                    "saved_comments": str(row.get("saved_comments", "") or "0").strip(),
+                    "skipped_videos": str(row.get("skipped_videos", "") or "0").strip(),
+                    "note": str(row.get("note", "") or "").strip(),
+                }
+
+                if any(item.values()):
+                    rows.append(item)
+
+    except Exception as e:
+        print(f"YouTube özet dosyası okunamadı: {e}")
+        return []
+
+    return rows[-limit:]
+    
+def youtube_summary_html(items):
+    if not items:
+        return """
+<div class="card">
+<p class="muted">YouTube kanal takip özeti henüz oluşmadı.</p>
+</div>
+"""
+
+    rows_html = ""
+
+    for item in items:
+        source = item.get("source", "")
+        item_type = item.get("type", "")
+        checked = item.get("checked_videos", "0")
+        relevant = item.get("relevant_comments", "0")
+        saved = item.get("saved_comments", "0")
+        skipped = item.get("skipped_videos", "0")
+
+        try:
+            relevant_int = int(float(str(relevant).replace(",", ".") or 0))
+        except:
+            relevant_int = 0
+
+        if relevant_int > 0:
+            status_text = "Alakalı yorum var, ekip gözle kontrol etmeli."
+            status_color = "#d97706"
+            status_bg = "#fffbeb"
+        else:
+            status_text = "Alakalı yorum bulunmadı, takipte kalınmalı."
+            status_color = "#64748b"
+            status_bg = "#f8fafc"
+
+        rows_html += f"""
+<div class="item" style="border-left:6px solid #dc2626; background:#fff7ed;">
+  <h3>{esc(source)}</h3>
+  <p><b>Kaynak tipi:</b> {esc(item_type)}</p>
+  <p><b>Kontrol edilen video:</b> {esc(checked)} • <b>Alakalı yorum:</b> {esc(relevant)} • <b>Kaydedilen yorum:</b> {esc(saved)} • <b>Atlanan video:</b> {esc(skipped)}</p>
+  <p>
+    <span style="display:inline-block; padding:6px 10px; border-radius:999px; border:1px solid {status_color}; background:{status_bg}; color:{status_color}; font-weight:700;">
+      {esc(status_text)}
+    </span>
+  </p>
+</div>
+"""
+
+    return rows_html
+
 def read_social_data():
     sources = [
         (SOCIAL_CSV, "Manuel"),
@@ -2271,6 +2349,7 @@ def report_main_menu():
     <a href="#olumlu-haberler" style="padding:12px; border-radius:14px; background:#f0fdf4; color:#15803d; text-decoration:none; font-weight:800; border:1px solid #bbf7d0;">✅ Olumlu Haberler</a>
     <a href="#riskli-haberler" style="padding:12px; border-radius:14px; background:#fef2f2; color:#dc2626; text-decoration:none; font-weight:800; border:1px solid #fecaca;">⚠️ Riskli Haberler</a>
     <a href="#sosyal-medya" style="padding:12px; border-radius:14px; background:#f5f3ff; color:#7c3aed; text-decoration:none; font-weight:800; border:1px solid #ddd6fe;">📱 Sosyal Medya</a>
+    <a href="#youtube-sosyal" style="padding:12px; border-radius:14px; background:#fff7ed; color:#dc2626; text-decoration:none; font-weight:800; border:1px solid #fed7aa;">📺 YouTube Nabzı</a>
     <a href="#kriz-aksiyon" style="padding:12px; border-radius:14px; background:#fef2f2; color:#b91c1c; text-decoration:none; font-weight:800; border:1px solid #fecaca;">🧯 Kriz Aksiyon</a>
     <a href="#baskan-x" style="padding:12px; border-radius:14px; background:#ecfdf5; color:#059669; text-decoration:none; font-weight:800; border:1px solid #bbf7d0;">👤 Başkan X</a>
     <a href="#sosyal-kayitlar" style="padding:12px; border-radius:14px; background:#fffbeb; color:#d97706; text-decoration:none; font-weight:800; border:1px solid #fde68a;">🗂 Sosyal Kayıtlar</a>
@@ -2955,6 +3034,7 @@ def build_report(news, social, undated_news=None):
     report_time = now_tr.strftime("%H:%M")
     important, positive_news, risky_news = top_items(news)
     social_sum = social_summary(social)
+    youtube_summary = read_youtube_summary()
     crisis_sum = build_auto_crisis_summary(news, social_sum)
     crisis_plan = crisis_action_plan(social_sum)
     crisis_status = read_crisis_status()
@@ -3349,6 +3429,14 @@ a {{ color:#1f2933; font-weight:800; }}
     {social_card("7. En Çok Yorum Alan Paylaşım", social_sum["most_comments"])}
     {social_card("8. En Riskli Sosyal İçerik", social_sum["risky"])}
     {social_card("9. En Büyük Fırsat İçeriği", social_sum["opportunity"])}
+</div>
+
+<div id="youtube-sosyal"></div>
+{section_label("📺 YouTube Sosyal Nabız / Kanal Takibi", "#dc2626", "#fff7ed")}
+<div class="card" style="border-left:6px solid #dc2626; background:#fff7ed;">
+  <h2>YouTube Kanal Takibi</h2>
+  <p class="muted">Yerel YouTube kanallarında kontrol edilen son videolar ve yerel gündemle alakalı bulunan yorum sayıları.</p>
+  {youtube_summary_html(youtube_summary)}
 </div>
 
 <div id="baskan-x"></div>

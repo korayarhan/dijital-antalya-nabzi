@@ -2,3 +2,7 @@ platform,account,type,side,influence_level,watch_level,notes
 X,@mesutkocagoztr,baskan,baskan,yuksek,yuksek,Sayın Başkan resmi X hesabı
 YouTube,Kanal V Televizyonu,yerel_medya,medya,orta,orta,Antalya yerel TV kanalı
 YouTube,Koza Tv,yerel_medya,medya,orta,orta,Antalya yerel TV kanalı
+X,@kepezbelediyesi,kurumsal,belediye,yuksek,yuksek,Kepez Belediyesi resmi X hesabı
+X,@AkdenizGercek,yerel_medya,medya,orta,orta,Antalya yerel haber/medya hesabı
+X,@kepezhaber7,yerel_medya,medya,orta,orta,Kepez odaklı yerel haber hesabı
+X,@kepezocak,siyasi_cevre,rakip/yerel_siyasi,orta,orta,Kepez siyasi çevre hesabı

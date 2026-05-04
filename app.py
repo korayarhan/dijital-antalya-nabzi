@@ -2875,9 +2875,11 @@ def build_team_report(news, social, early_warning, crisis_plan, crisis_status, r
     if not team_action_rows:
         team_action_rows = "<tr><td colspan='8'>Henüz ekip aksiyon kaydı yok.</td></tr>"
 
-        risky_social_rows = ""
-        for item in risky_social:
-            acc_info = account_map_info(
+            accounts_map = read_accounts_map()
+
+    risky_social_rows = ""
+    for item in risky_social:
+        acc_info = account_map_info(
             item.get("platform", ""),
             item.get("account", ""),
             accounts_map
@@ -2893,8 +2895,6 @@ def build_team_report(news, social, early_warning, crisis_plan, crisis_status, r
 """
 
         risky_social_rows += f"""
-    
-    
 <tr>
 <td>{esc(item.get("date", ""))}</td>
 <td>{esc(item.get("platform", ""))}</td>
@@ -2908,7 +2908,7 @@ def build_team_report(news, social, early_warning, crisis_plan, crisis_status, r
 
     if not risky_social_rows:
         risky_social_rows = "<tr><td colspan='7'>Riskli sosyal medya kaydı bulunamadı.</td></tr>"
-
+        
     risky_reply_rows = ""
     for item in risky_replies:
         risky_reply_rows += f"""

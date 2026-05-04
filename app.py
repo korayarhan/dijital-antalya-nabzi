@@ -1529,6 +1529,75 @@ def account_influence_comment(acc_info):
 
     return "Kaynak takipte. Şimdilik standart izleme yeterli."
 
+def safe_score_value(value, default=0):
+    try:
+        return float(str(value or default).replace(",", ".").strip())
+    except:
+        return default
+
+
+def account_effect_bonus(acc_info):
+    account_type = normalize_text(acc_info.get("type", ""))
+    side = normalize_text(acc_info.get("side", ""))
+    influence = normalize_text(acc_info.get("influence_level", ""))
+    watch = normalize_text(acc_info.get("watch_level", ""))
+
+    bonus = 0
+    reasons = []
+
+    if "yerel_medya" in account_type or "medya" in side:
+        bonus += 1
+        reasons.append("yerel medya kaynağı")
+
+    if "rakip" in side or "siyasi" in account_type:
+        bonus += 2
+        reasons.append("siyasi/rakip çevre ihtimali")
+
+    if "mahalle" in account_type or "sikayet" in account_type or "şikayet" in account_type:
+        bonus += 1
+        reasons.append("mahalle/şikayet kaynağı")
+
+    if "yuksek" in influence or "yüksek" in influence:
+        bonus += 1
+        reasons.append("yüksek etkili kaynak")
+
+    if "yuksek" in watch or "yüksek" in watch:
+        bonus += 1
+        reasons.append("yüksek takip seviyesi")
+
+    if "baskan" in account_type:
+        bonus += 1
+        reasons.append("başkan hesabı hassasiyeti")
+
+    if bonus > 3:
+        bonus = 3
+
+    if not reasons:
+        reasons.append("standart kaynak etkisi")
+
+    return bonus, ", ".join(reasons)
+
+
+def account_adjusted_risk_score(base_risk, acc_info):
+    base = safe_score_value(base_risk, 0)
+    bonus, reason = account_effect_bonus(acc_info)
+
+    adjusted = base + bonus
+
+    if adjusted > 10:
+        adjusted = 10
+
+    return round(adjusted, 1), bonus, reason
+
+
+def account_adjusted_risk_note(base_risk, acc_info):
+    adjusted, bonus, reason = account_adjusted_risk_score(base_risk, acc_info)
+
+    if bonus <= 0:
+        return f"Hesap etkili risk: {adjusted}/10. Kaynak standart etki seviyesinde görünüyor."
+
+    return f"Hesap etkili risk: {adjusted}/10. +{bonus} etki eklendi. Neden: {reason}."
+
 def read_youtube_summary(limit=20):
     if not YOUTUBE_SUMMARY_CSV.exists():
         return []

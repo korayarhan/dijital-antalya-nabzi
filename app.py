@@ -3179,6 +3179,102 @@ def president_x_replies_detail_html(replies):
 </div>
 """
 
+def unmapped_x_accounts_html(social):
+    accounts_map = read_accounts_map()
+    found = {}
+
+    for item in social:
+        platform = str(item.get("platform", "") or "").strip()
+        platform_norm = normalize_text(platform)
+
+        if "twitter" not in platform_norm and platform_norm != "x" and not platform_norm.startswith("x "):
+            continue
+
+        account = str(item.get("account", "") or "").strip()
+        if not account:
+            continue
+
+        acc_info = account_map_info(platform, account, accounts_map)
+
+        if normalize_text(acc_info.get("type", "")) != "bilinmeyen":
+            continue
+
+        key = normalize_text(account)
+
+        if key not in found:
+            found[key] = {
+                "account": account,
+                "count": 0,
+                "max_risk": 0,
+                "sample_topic": "",
+                "sample_content": "",
+                "sample_link": "",
+            }
+
+        found[key]["count"] += 1
+
+        risk_value = safe_score_value(
+            item.get("account_adjusted_risk_score", item.get("risk_score", 0))
+        )
+
+        if risk_value > found[key]["max_risk"]:
+            found[key]["max_risk"] = risk_value
+            found[key]["sample_topic"] = item.get("topic", "")
+            found[key]["sample_content"] = item.get("content", "") or item.get("text", "")
+            found[key]["sample_link"] = item.get("link", "")
+
+    items = sorted(found.values(), key=lambda x: (x["max_risk"], x["count"]), reverse=True)[:10]
+
+    if not items:
+        return """
+<div class="card">
+<p class="small">Sınıflandırılacak yeni X hesabı bulunamadı. Mevcut hesap haritası bu kayıtlar için yeterli görünüyor.</p>
+</div>
+"""
+
+    rows_html = ""
+
+    for item in items:
+        content = item.get("sample_content", "")
+        if len(content) > 180:
+            content = content[:180] + "..."
+
+        rows_html += f"""
+<tr>
+<td>{esc(item.get("account", ""))}</td>
+<td>{item.get("count", 0)}</td>
+<td>{item.get("max_risk", 0)}/10</td>
+<td>{esc(item.get("sample_topic", ""))}</td>
+<td>{esc(content)}</td>
+<td>{social_link(item.get("sample_link", ""))}</td>
+</tr>
+"""
+
+    return f"""
+<div class="card">
+<p class="small">
+Bu bölüm, X tarafında görünen ama hesap haritasında henüz sınıflandırılmamış hesapları gösterir. 
+Ekip bu hesapları kontrol edip <b>accounts_map.csv</b> dosyasına ekleyebilir.
+</p>
+
+<table>
+<tr>
+<th>Hesap</th>
+<th>Kayıt</th>
+<th>En yüksek risk</th>
+<th>Örnek konu</th>
+<th>Örnek içerik</th>
+<th>Link</th>
+</tr>
+{rows_html}
+</table>
+
+<p class="small">
+Örnek ekleme formatı: <b>X,@hesapadi,yerel_medya,medya,orta,orta,Not</b>
+</p>
+</div>
+"""
+
 def build_team_report(news, social, early_warning, crisis_plan, crisis_status, report_time):
     now_tr = dt.datetime.utcnow() + dt.timedelta(hours=3)
     today = now_tr.date().isoformat()
@@ -3207,6 +3303,7 @@ def build_team_report(news, social, early_warning, crisis_plan, crisis_status, r
     youtube_summary = read_youtube_summary()
     x_summary_html = x_social_summary_html(social, president_replies)
     president_replies_detail = president_x_replies_detail_html(president_replies)
+    unmapped_x_accounts = unmapped_x_accounts_html(social)
     
     risky_social = sorted(
         social,
@@ -3415,6 +3512,9 @@ th {{
 
 {section_label("💬 Başkan X Yanıt Detayı", "#059669", "#ecfdf5")}
 {president_replies_detail}
+
+{section_label("🧭 Sınıflandırılacak X Hesapları", "#7c3aed", "#f5f3ff")}
+{unmapped_x_accounts}
 
 
 {section_label("📣 Bildirim Geçmişi / Alarm Kayıtları", "#0ea5e9", "#f0f9ff")}

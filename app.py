@@ -2870,6 +2870,9 @@ def build_team_report(news, social, early_warning, crisis_plan, crisis_status, r
         crisis_plan,
         early_warning,
     )
+    
+    youtube_summary = read_youtube_summary()
+    
     risky_social = sorted(
         social,
         key=lambda x: safe_float(x.get("risk_score", 0)),
@@ -3064,6 +3067,12 @@ th {{
 <p><b>Ekip aksiyon notu:</b> {esc(learning_note.get("action_note", ""))}</p>
 <p><b>Arşiv notu:</b> {esc(learning_note.get("archive_note", ""))}</p>
 <p><b>Bir sonraki küçük gelişim:</b> {esc(learning_note.get("next_improvement", ""))}</p>
+</div>
+
+{section_label("📺 YouTube Kanal Takibi", "#dc2626", "#fff7ed")}
+<div class="card">
+<p class="small">Yerel YouTube kanallarında kontrol edilen videolar ve yerel gündemle alakalı bulunan yorum sayıları.</p>
+{youtube_summary_html(youtube_summary)}
 </div>
 
 {section_label("📣 Bildirim Geçmişi / Alarm Kayıtları", "#0ea5e9", "#f0f9ff")}

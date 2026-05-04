@@ -2968,6 +2968,29 @@ def team_action_status_badge(status):
 </span>
 """
 
+def social_account_meta_html(item):
+    account_type = item.get("account_type", "") or "bilinmeyen"
+    account_side = item.get("account_side", "") or "bilinmeyen"
+    influence = item.get("account_influence_level", "") or "dusuk"
+    watch = item.get("account_watch_level", "") or "normal"
+    adjusted_risk = item.get("account_adjusted_risk_score", item.get("risk_score", 0))
+    bonus = item.get("account_effect_bonus", 0)
+    reason = item.get("account_risk_reason", "")
+
+    return f"""
+<div class="small" style="margin-top:6px;">
+<b>Hesap tipi:</b> {esc(account_type)} •
+<b>Taraf:</b> {esc(account_side)} •
+<b>Etki:</b> {esc(influence)} •
+<b>Takip:</b> {esc(watch)}
+</div>
+<div class="small" style="margin-top:4px;">
+<b>Hesap etkili risk:</b> {adjusted_risk}/10 •
+<b>Etki bonusu:</b> +{bonus} •
+<b>Neden:</b> {esc(reason)}
+</div>
+"""
+
 def build_team_report(news, social, early_warning, crisis_plan, crisis_status, report_time):
     now_tr = dt.datetime.utcnow() + dt.timedelta(hours=3)
     today = now_tr.date().isoformat()
@@ -3068,7 +3091,7 @@ def build_team_report(news, social, early_warning, crisis_plan, crisis_status, r
 <td>{esc(item.get("topic", ""))}</td>
 <td>{esc(item.get("tone", ""))}</td>
 <td>{item.get("risk_score", 0)}/10</td>
-<td>{esc(item.get("action_note", ""))}{account_meta}</td>
+<td>{esc(item.get("action_note", ""))}{social_account_meta_html(item)}</td>
 <td>{social_link(item.get("link", ""))}</td>
 </tr>
 """

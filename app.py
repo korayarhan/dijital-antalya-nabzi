@@ -18,6 +18,7 @@ SOCIAL_CSV = ROOT / "data" / "manual_social" / "social_manual.csv"
 AUTO_SOCIAL_CSV = ROOT / "data" / "auto_social" / "social_auto.csv"
 PRESIDENT_X_CSV = ROOT / "data" / "auto_social" / "president_x_posts.csv"
 PRESIDENT_X_REPLIES_CSV = ROOT / "data" / "auto_social" / "president_x_replies.csv"
+YOUTUBE_SOCIAL_CSV = ROOT / "data" / "auto_social" / "youtube_social.csv"
 PRESIDENT_X_USERNAME = "mesutkocagoztr"
 WATCH_KEYWORDS_CSV = ROOT / "data" / "social_watch" / "watch_keywords.csv"
 CRISIS_CSV = ROOT / "data" / "manual_crisis" / "crisis_status.csv"
@@ -681,6 +682,154 @@ def fetch_president_x_replies():
     except Exception as e:
         print(f"Başkan X yanıtları alınamadı: {e}")
 
+def fetch_youtube_social_comments():
+    api_key = os.getenv("YOUTUBE_API_KEY", "").strip()
+
+    if not api_key:
+        print("YouTube taraması atlandı: YOUTUBE_API_KEY yok.")
+        return
+
+    YOUTUBE_SOCIAL_CSV.parent.mkdir(parents=True, exist_ok=True)
+
+    search_terms = [
+        "Mesut Kocagöz Kepez",
+        "Kepez Belediyesi dava",
+    ]
+
+    rows = []
+    seen_comments = set()
+
+    try:
+        for term in search_terms:
+            search_params = urllib.parse.urlencode({
+                "part": "snippet",
+                "q": term,
+                "type": "video",
+                "maxResults": "1",
+                "order": "date",
+                "regionCode": "TR",
+                "relevanceLanguage": "tr",
+                "key": api_key,
+            })
+
+            search_url = f"https://www.googleapis.com/youtube/v3/search?{search_params}"
+
+            with urllib.request.urlopen(search_url, timeout=30) as response:
+                search_payload = json.loads(response.read().decode("utf-8"))
+
+            for video in search_payload.get("items", []):
+                video_id = video.get("id", {}).get("videoId", "")
+                snippet = video.get("snippet", {}) or {}
+                video_title = snippet.get("title", "")
+                channel_title = snippet.get("channelTitle", "")
+                published_at = snippet.get("publishedAt", "")
+                video_url = f"https://www.youtube.com/watch?v={video_id}"
+
+                if not video_id:
+                    continue
+
+                comment_params = urllib.parse.urlencode({
+                    "part": "snippet",
+                    "videoId": video_id,
+                    "maxResults": "5",
+                    "order": "time",
+                    "textFormat": "plainText",
+                    "key": api_key,
+                })
+
+                comment_url = f"https://www.googleapis.com/youtube/v3/commentThreads?{comment_params}"
+
+                try:
+                    with urllib.request.urlopen(comment_url, timeout=30) as response:
+                        comment_payload = json.loads(response.read().decode("utf-8"))
+
+                except urllib.error.HTTPError as e:
+                    # Yorumlar kapalıysa sistemi bozma, sadece geç.
+                    detail = ""
+                    try:
+                        detail = e.read().decode("utf-8")
+                    except:
+                        pass
+                    print(f"YouTube yorumları alınamadı. Video: {video_id} HTTP {e.code}: {detail[:200]}")
+                    continue
+
+                for comment in comment_payload.get("items", []):
+                    top_comment = (
+                        comment.get("snippet", {})
+                        .get("topLevelComment", {})
+                        .get("snippet", {})
+                    )
+
+                    comment_id = comment.get("id", "")
+                    if comment_id in seen_comments:
+                        continue
+
+                    seen_comments.add(comment_id)
+
+                    text = clean_text(top_comment.get("textDisplay", ""))
+                    author = clean_text(top_comment.get("authorDisplayName", "YouTube kullanıcısı"))
+                    like_count = top_comment.get("likeCount", 0) or 0
+                    comment_date = str(top_comment.get("publishedAt", published_at))[:10]
+
+                    if not text:
+                        continue
+
+                    combined_text = f"{video_title} {text}"
+                    sentiment, risk_score, opportunity_score, topic, action_note = score_x_post(combined_text, term)
+
+                    rows.append({
+                        "date": comment_date,
+                        "platform": "YouTube",
+                        "account": author,
+                        "content": text.replace("\n", " ").strip(),
+                        "topic": topic or term,
+                        "sentiment": sentiment,
+                        "risk_score": risk_score,
+                        "opportunity_score": opportunity_score,
+                        "likes": like_count,
+                        "comments": 1,
+                        "shares": 0,
+                        "views": 0,
+                        "url": video_url,
+                        "action_note": f"YouTube yorumu takip edildi. Video: {video_title} / Kanal: {channel_title}. {action_note}",
+                        "source_type": "Otomatik YouTube",
+                    })
+
+        with YOUTUBE_SOCIAL_CSV.open("w", encoding="utf-8-sig", newline="") as f:
+            fieldnames = [
+                "date",
+                "platform",
+                "account",
+                "content",
+                "topic",
+                "sentiment",
+                "risk_score",
+                "opportunity_score",
+                "likes",
+                "comments",
+                "shares",
+                "views",
+                "url",
+                "action_note",
+                "source_type",
+            ]
+            writer = csv.DictWriter(f, fieldnames=fieldnames)
+            writer.writeheader()
+            writer.writerows(rows)
+
+        print(f"YouTube otomatik tarama tamamlandı. Kayıt sayısı: {len(rows)}")
+
+    except urllib.error.HTTPError as e:
+        detail = ""
+        try:
+            detail = e.read().decode("utf-8")
+        except:
+            pass
+        print(f"YouTube taraması başarısız. HTTP {e.code}: {detail[:500]}")
+
+    except Exception as e:
+        print(f"YouTube taraması başarısız: {e}")
+
 def fetch_x_social_posts():
     token = os.getenv("X_BEARER_TOKEN", "").strip()
     if not token:
@@ -963,6 +1112,7 @@ def read_social_data():
     sources = [
         (SOCIAL_CSV, "Manuel"),
         (AUTO_SOCIAL_CSV, "Otomatik"),
+        (YOUTUBE_SOCIAL_CSV, "Otomatik YouTube"),
     ]
 
     rows = []
@@ -3192,6 +3342,7 @@ def main():
 
     news, undated_news = fetch_news()
     fetch_x_social_posts()
+    fetch_youtube_social_comments()
     fetch_president_x_posts()
     fetch_president_x_replies()
     social = read_social_data()

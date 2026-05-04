@@ -691,17 +691,16 @@ def fetch_youtube_social_comments():
 
     YOUTUBE_SOCIAL_CSV.parent.mkdir(parents=True, exist_ok=True)
 
+    # Kota dostu başlangıç:
+    # search.list her çağrıda 100 kota harcar. Bu yüzden şimdilik 2 güçlü arama ile test ediyoruz.
     search_terms = [
-         "Mesut Kocagöz",
-         "Kepez Belediyesi",
-         "Mesut Kocagöz dava",
-         "Antalya Kepez Belediyesi",
-         "Kepez teleferik",
-         "Kepez Belediyesi yorum",
+        "Mesut Kocagöz",
+        "Kepez Belediyesi",
     ]
 
     rows = []
     seen_comments = set()
+    skipped_videos = 0
 
     try:
         for term in search_terms:
@@ -732,6 +731,35 @@ def fetch_youtube_social_comments():
                 if not video_id:
                     continue
 
+                # Önce videoda yorum sayısı var mı kontrol ediyoruz.
+                # Yorum yoksa veya yorum bilgisi gelmiyorsa commentThreads çağrısını boşuna yapmıyoruz.
+                try:
+                    video_params = urllib.parse.urlencode({
+                        "part": "statistics",
+                        "id": video_id,
+                        "key": api_key,
+                    })
+
+                    video_info_url = f"https://www.googleapis.com/youtube/v3/videos?{video_params}"
+
+                    with urllib.request.urlopen(video_info_url, timeout=30) as response:
+                        video_info_payload = json.loads(response.read().decode("utf-8"))
+
+                    video_items = video_info_payload.get("items", [])
+                    if not video_items:
+                        skipped_videos += 1
+                        continue
+
+                    comment_count = int(video_items[0].get("statistics", {}).get("commentCount", 0) or 0)
+
+                    if comment_count <= 0:
+                        skipped_videos += 1
+                        continue
+
+                except Exception:
+                    skipped_videos += 1
+                    continue
+
                 comment_params = urllib.parse.urlencode({
                     "part": "snippet",
                     "videoId": video_id,
@@ -747,14 +775,9 @@ def fetch_youtube_social_comments():
                     with urllib.request.urlopen(comment_url, timeout=30) as response:
                         comment_payload = json.loads(response.read().decode("utf-8"))
 
-                except urllib.error.HTTPError as e:
-                    # Yorumlar kapalıysa sistemi bozma, sadece geç.
-                    detail = ""
-                    try:
-                        detail = e.read().decode("utf-8")
-                    except:
-                        pass
-                    print(f"YouTube yorumları alınamadı. Video: {video_id} HTTP {e.code}: {detail[:200]}")
+                except urllib.error.HTTPError:
+                    # Yorum kapalı / erişim kısıtlı videolar sistemi bozmasın.
+                    skipped_videos += 1
                     continue
 
                 for comment in comment_payload.get("items", []):
@@ -821,7 +844,7 @@ def fetch_youtube_social_comments():
             writer.writeheader()
             writer.writerows(rows)
 
-        print(f"YouTube otomatik tarama tamamlandı. Kayıt sayısı: {len(rows)}")
+        print(f"YouTube otomatik tarama tamamlandı. Kayıt sayısı: {len(rows)} / Atlanan video: {skipped_videos}")
 
     except urllib.error.HTTPError as e:
         detail = ""

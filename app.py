@@ -692,8 +692,12 @@ def fetch_youtube_social_comments():
     YOUTUBE_SOCIAL_CSV.parent.mkdir(parents=True, exist_ok=True)
 
     search_terms = [
-        "Mesut Kocagöz Kepez",
-        "Kepez Belediyesi dava",
+         "Mesut Kocagöz",
+         "Kepez Belediyesi",
+         "Mesut Kocagöz dava",
+         "Antalya Kepez Belediyesi",
+         "Kepez teleferik",
+         "Kepez Belediyesi yorum",
     ]
 
     rows = []
@@ -705,7 +709,7 @@ def fetch_youtube_social_comments():
                 "part": "snippet",
                 "q": term,
                 "type": "video",
-                "maxResults": "1",
+                "maxResults": "3",
                 "order": "date",
                 "regionCode": "TR",
                 "relevanceLanguage": "tr",
@@ -731,7 +735,7 @@ def fetch_youtube_social_comments():
                 comment_params = urllib.parse.urlencode({
                     "part": "snippet",
                     "videoId": video_id,
-                    "maxResults": "5",
+                    "maxResults": "10",
                     "order": "time",
                     "textFormat": "plainText",
                     "key": api_key,

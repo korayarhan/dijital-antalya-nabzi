@@ -21,6 +21,7 @@ PRESIDENT_X_REPLIES_CSV = ROOT / "data" / "auto_social" / "president_x_replies.c
 YOUTUBE_SOCIAL_CSV = ROOT / "data" / "auto_social" / "youtube_social.csv"
 YOUTUBE_WATCH_CSV = ROOT / "data" / "social_watch" / "youtube_watch.csv"
 YOUTUBE_SUMMARY_CSV = ROOT / "data" / "auto_social" / "youtube_summary.csv"
+ACCOUNTS_MAP_CSV = ROOT / "data" / "social_watch" / "accounts_map.csv"
 PRESIDENT_X_USERNAME = "mesutkocagoztr"
 WATCH_KEYWORDS_CSV = ROOT / "data" / "social_watch" / "watch_keywords.csv"
 CRISIS_CSV = ROOT / "data" / "manual_crisis" / "crisis_status.csv"
@@ -1441,6 +1442,67 @@ def fetch_x_social_posts():
 
     except Exception as e:
         print(f"X taraması başarısız: {e}")
+
+def read_accounts_map():
+    if not ACCOUNTS_MAP_CSV.exists():
+        return {}
+
+    accounts = {}
+
+    try:
+        with ACCOUNTS_MAP_CSV.open("r", encoding="utf-8-sig", newline="") as f:
+            reader = csv.DictReader(f)
+
+            for row in reader:
+                platform = str(row.get("platform", "") or "").strip()
+                account = str(row.get("account", "") or "").strip()
+
+                if not account:
+                    continue
+
+                key = normalize_text(f"{platform}:{account}")
+
+                accounts[key] = {
+                    "platform": platform,
+                    "account": account,
+                    "type": str(row.get("type", "") or "").strip(),
+                    "side": str(row.get("side", "") or "").strip(),
+                    "influence_level": str(row.get("influence_level", "") or "").strip(),
+                    "watch_level": str(row.get("watch_level", "") or "").strip(),
+                    "notes": str(row.get("notes", "") or "").strip(),
+                }
+
+    except Exception as e:
+        print(f"Hesap haritası okunamadı: {e}")
+        return {}
+
+    return accounts
+
+
+def account_map_info(platform, account, accounts_map):
+    platform = str(platform or "").strip()
+    account = str(account or "").strip()
+
+    key = normalize_text(f"{platform}:{account}")
+
+    if key in accounts_map:
+        return accounts_map[key]
+
+    account_only_key = normalize_text(f":{account}")
+
+    for saved_key, info in accounts_map.items():
+        if saved_key.endswith(account_only_key):
+            return info
+
+    return {
+        "platform": platform,
+        "account": account,
+        "type": "bilinmeyen",
+        "side": "bilinmeyen",
+        "influence_level": "dusuk",
+        "watch_level": "normal",
+        "notes": "Hesap haritasında kayıt yok.",
+    }
 
 def read_youtube_summary(limit=20):
     if not YOUTUBE_SUMMARY_CSV.exists():

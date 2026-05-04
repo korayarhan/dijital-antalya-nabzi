@@ -1743,6 +1743,8 @@ def read_social_data():
             if value is not None and str(value).strip() != "":
                 return str(value).strip()
         return default
+        
+    accounts_map = read_accounts_map()
 
     for csv_path, default_source_type in sources:
         if not csv_path.exists():
@@ -1784,11 +1786,25 @@ def read_social_data():
                     opportunity_score = to_float_local(get_value(row, "opportunity_score", "opportunity", default="0"))
 
                     action_note = get_value(row, "action_note", "action", "aksiyon", "not")
+                    
+                    platform_value = get_value(row, "platform", "Platform")
+                    account_value = get_value(row, "account", "hesap", "account_name")
 
+                    acc_info = account_map_info(
+                        platform_value,
+                        account_value,
+                        accounts_map
+                    )
+
+                    account_adjusted_risk, account_effect_bonus_value, account_risk_reason = account_adjusted_risk_score(
+                        risk_score,
+                        acc_info
+                    )
+                    
                     item = {
                         "date": get_value(row, "date", "tarih"),
-                        "platform": get_value(row, "platform", "Platform"),
-                        "account": get_value(row, "account", "hesap", "account_name"),
+                        "platform": platform_value,
+                         "account": account_value,
                         "content": get_value(row, "content", "icerik", "içerik", "text"),
                         "topic": get_value(row, "topic", "konu"),
                         "tone": tone,
@@ -1809,7 +1825,15 @@ def read_social_data():
                         "action_note": action_note,
                         "notes": action_note,
                         "risk_note": action_note,
-                        "source_type": get_value(row, "source_type", default=default_source_type),
+                        "account_type": acc_info.get("type", ""),
+                         "account_side": acc_info.get("side", ""),
+                         "account_influence_level": acc_info.get("influence_level", ""),
+                         "account_watch_level": acc_info.get("watch_level", ""),
+                         "account_notes": acc_info.get("notes", ""),
+                         "account_adjusted_risk_score": account_adjusted_risk,
+                         "account_effect_bonus": account_effect_bonus_value,
+                         "account_risk_reason": account_risk_reason,
+                         "source_type": get_value(row, "source_type", default=default_source_type),
                     }
 
                     if any(str(v).strip() for v in item.values()):

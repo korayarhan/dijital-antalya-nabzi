@@ -3075,7 +3075,7 @@ def x_service_followup_status(item):
 
     is_service_issue = any(term in text for term in service_terms)
     
-        legal_crisis_terms = [
+    legal_crisis_terms = [
         "teleferik", "dava", "mahkeme", "savci", "savcı", "iddianame",
         "yargi", "yargı", "tutuklu", "tutuklama", "ceza", "hukuk",
         "sorusturma", "soruşturma", "ihmal", "kaza", "olum", "ölüm",

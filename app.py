@@ -2564,6 +2564,19 @@ def section_label(title, color, bg):
 </div>
 """
 
+def accordion_section(title, color, bg, content, opened=False):
+    open_attr = " open" if opened else ""
+    return f"""
+    <details class="accordion-section"{open_attr} style="margin:18px 0;">
+        <summary style="cursor:pointer; list-style:none;">
+            {section_label(title, color, bg)}
+        </summary>
+        <div class="accordion-content" style="margin-top:12px;">
+            {content}
+        </div>
+    </details>
+    """
+
 def report_main_menu():
     return """
 <div style="border:2px solid #0f172a; border-left:8px solid #0f172a; background:#f8fafc; border-radius:18px; padding:16px; margin:22px 0;">
@@ -4220,6 +4233,229 @@ def build_team_report(news, social, early_warning, crisis_plan, crisis_status, r
     if not crisis_log_rows:
         crisis_log_rows = "<tr><td colspan='6'>Henüz müdahale kaydı yok.</td></tr>"
 
+    alert_content = (
+        f"""
+        <table>
+            <tr>
+                <th>Tarih</th>
+                <th>Saat</th>
+                <th>Risk</th>
+                <th>Karar</th>
+                <th>Kriz Başlığı</th>
+                <th>Mail</th>
+                <th>Not</th>
+            </tr>
+            {alert_rows}
+        </table>
+        """
+        if "<tr" in alert_rows
+        else f"""<div class="card">{alert_rows}</div>"""
+    )
+
+    team_action_content = (
+        f"""
+        <table>
+            <tr>
+                <th>Tarih</th>
+                <th>Saat</th>
+                <th>Konu</th>
+                <th>Alınan Aksiyon</th>
+                <th>Sonuç</th>
+                <th>Sorumlu</th>
+                <th>Sıradaki Adım</th>
+                <th>Durum</th>
+            </tr>
+            {team_action_rows}
+        </table>
+        """
+        if "<tr" in team_action_rows
+        else f"""<div class="card">{team_action_rows}</div>"""
+    )
+
+    risky_social_content = (
+        f"""
+        <table>
+            <tr>
+                <th>Tarih</th>
+                <th>Platform</th>
+                <th>Konu</th>
+                <th>Ton</th>
+                <th>Risk</th>
+                <th>Aksiyon Notu</th>
+                <th>Link</th>
+            </tr>
+            {risky_social_rows}
+        </table>
+        """
+        if "<tr" in risky_social_rows
+        else f"""<div class="card">{risky_social_rows}</div>"""
+    )
+
+    risky_reply_content = (
+        f"""
+        <table>
+            <tr>
+                <th>Tarih</th>
+                <th>Hesap</th>
+                <th>Risk</th>
+                <th>Yanıt</th>
+                <th>Link</th>
+            </tr>
+            {risky_reply_rows}
+        </table>
+        """
+        if "<tr" in risky_reply_rows
+        else f"""<div class="card">{risky_reply_rows}</div>"""
+    )
+
+    crisis_log_content = (
+        f"""
+        <table>
+            <tr>
+                <th>Saat</th>
+                <th>Olay</th>
+                <th>Yapılan İşlem</th>
+                <th>Sonuç</th>
+                <th>Sorumlu</th>
+                <th>Sıradaki Adım</th>
+            </tr>
+            {crisis_log_rows}
+        </table>
+        """
+        if "<tr" in crisis_log_rows
+        else f"""<div class="card">{crisis_log_rows}</div>"""
+    )
+
+    crisis_alarm_section = accordion_section(
+        "🚨 Güncel Kriz / Alarm Özeti",
+        "#b91c1c",
+        "#fef2f2",
+        f"""
+        <div class="card">
+            <p><b>Risk seviyesi:</b> {esc(crisis_plan.get("level", ""))}</p>
+            <p><b>Kriz başlığı:</b> {esc(crisis_plan.get("risk_topic", ""))}</p>
+            <p><b>Karar:</b> {esc(early_warning.get("decision", ""))}</p>
+            <p><b>Durum:</b> {esc(crisis_status.get("status", ""))}</p>
+            <p><b>İlk aksiyon:</b> {esc(early_warning.get("first_action", ""))}</p>
+        </div>
+        """,
+        opened=True,
+    )
+
+    learning_section = accordion_section(
+        "🧠 Günlük Sistem Öğrenme Notu",
+        "#4f46e5",
+        "#eef2ff",
+        f"""
+        <div class="card">
+            <p><b>Ana risk değerlendirmesi:</b> {esc(learning_note.get("main_risk", ""))}</p>
+            <p><b>Tekrarlayan / öne çıkan konu:</b> {esc(learning_note.get("repeated_topic", ""))}</p>
+            <p><b>Filtre notu:</b> {esc(learning_note.get("filter_note", ""))}</p>
+            <p><b>Ekip aksiyon notu:</b> {esc(learning_note.get("action_note", ""))}</p>
+            <p><b>Arşiv notu:</b> {esc(learning_note.get("archive_note", ""))}</p>
+            <p><b>Bir sonraki küçük gelişim:</b> {esc(learning_note.get("next_improvement", ""))}</p>
+        </div>
+        """,
+        opened=True,
+    )
+
+    youtube_section = accordion_section(
+        "📺 YouTube Kanal Takibi",
+        "#dc2626",
+        "#fff7ed",
+        f"""
+        <div class="card">
+            Yerel YouTube kanallarında kontrol edilen videolar ve yerel gündemle alakalı bulunan yorum sayıları.
+        </div>
+        {youtube_summary_html(youtube_summary)}
+        """,
+    )
+
+    weekly_section = accordion_section(
+        "📊 X Haftalık Durum",
+        "#1d4ed8",
+        "#eff6ff",
+        weekly_summary,
+    )
+
+    x_social_section = accordion_section(
+        "🦚 X Sosyal Ağ Özeti",
+        "#111827",
+        "#f8fafc",
+        x_summary_html,
+    )
+
+    service_section = accordion_section(
+        "🟠 Hizmet Şikayeti / Kurumsal Cevap Durumu",
+        "#d97706",
+        "#fffbeb",
+        service_complaint_followup,
+        opened=True,
+    )
+
+    president_post_section = accordion_section(
+        "🧭 Başkan X Gönderi Sınıflandırması",
+        "#0f766e",
+        "#ecfdf5",
+        president_post_classification,
+    )
+
+    president_reply_detail_section = accordion_section(
+        "💬 Başkan X Yanıt Detayı",
+        "#059669",
+        "#ecfdf5",
+        president_replies_detail,
+    )
+
+    president_reply_topic_section = accordion_section(
+        "🔁 Başkan X Tekrar Eden Yanıt Konuları",
+        "#2563eb",
+        "#eff6ff",
+        president_reply_topics,
+    )
+
+    unmapped_section = accordion_section(
+        "🧭 Sınıflandırılacak X Hesapları",
+        "#7c3aed",
+        "#f5f3ff",
+        unmapped_x_accounts,
+    )
+
+    alert_section = accordion_section(
+        "📣 Bildirim Geçmişi / Alarm Kayıtları",
+        "#0ea5e9",
+        "#f0f9ff",
+        alert_content,
+    )
+
+    team_action_section = accordion_section(
+        "✅ Bekleyen / Alınan Ekip Aksiyonları",
+        "#16a34a",
+        "#f0fdf4",
+        team_action_content,
+    )
+
+    risky_social_section = accordion_section(
+        "⚠️ En Riskli Sosyal Medya Kayıtları",
+        "#7c3aed",
+        "#f5f3ff",
+        risky_social_content,
+    )
+
+    risky_reply_section = accordion_section(
+        "💬 Başkan X Riskli Yanıt Takibi",
+        "#059669",
+        "#ecfdf5",
+        risky_reply_content,
+    )
+
+    crisis_log_section = accordion_section(
+        "📝 Müdahale Kayıtları",
+        "#d97706",
+        "#fffbeb",
+        crisis_log_content,
+    )
+
     team_doc = f"""
 <!doctype html>
 <html lang="tr">
@@ -4282,132 +4518,23 @@ th {{
 
 <div class="container">
 
-{section_label("🚨 Güncel Kriz / Alarm Özeti", "#b91c1c", "#fef2f2")}
-<div class="card">
-<p><b>Risk seviyesi:</b> {esc(crisis_plan.get("level", ""))}</p>
-<p><b>Kriz başlığı:</b> {esc(crisis_plan.get("risk_topic", ""))}</p>
-<p><b>Karar:</b> {esc(early_warning.get("decision", ""))}</p>
-<p><b>Durum:</b> {esc(crisis_status.get("status", ""))}</p>
-<p><b>İlk aksiyon:</b> {esc(early_warning.get("first_action", ""))}</p>
+{crisis_alarm_section}
+{learning_section}
+{youtube_section}
+{weekly_section}
+{x_social_section}
+{service_section}
+{president_post_section}
+{president_reply_detail_section}
+{president_reply_topic_section}
+{unmapped_section}
+{alert_section}
+{team_action_section}
+{risky_social_section}
+{risky_reply_section}
+{crisis_log_section}
 </div>
 
-{section_label("🧠 Günlük Sistem Öğrenme Notu", "#4f46e5", "#eef2ff")}
-<div class="card">
-<p><b>Ana risk değerlendirmesi:</b> {esc(learning_note.get("main_risk", ""))}</p>
-<p><b>Tekrarlayan / öne çıkan konu:</b> {esc(learning_note.get("repeated_topic", ""))}</p>
-<p><b>Filtre notu:</b> {esc(learning_note.get("filter_note", ""))}</p>
-<p><b>Ekip aksiyon notu:</b> {esc(learning_note.get("action_note", ""))}</p>
-<p><b>Arşiv notu:</b> {esc(learning_note.get("archive_note", ""))}</p>
-<p><b>Bir sonraki küçük gelişim:</b> {esc(learning_note.get("next_improvement", ""))}</p>
-</div>
-
-{section_label("📺 YouTube Kanal Takibi", "#dc2626", "#fff7ed")}
-<div class="card">
-<p class="small">Yerel YouTube kanallarında kontrol edilen videolar ve yerel gündemle alakalı bulunan yorum sayıları.</p>
-{youtube_summary_html(youtube_summary)}
-</div>
-
-{section_label("📊 X Haftalık Durum", "#1d4ed8", "#eff6ff")}
-{weekly_summary}
-
-{section_label("🐦 X Sosyal Ağ Özeti", "#111827", "#f8fafc")}
-{x_summary_html}
-
-{section_label("🟠 Hizmet Şikayeti / Kurumsal Cevap Durumu", "#d97706", "#fffbeb")}
-{service_complaint_followup}
-
-{section_label("🧭 Başkan X Gönderi Sınıflandırması", "#0f766e", "#ecfdf5")}
-{president_post_classification}
-
-{section_label("💬 Başkan X Yanıt Detayı", "#059669", "#ecfdf5")}
-{president_replies_detail}
-
-{section_label("🔁 Başkan X Tekrar Eden Yanıt Konuları", "#2563eb", "#eff6ff")}
-{president_reply_topics}
-
-{section_label("🧭 Sınıflandırılacak X Hesapları", "#7c3aed", "#f5f3ff")}
-{unmapped_x_accounts}
-
-
-{section_label("📣 Bildirim Geçmişi / Alarm Kayıtları", "#0ea5e9", "#f0f9ff")}
-<div class="card">
-<table>
-<tr>
-<th>Tarih</th>
-<th>Saat</th>
-<th>Risk</th>
-<th>Karar</th>
-<th>Kriz Başlığı</th>
-<th>Mail</th>
-<th>Not</th>
-</tr>
-{alert_rows}
-</table>
-</div>
-
-{section_label("✅ Bekleyen / Alınan Ekip Aksiyonları", "#16a34a", "#f0fdf4")}
-<div class="card">
-<table>
-<tr>
-<th>Tarih</th>
-<th>Saat</th>
-<th>Konu</th>
-<th>Alınan Aksiyon</th>
-<th>Sonuç</th>
-<th>Sorumlu</th>
-<th>Sıradaki Adım</th>
-<th>Durum</th>
-</tr>
-{team_action_rows}
-</table>
-</div>
-
-{section_label("📱 En Riskli Sosyal Medya Kayıtları", "#7c3aed", "#f5f3ff")}
-<div class="card">
-<table>
-<tr>
-<th>Tarih</th>
-<th>Platform</th>
-<th>Konu</th>
-<th>Ton</th>
-<th>Risk</th>
-<th>Aksiyon Notu</th>
-<th>Link</th>
-</tr>
-{risky_social_rows}
-</table>
-</div>
-
-{section_label("👤 Başkan X Riskli Yanıt Takibi", "#059669", "#ecfdf5")}
-<div class="card">
-<table>
-<tr>
-<th>Tarih</th>
-<th>Hesap</th>
-<th>Risk</th>
-<th>Yanıt</th>
-<th>Link</th>
-</tr>
-{risky_reply_rows}
-</table>
-</div>
-
-{section_label("🕒 Müdahale Kayıtları", "#d97706", "#fffbeb")}
-<div class="card">
-<table>
-<tr>
-<th>Saat</th>
-<th>Olay</th>
-<th>Yapılan İşlem</th>
-<th>Sonuç</th>
-<th>Sorumlu</th>
-<th>Sıradaki Adım</th>
-</tr>
-{crisis_log_rows}
-</table>
-</div>
-
-</div>
 </body>
 </html>
 """

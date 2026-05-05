@@ -3136,6 +3136,104 @@ def x_service_followup_status(item):
 
     return "Hizmet şikayeti veya kurumsal cevap gerektiren net bir durum görünmüyor. Standart takip yeterli."
 
+def x_service_complaint_followup_html(social):
+    service_terms = [
+        "asfalt", "yol", "kaldirim", "kaldırım", "temizlik", "cop", "çöp",
+        "park", "ulasim", "ulaşım", "mahalle", "sikayet", "şikayet",
+        "magdur", "mağdur", "su", "kanalizasyon", "otobus", "otobüs",
+        "durak", "cukur", "çukur", "bozuk", "sokak"
+    ]
+
+    items = []
+
+    for item in social:
+        platform_norm = normalize_text(item.get("platform", ""))
+        source_norm = normalize_text(item.get("source_type", ""))
+
+        is_x_item = (
+            "twitter" in platform_norm
+            or platform_norm == "x"
+            or platform_norm.startswith("x ")
+            or "x" in source_norm
+        )
+
+        if not is_x_item:
+            continue
+
+        text = normalize_text(
+            f"{item.get('content', '')} {item.get('text', '')} {item.get('topic', '')} {item.get('action_note', '')}"
+        )
+
+        if not any(term in text for term in service_terms):
+            continue
+
+        followup = x_service_followup_status(item)
+        followup_norm = normalize_text(followup)
+
+        # Hukuki kriz ve siyasi/ideolojik kayıtları bu hizmet şikayeti bölümünden ayırıyoruz.
+        if "hukuki" in followup_norm or "siyasi ideolojik" in followup_norm:
+            continue
+
+        items.append({
+            "date": item.get("date", ""),
+            "account": item.get("account", ""),
+            "topic": clean_topic_title(item.get("topic", "")),
+            "risk": safe_score_value(item.get("account_adjusted_risk_score", item.get("risk_score", 0))),
+            "content": item.get("content", "") or item.get("text", ""),
+            "followup": followup,
+            "link": item.get("link", ""),
+        })
+
+    items = sorted(items, key=lambda x: x.get("risk", 0), reverse=True)[:8]
+
+    if not items:
+        return """
+        <div class="card">
+            <b>Hizmet şikayeti / kurumsal cevap takibi:</b> Şu an X tarafında ayrı takip gerektiren net hizmet şikayeti görünmüyor.
+            <br><small>Asfalt, yol, kaldırım, temizlik, park, ulaşım, mahalle ve benzeri başlıklar geldiğinde burada listelenecek.</small>
+        </div>
+        """
+
+    rows_html = ""
+
+    for item in items:
+        content = item.get("content", "")
+        if len(content) > 180:
+            content = content[:180] + "..."
+
+        rows_html += f"""
+        <tr>
+            <td>{esc(item.get("date", ""))}</td>
+            <td>{esc(item.get("account", ""))}</td>
+            <td>{esc(item.get("topic", ""))}</td>
+            <td>{item.get("risk", 0)}/10</td>
+            <td>
+                {esc(content)}
+                <br><small><b>Takip durumu:</b> {esc(item.get("followup", ""))}</small>
+            </td>
+            <td>{social_link(item.get("link", ""))}</td>
+        </tr>
+        """
+
+    return f"""
+    <div class="card">
+        <b>Hizmet şikayeti / kurumsal cevap durumu:</b> {len(items)} kayıt takip listesine alındı.
+        <br><small>Bu bölüm vatandaş şikayeti, saha hizmeti ve kurumsal cevap ihtiyacı olan X kayıtlarını ekip için ayırır.</small>
+    </div>
+
+    <table>
+        <tr>
+            <th>Tarih</th>
+            <th>Hesap</th>
+            <th>Konu</th>
+            <th>Risk</th>
+            <th>Şikayet / Takip Durumu</th>
+            <th>Link</th>
+        </tr>
+        {rows_html}
+    </table>
+    """
+
 def x_social_summary_html(social, president_replies):
     x_items = []
 
@@ -3778,6 +3876,7 @@ def build_team_report(news, social, early_warning, crisis_plan, crisis_status, r
     
     youtube_summary = read_youtube_summary()
     x_summary_html = x_social_summary_html(social, president_replies)
+    service_complaint_followup = x_service_complaint_followup_html(social)
     weekly_summary = weekly_x_summary_html()
     president_replies_detail = president_x_replies_detail_html(president_replies)
     president_reply_topics = president_x_reply_topic_summary_html(president_replies)
@@ -3990,6 +4089,9 @@ th {{
 
 {section_label("🐦 X Sosyal Ağ Özeti", "#111827", "#f8fafc")}
 {x_summary_html}
+
+{section_label("🟠 Hizmet Şikayeti / Kurumsal Cevap Durumu", "#d97706", "#fffbeb")}
+{service_complaint_followup}
 
 {section_label("💬 Başkan X Yanıt Detayı", "#059669", "#ecfdf5")}
 {president_replies_detail}

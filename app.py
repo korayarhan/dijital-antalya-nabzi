@@ -3428,6 +3428,122 @@ Ekip bu hesapları kontrol edip <b>accounts_map.csv</b> dosyasına ekleyebilir.
 </div>
 """
 
+def president_x_reply_topic_summary_html(replies):
+    if not replies:
+        return """
+<div class="card">
+<p class="small">Başkan X yanıtlarında konu analizi yapılacak veri bulunamadı.</p>
+</div>
+"""
+
+    topic_map = {}
+
+    for item in replies:
+        text = str(item.get("reply_text", "") or "")
+        post_topic = str(item.get("post_topic", "") or "")
+        combined = f"{post_topic} {text}"
+
+        topic = post_topic or topic_key(combined)
+        if not topic:
+            topic = "genel"
+
+        if topic not in topic_map:
+            topic_map[topic] = {
+                "topic": topic,
+                "count": 0,
+                "risk_count": 0,
+                "max_risk": 0,
+                "sample_text": "",
+                "sample_account": "",
+                "sample_link": "",
+            }
+
+        risk_value = safe_score_value(item.get("risk_score", 0))
+        sentiment = normalize_text(item.get("sentiment", ""))
+
+        topic_map[topic]["count"] += 1
+
+        if risk_value >= 6 or sentiment == "negative":
+            topic_map[topic]["risk_count"] += 1
+
+        if risk_value > topic_map[topic]["max_risk"]:
+            topic_map[topic]["max_risk"] = risk_value
+            topic_map[topic]["sample_text"] = text
+            topic_map[topic]["sample_account"] = item.get("reply_account", "")
+            topic_map[topic]["sample_link"] = item.get("reply_url", "")
+
+    topics = sorted(
+        topic_map.values(),
+        key=lambda x: (x["risk_count"], x["count"], x["max_risk"]),
+        reverse=True
+    )[:6]
+
+    repeated_topics = [x for x in topics if x["count"] >= 2]
+    risky_topics = [x for x in topics if x["risk_count"] >= 1]
+
+    if risky_topics:
+        status_text = "Başkan X yanıtlarında risk içeren konu başlıkları var. Ekip yorumları gözle kontrol etmeli."
+        status_color = "#d97706"
+        status_bg = "#fffbeb"
+        action_text = "Riskli başlıkların yayılıp yayılmadığı ve aynı konuda yeni yanıt gelip gelmediği takip edilmeli."
+    elif repeated_topics:
+        status_text = "Başkan X yanıtlarında tekrar eden konu var. Şimdilik risk düşük ama izlenmeli."
+        status_color = "#2563eb"
+        status_bg = "#eff6ff"
+        action_text = "Tekrar eden konu başlıkları haftalık raporda ayrıca değerlendirilmeli."
+    else:
+        status_text = "Başkan X yanıtlarında belirgin tekrar eden veya riskli konu görünmüyor."
+        status_color = "#15803d"
+        status_bg = "#f0fdf4"
+        action_text = "Standart takip yeterli."
+
+    rows_html = ""
+
+    for item in topics:
+        sample_text = item.get("sample_text", "")
+        if len(sample_text) > 180:
+            sample_text = sample_text[:180] + "..."
+
+        rows_html += f"""
+<tr>
+<td>{esc(item.get("topic", ""))}</td>
+<td>{item.get("count", 0)}</td>
+<td>{item.get("risk_count", 0)}</td>
+<td>{item.get("max_risk", 0)}/10</td>
+<td>{esc(item.get("sample_account", ""))}</td>
+<td>{esc(sample_text)}</td>
+<td>{social_link(item.get("sample_link", ""))}</td>
+</tr>
+"""
+
+    if not rows_html:
+        rows_html = "<tr><td colspan='7'>Konu özeti üretilemedi.</td></tr>"
+
+    return f"""
+<div class="card">
+<p>
+<span style="display:inline-block; padding:6px 10px; border-radius:999px; border:1px solid {status_color}; background:{status_bg}; color:{status_color}; font-weight:700;">
+{esc(status_text)}
+</span>
+</p>
+
+<p><b>İlk aksiyon:</b> {esc(action_text)}</p>
+
+<table>
+<tr>
+<th>Konu</th>
+<th>Yanıt Sayısı</th>
+<th>Riskli Yanıt</th>
+<th>En Yüksek Risk</th>
+<th>Örnek Hesap</th>
+<th>Örnek Yanıt</th>
+<th>Link</th>
+</tr>
+{rows_html}
+</table>
+</div>
+"""
+
 def build_team_report(news, social, early_warning, crisis_plan, crisis_status, report_time):
     now_tr = dt.datetime.utcnow() + dt.timedelta(hours=3)
     today = now_tr.date().isoformat()
@@ -3456,6 +3572,7 @@ def build_team_report(news, social, early_warning, crisis_plan, crisis_status, r
     youtube_summary = read_youtube_summary()
     x_summary_html = x_social_summary_html(social, president_replies)
     president_replies_detail = president_x_replies_detail_html(president_replies)
+    president_reply_topics = president_x_reply_topic_summary_html(president_replies)
     unmapped_x_accounts = unmapped_x_accounts_html(social)
     
     risky_social = sorted(
@@ -3665,6 +3782,9 @@ th {{
 
 {section_label("💬 Başkan X Yanıt Detayı", "#059669", "#ecfdf5")}
 {president_replies_detail}
+
+{section_label("🔁 Başkan X Tekrar Eden Yanıt Konuları", "#2563eb", "#eff6ff")}
+{president_reply_topics}
 
 {section_label("🧭 Sınıflandırılacak X Hesapları", "#7c3aed", "#f5f3ff")}
 {unmapped_x_accounts}

@@ -2718,6 +2718,9 @@ def classify_president_x_post(item):
     elif any(term in text for term in ["mahalle", "saha", "ziyaret", "vatandas", "vatandaş", "esnaf", "muhtar"]):
         post_class = "Mahalle / saha teması"
         communication_note = "Başkanın sahada ve ulaşılabilir görünmesini destekler. Benzer içerikler düzenli artırılabilir."
+    elif any(term in text for term in ["hidirellez", "hıdırellez", "kultur", "kültür", "senlik", "şenlik", "festival", "konser", "bayram", "kutlama", "anma", "nevruz", "yerel etkinlik"]):
+        post_class = "Yerel kültür / toplum etkinliği"
+        communication_note = "Yerel kültür, mahalle aidiyeti ve sıcak toplum ilişkisi açısından değerli içerik. Gelenek, mahalle adı, katılım ve insan hikayesi vurgusu güçlendirilebilir."
     elif any(term in text for term in ["cocuk", "çocuk", "aile", "23 nisan", "senlik", "şenlik", "festival", "kadin", "kadın", "genç"]):
         post_class = "Sosyal etkinlik / çocuk-aile"
         communication_note = "Pozitif duygu üretme potansiyeli yüksek. İnsan hikayesi ve sıcak görsellerle desteklenmeli."

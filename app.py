@@ -3075,6 +3075,27 @@ def x_service_followup_status(item):
 
     is_service_issue = any(term in text for term in service_terms)
     
+    political_dava_phrases = [
+        "dava arkadas",
+        "dava arkadaş",
+        "dava adami",
+        "dava adamı",
+        "ulku davasi",
+        "ülkü davası",
+        "davamiz",
+        "davamız",
+        "dava buyuk",
+        "dava büyük",
+        "dava büyüğü",
+        "dava buyugu",
+        "siyasi dava"
+    ]
+
+    is_political_dava = any(phrase in text for phrase in political_dava_phrases)
+
+    if is_political_dava:
+        return "Siyasi/ideolojik söylem içeren X kaydı gibi görünüyor. Hukuki kriz veya hizmet şikayeti gibi değerlendirilmemeli; siyasi görünürlük ve algı açısından takip edilmeli."
+
     legal_crisis_terms = [
         "teleferik", "dava", "mahkeme", "savci", "savcı", "iddianame",
         "yargi", "yargı", "tutuklu", "tutuklama", "ceza", "hukuk",

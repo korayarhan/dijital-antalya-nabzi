@@ -4738,7 +4738,9 @@ def main():
     fetch_president_x_posts()
     fetch_president_x_replies()
     social = read_social_data()
+    president_replies = read_president_x_replies()
     append_weekly_x_summary(social, president_replies)
+    
 
     save_dynamic_keywords(generate_dynamic_keywords(news, social))
 

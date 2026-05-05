@@ -3008,14 +3008,35 @@ def x_risk_action_comment(item):
         "ulaşım", "mahalle", "sikayet", "şikayet", "magdur", "mağdur"
     ]
 
-    crisis_terms = [
-        "dava", "teleferik", "facia", "kaza", "olum", "ölüm", "yarali",
-        "yaralı", "sorusturma", "soruşturma", "ihmal"
+    legal_crisis_terms = [
+        "teleferik", "facia", "kaza", "olum", "ölüm", "yarali",
+        "yaralı", "sorusturma", "soruşturma", "ihmal", "mahkeme",
+        "savci", "savcı", "iddianame", "yargi", "yargı", "tutuklu",
+        "tutuklama", "ceza", "hukuk"
     ]
 
-    if any(term in text for term in crisis_terms):
+    legal_dava_context_terms = [
+        "teleferik", "mahkeme", "savci", "savcı", "iddianame",
+        "yargi", "yargı", "tutuklu", "tutuklama", "ceza",
+        "hukuk", "sorusturma", "soruşturma", "ihmal", "kaza",
+        "olum", "ölüm", "yarali", "yaralı"
+    ]
+
+    political_dava_phrases = [
+        "dava arkadas", "dava arkadaş", "dava adami", "dava adamı",
+        "ulku davasi", "ülkü davası", "davamiz", "davamız",
+        "dava buyuk", "dava büyük", "siyasi dava"
+    ]
+
+    is_political_dava = any(phrase in text for phrase in political_dava_phrases)
+    is_legal_dava = ("dava" in text and any(term in text for term in legal_dava_context_terms))
+
+    if any(term in text for term in legal_crisis_terms) or is_legal_dava:
         return "Kriz/hukuki hassasiyet içeren X kaydı olabilir. Basın ve hukuk birimi birlikte kontrol etmeli; açıklama dili dikkatli kurulmalı."
 
+    if is_political_dava:
+        return "Siyasi/ideolojik söylem içeren X kaydı gibi görünüyor. Hukuki kriz gibi değerlendirilmemeli; siyasi görünürlük ve algı açısından takip edilmeli."
+    
     if any(term in text for term in service_terms):
         return "Hizmet/şikayet başlığı gibi görünüyor. İlgili birimden saha bilgisi alınmalı; gerekirse kurumsal hesap kısa bilgilendirme yapmalı."
 

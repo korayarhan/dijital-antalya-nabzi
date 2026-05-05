@@ -3430,42 +3430,77 @@ Ekip bu hesapları kontrol edip <b>accounts_map.csv</b> dosyasına ekleyebilir.
 
 def clean_topic_title(raw_topic):
     text = normalize_text(raw_topic)
-
     if not text:
-        return "Genel"
+        return "Genel yorum gündemi"
 
-    # Alt çizgi ve tireleri boşluk yap
     text = text.replace("_", " ").replace("-", " ")
 
-    words = text.split()
-
-    cleaned_words = []
-    for w in words:
-        if len(w) > 2:
-            cleaned_words.append(w)
-
-    if not cleaned_words:
-        return "Genel"
-
-    cleaned = " ".join(cleaned_words[:5])  # max 5 kelime
-
-    # Türkçe karakter düzeltme
-    replacements = {
-        "ogrenci": "Öğrenci",
-        "kent": "Kent",
-        "lokanta": "Lokanta",
-        "ulasim": "Ulaşım",
-        "erisebilir": "Erişilebilir",
-        "guvenli": "Güvenli",
+    # Önce sistemin ürettiği ana konu kodlarını doğrudan okunur başlığa çevir.
+    direct_titles = {
+        "teleferik davasi": "Teleferik davası / hukuki süreç hassasiyeti",
+        "hizmet asfalt": "Asfalt / yol hizmeti şikayetleri",
+        "bayrak personel": "Bayrak, personel ve kurumsal görünürlük",
+        "cocuk aile": "Çocuk, aile ve sosyal etkinlikler",
+        "mali disiplin": "Mali disiplin / borç açıklamaları",
+        "spor etkinlik": "Spor ve etkinlik görünürlüğü",
+        "buyuksehir ulasim": "Büyükşehir / ulaşım gündemi",
+        "genel": "Genel yorum gündemi",
+        "yorum": "Genel yorum gündemi",
     }
 
-    for k, v in replacements.items():
-        cleaned = cleaned.replace(k, v)
+    if text in direct_titles:
+        return direct_titles[text]
 
-    # Baş harfleri büyüt
-    cleaned = " ".join([w.capitalize() for w in cleaned.split()])
+    # Sonra metnin içindeki kelimelere göre doğal başlık üret.
+    if any(term in text for term in ["teleferik", "facia", "mahkeme", "sorusturma", "soruşturma", "iddianame", "yargi", "yargı", "hukuk", "tutuklama"]):
+        return "Teleferik davası / hukuki süreç hassasiyeti"
 
-    return cleaned
+    if any(term in text for term in ["asfalt", "yol", "kaldirim", "kaldırım", "cukur", "çukur", "bozuk yol", "duaci", "duacı"]):
+        return "Asfalt / yol hizmeti şikayetleri"
+
+    if any(term in text for term in ["temizlik", "cop", "çöp", "park", "mahalle", "saha", "hizmet", "şikayet", "sikayet"]):
+        return "Mahalle hizmetleri / vatandaş şikayetleri"
+
+    if any(term in text for term in ["ulasim", "ulaşım", "otobus", "otobüs", "durak", "buyuksehir", "büyükşehir"]):
+        return "Büyükşehir / ulaşım gündemi"
+
+    if any(term in text for term in ["borc", "borç", "mali", "butce", "bütçe", "tasarruf"]):
+        return "Mali disiplin / borç açıklamaları"
+
+    if any(term in text for term in ["cocuk", "çocuk", "aile", "23 nisan", "senlik", "şenlik", "festival"]):
+        return "Çocuk, aile ve sosyal etkinlikler"
+
+    if any(term in text for term in ["spor", "drag", "turnuva", "musabaka", "müsabaka"]):
+        return "Spor ve etkinlik görünürlüğü"
+
+    if any(term in text for term in ["bayrak", "personel", "odul", "ödül", "kurumsal"]):
+        return "Bayrak, personel ve kurumsal görünürlük"
+
+    if any(term in text for term in ["siyasi", "rakip", "ak parti", "chp", "ocak", "dava arkadas", "dava arkadaş", "dava buyuk", "dava büyük"]):
+        return "Siyasi görünürlük / rakip çevre takibi"
+
+    # Hiçbir kategoriye girmezse ham metni biraz temizleyip göster.
+    words = [w for w in text.split() if len(w) > 2 and w not in STOPWORDS]
+    if not words:
+        return "Genel yorum gündemi"
+
+    cleaned = " ".join(words[:5])
+
+    replacements = {
+        "ogrenci": "öğrenci",
+        "ulasim": "ulaşım",
+        "buyuksehir": "büyükşehir",
+        "cocuk": "çocuk",
+        "sikayet": "şikayet",
+        "borc": "borç",
+        "cop": "çöp",
+        "duaci": "duacı",
+    }
+
+    for old, new in replacements.items():
+        cleaned = cleaned.replace(old, new)
+
+    return " ".join([w.capitalize() for w in cleaned.split()])
 
 def president_x_reply_topic_summary_html(replies):
     if not replies:

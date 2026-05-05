@@ -3649,6 +3649,8 @@ def weekly_x_summary_html():
 
         last = rows[-1]
 
+clean_topic = clean_topic_title(last.get("top_topic", ""))
+
         return f"""
 <div class="card">
 <p><b>Toplam X:</b> {last.get("total_x", 0)} • 
@@ -3656,7 +3658,7 @@ def weekly_x_summary_html():
 <b>Başkan Yanıt:</b> {last.get("total_replies", 0)} • 
 <b>Riskli Yanıt:</b> {last.get("risk_replies", 0)}</p>
 
-<p><b>En Çok Konu:</b> {esc(last.get("top_topic", ""))}</p>
+<p><b>En Çok Konu:</b> {esc(clean_topic)}</p>
 </div>
 """
     except:

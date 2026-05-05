@@ -3057,6 +3057,52 @@ def x_risk_action_comment(item):
 
     return "Şu aşamada standart takip yeterli. Tekrar ederse yeniden değerlendirilmeli."
 
+def x_service_followup_status(item):
+    text = normalize_text(
+        f"{item.get('content', '')} {item.get('text', '')} {item.get('topic', '')} {item.get('action_note', '')}"
+    )
+
+    account = normalize_text(item.get("account", ""))
+    account_type = normalize_text(item.get("account_type", ""))
+    account_side = normalize_text(item.get("account_side", ""))
+
+    service_terms = [
+        "asfalt", "yol", "kaldirim", "kaldırım", "temizlik", "cop", "çöp",
+        "park", "ulasim", "ulaşim", "ulaşım", "mahalle", "sikayet", "şikayet",
+        "magdur", "mağdur", "su", "kanalizasyon", "otobus", "otobüs",
+        "durak", "cukur", "çukur", "bozuk", "sokak"
+    ]
+
+    is_service_issue = any(term in text for term in service_terms)
+
+    is_corporate_account = (
+        "kepezbelediyesi" in account
+        or "kurumsal" in account_type
+        or "belediye" in account_side
+    )
+
+    is_citizen_like = (
+        "vatandas" in account_type
+        or "vatandaş" in account_type
+        or "sikayet" in account_type
+        or "şikayet" in account_type
+        or "bilinmeyen" in account_type
+    )
+
+    if is_service_issue and is_corporate_account:
+        return "Kurumsal hesap hizmet/şikayet başlığına cevap veya duyuru üretmiş olabilir. Ekip, bu cevabın konuyu kapatıp kapatmadığını takip etmeli."
+
+    if is_service_issue and is_citizen_like:
+        return "Vatandaş/hizmet şikayeti gibi görünüyor. Kurumsal cevap var mı kontrol edilmeli; gerekirse ilgili birimden saha bilgisi alınmalı."
+
+    if is_service_issue and ("yerel_medya" in account_type or "medya" in account_side):
+        return "Hizmet konusu yerel medya görünürlüğüne taşınmış olabilir. Ekip, haberleşme ihtimali ve yorum tonunu kontrol etmeli."
+
+    if "siyasi" in account_type or "rakip" in account_side:
+        return "Siyasi kaynaklı X görünürlüğü var. Hizmet şikayetiyle birleşirse algı yönetimi açısından ayrıca izlenmeli."
+
+    return "Hizmet şikayeti veya kurumsal cevap gerektiren net bir durum görünmüyor. Standart takip yeterli."
+
 def x_social_summary_html(social, president_replies):
     x_items = []
 
@@ -3099,6 +3145,7 @@ def x_social_summary_html(social, president_replies):
         adjusted_risk = item.get("account_adjusted_risk_score", item.get("risk_score", 0))
         reason = item.get("account_risk_reason", "")
         action_comment = x_risk_action_comment(item)
+        service_followup = x_service_followup_status(item)
         account_type = item.get("account_type", "bilinmeyen")
         account_side = item.get("account_side", "bilinmeyen")
         influence = item.get("account_influence_level", "dusuk")
@@ -3128,6 +3175,9 @@ def x_social_summary_html(social, president_replies):
 </div>
 <div class="small" style="margin-top:4px;">
 <b>X aksiyon yorumu:</b> {esc(action_comment)}
+</div>
+<div class="small" style="margin-top:4px;">
+<b>Hizmet/cevap takibi:</b> {esc(service_followup)}
 </div>
 </td>
 <td>{social_link(item.get("link", ""))}</td>

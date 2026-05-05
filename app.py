@@ -4220,7 +4220,7 @@ th {{
 {section_label("💬 Başkan X Yanıt Detayı", "#059669", "#ecfdf5")}
 {president_replies_detail}
 
-{section_label(" Başkan X Gönderi Sınıflandırması", "#0f766e", "#ecfdf5")}
+{section_label("🧭 Başkan X Gönderi Sınıflandırması", "#0f766e", "#ecfdf5")}
 {president_post_classification}
 
 {section_label("🔁 Başkan X Tekrar Eden Yanıt Konuları", "#2563eb", "#eff6ff")}

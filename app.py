@@ -2753,7 +2753,17 @@ def classify_president_x_post(item):
         performance = "Düşük performans"
         performance_note = "Etkileşim düşük. Daha güçlü görsel, daha kısa metin veya daha net hizmet sonucu denenebilir."
 
-    if replies >= 10 and post_class in ["Kriz / hukuki hassasiyet", "Siyasi görünürlük / algı", "Mali disiplin / borç açıklaması"]:
+    if post_class == "İnsani hassasiyet / taziye mesajı":
+        if engagement >= 400:
+            performance_note = "Hassas içerik iyi görünürlük almış. Bu tür paylaşımlarda amaç yüksek etkileşim değil; doğru, saygılı ve dayanışmacı dilin korunmasıdır."
+        elif engagement >= 100:
+            performance_note = "Hassas içerik standart görünürlük almış. Taziye ve geçmiş olsun mesajlarında etkileşim kıyasından çok dilin samimiyeti önemlidir."
+        else:
+            performance_note = "Etkileşim düşük olsa bile bu tür içerikler zorunlu insani hassasiyet mesajıdır. Daha fazla etkileşim hedeflenmemeli; sade ve saygılı dil korunmalıdır."
+
+        action_note = "Standart takip yeterli. Yorumlarda siyasi polemik, alaycı ifade veya yanlış anlaşılma oluşursa ekip sessizce kontrol etmeli."
+
+    elif replies >= 10 and post_class in ["Kriz / hukuki hassasiyet", "Siyasi görünürlük / algı", "Mali disiplin / borç açıklaması"]:
         action_note = "Yorumlar öncelikli izlenmeli; riskli yanıt varsa ekip raporunda takip edilmeli."
     elif replies >= 10:
         action_note = "Yorum sayısı dikkat çekiyor. Vatandaş soruları ve şikayetleri kontrol edilmeli."

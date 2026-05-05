@@ -2697,6 +2697,128 @@ def president_x_card(title, item):
 </div>
 """
 
+def classify_president_x_post(item):
+    content = str(item.get("content", "") or "")
+    topic = str(item.get("topic", "") or "")
+    text = normalize_text(f"{content} {topic}")
+
+    engagement = safe_score_value(item.get("engagement", 0))
+    replies = safe_score_value(item.get("replies", 0))
+    likes = safe_score_value(item.get("likes", 0))
+
+    if any(term in text for term in ["teleferik", "dava", "mahkeme", "sorusturma", "soruşturma", "hukuk", "yargi", "yargı", "tutuklama"]):
+        post_class = "Kriz / hukuki hassasiyet"
+        communication_note = "Hassas konu. Yorumlar ve alıntılar izlenmeli; açıklama dili kontrollü ve belgeye dayalı olmalı."
+    elif any(term in text for term in ["borc", "borç", "mali", "butce", "bütçe", "tasarruf"]):
+        post_class = "Mali disiplin / borç açıklaması"
+        communication_note = "Mali konu olduğu için sade, rakamlı ve savunmacı olmayan dil tercih edilmeli."
+    elif any(term in text for term in ["asfalt", "yol", "park", "temizlik", "cop", "çöp", "kaldirim", "kaldırım", "hizmet", "proje", "acilis", "açılış"]):
+        post_class = "Hizmet / proje duyurusu"
+        communication_note = "Hizmet görünürlüğü için değerli içerik. Fotoğraf, mahalle adı ve somut sonuç dili güçlendirilebilir."
+    elif any(term in text for term in ["mahalle", "saha", "ziyaret", "vatandas", "vatandaş", "esnaf", "muhtar"]):
+        post_class = "Mahalle / saha teması"
+        communication_note = "Başkanın sahada ve ulaşılabilir görünmesini destekler. Benzer içerikler düzenli artırılabilir."
+    elif any(term in text for term in ["cocuk", "çocuk", "aile", "23 nisan", "senlik", "şenlik", "festival", "kadin", "kadın", "genç"]):
+        post_class = "Sosyal etkinlik / çocuk-aile"
+        communication_note = "Pozitif duygu üretme potansiyeli yüksek. İnsan hikayesi ve sıcak görsellerle desteklenmeli."
+    elif any(term in text for term in ["odul", "ödül", "personel", "bayrak", "kurumsal", "basari", "başarı"]):
+        post_class = "Kurumsal başarı / personel görünürlüğü"
+        communication_note = "Kurum aidiyeti ve güven algısı için faydalı. Personel emeği görünür kılınabilir."
+    elif any(term in text for term in ["chp", "ak parti", "siyasi", "rakip", "secim", "seçim", "dava arkadas", "dava arkadaş"]):
+        post_class = "Siyasi görünürlük / algı"
+        communication_note = "Siyasi algı yönü var. Polemik üretmeden, hizmet ve birlik dili korunmalı."
+    else:
+        post_class = "Genel mesaj"
+        communication_note = "Genel iletişim içeriği. Etkileşim düşükse daha somut hizmet, saha veya insan hikayesiyle desteklenebilir."
+
+    if engagement >= 1000:
+        performance = "Yüksek etkileşim"
+        performance_note = "İyi performans almış. Benzer dil ve görsel yapı tekrar kullanılabilir."
+    elif engagement >= 400:
+        performance = "İyi performans"
+        performance_note = "Takipçi ilgisi oluşmuş. Konu haftalık analizde ayrıca değerlendirilebilir."
+    elif engagement >= 100:
+        performance = "Orta performans"
+        performance_note = "Standart görünürlük almış. Başlık, görsel ve paylaşım saati test edilebilir."
+    else:
+        performance = "Düşük performans"
+        performance_note = "Etkileşim düşük. Daha güçlü görsel, daha kısa metin veya daha net hizmet sonucu denenebilir."
+
+    if replies >= 10 and post_class in ["Kriz / hukuki hassasiyet", "Siyasi görünürlük / algı", "Mali disiplin / borç açıklaması"]:
+        action_note = "Yorumlar öncelikli izlenmeli; riskli yanıt varsa ekip raporunda takip edilmeli."
+    elif replies >= 10:
+        action_note = "Yorum sayısı dikkat çekiyor. Vatandaş soruları ve şikayetleri kontrol edilmeli."
+    elif performance == "Düşük performans":
+        action_note = "Benzer içerik tekrar paylaşılacaksa anlatım dili ve görsel güçlendirilmeli."
+    else:
+        action_note = "Standart takip yeterli. İyi çalışan başlıklar haftalık rapora alınabilir."
+
+    return {
+        "class": post_class,
+        "performance": performance,
+        "communication_note": communication_note,
+        "performance_note": performance_note,
+        "action_note": action_note,
+        "engagement": engagement,
+        "replies": replies,
+        "likes": likes,
+    }
+
+
+def president_x_post_classification_html(posts):
+    if not posts:
+        return """
+        <div class="card">
+            <b>Başkan X gönderi sınıflandırması:</b> Henüz Başkan X gönderisi bulunamadı.
+            <br><small>Gönderiler çekildiğinde burada tür, performans ve iletişim yorumu görünecek.</small>
+        </div>
+        """
+
+    rows_html = ""
+
+    for post in posts[:10]:
+        result = classify_president_x_post(post)
+        content = str(post.get("content", "") or "")
+        if len(content) > 180:
+            content = content[:180] + "..."
+
+        rows_html += f"""
+        <tr>
+            <td>{esc(post.get("date", ""))}</td>
+            <td>{esc(result.get("class", ""))}</td>
+            <td>{esc(result.get("performance", ""))}</td>
+            <td>{int(result.get("engagement", 0))}</td>
+            <td>{int(result.get("replies", 0))}</td>
+            <td>
+                {esc(content)}
+                <br><small><b>İletişim yorumu:</b> {esc(result.get("communication_note", ""))}</small>
+                <br><small><b>Performans notu:</b> {esc(result.get("performance_note", ""))}</small>
+                <br><small><b>Aksiyon:</b> {esc(result.get("action_note", ""))}</small>
+            </td>
+            <td>{social_link(post.get("url", ""))}</td>
+        </tr>
+        """
+
+    return f"""
+    <div class="card">
+        <b>Başkan X gönderi sınıflandırması:</b> Son {min(len(posts), 10)} gönderi tür, performans ve iletişim önerisine göre sınıflandırıldı.
+        <br><small>Bu bölüm Başkan’ın kendi X paylaşımlarını sadece etkileşim olarak değil, siyasi iletişim ve içerik türü açısından da değerlendirir.</small>
+    </div>
+
+    <table>
+        <tr>
+            <th>Tarih</th>
+            <th>Gönderi Türü</th>
+            <th>Performans</th>
+            <th>Etkileşim</th>
+            <th>Yanıt</th>
+            <th>İçerik / Yorum</th>
+            <th>Link</th>
+        </tr>
+        {rows_html}
+    </table>
+    """
+
 def read_president_x_replies():
     if not PRESIDENT_X_REPLIES_CSV.exists():
         return []
@@ -3863,6 +3985,7 @@ def build_team_report(news, social, early_warning, crisis_plan, crisis_status, r
     team_actions = read_team_actions(20)
     crisis_log = read_crisis_log()
     president_replies = read_president_x_replies()
+    president_posts = read_president_x_posts()
     accounts_map = read_accounts_map()
     learning_note = build_system_learning_note(
         news,
@@ -3879,6 +4002,7 @@ def build_team_report(news, social, early_warning, crisis_plan, crisis_status, r
     service_complaint_followup = x_service_complaint_followup_html(social)
     weekly_summary = weekly_x_summary_html()
     president_replies_detail = president_x_replies_detail_html(president_replies)
+    president_post_classification = president_x_post_classification_html(president_posts)
     president_reply_topics = president_x_reply_topic_summary_html(president_replies)
     unmapped_x_accounts = unmapped_x_accounts_html(social)
     
@@ -4095,6 +4219,9 @@ th {{
 
 {section_label("💬 Başkan X Yanıt Detayı", "#059669", "#ecfdf5")}
 {president_replies_detail}
+
+{section_label(" Başkan X Gönderi Sınıflandırması", "#0f766e", "#ecfdf5")}
+{president_post_classification}
 
 {section_label("🔁 Başkan X Tekrar Eden Yanıt Konuları", "#2563eb", "#eff6ff")}
 {president_reply_topics}

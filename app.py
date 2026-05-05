@@ -2564,6 +2564,23 @@ def section_label(title, color, bg):
 </div>
 """
 
+def report_main_menu():
+    return """
+    <div class="card" id="main-menu">
+        <h3>Rapor Ana Menüsü / Hızlı Erişim</h3>
+        <p>
+            <a href="#kriz">Acil Durum</a> •
+            <a href="#haberler">Haberler</a> •
+            <a href="#sosyal">Sosyal Medya</a> •
+            <a href="#youtube">YouTube Nabzı</a> •
+            <a href="#kriz-aksiyon">Kriz Aksiyon</a> •
+            <a href="#baskan-x">Başkan X</a> •
+            <a href="team_report.html">Ekip Raporu</a> •
+            <a href="crisis_panel.html">Kriz Paneli</a>
+        </p>
+    </div>
+    """
+
 def accordion_section(title, color, bg, content, opened=False):
     open_attr = " open" if opened else ""
 

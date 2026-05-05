@@ -3584,6 +3584,54 @@ def president_x_reply_topic_summary_html(replies):
 </div>
 """
 
+def append_weekly_x_summary(social, president_replies):
+    import csv
+    from datetime import datetime
+
+    file_path = ROOT / "data" / "weekly" / "weekly_x_summary.csv"
+
+    total_x = len([s for s in social if "x" in normalize_text(s.get("platform", ""))])
+    risk_x = len([s for s in social if safe_score_value(s.get("risk_score", 0)) >= 6])
+
+    total_replies = len(president_replies)
+    risk_replies = len([r for r in president_replies if safe_score_value(r.get("risk_score", 0)) >= 6])
+
+    # Basit konu bulma
+    topic_count = {}
+    for r in president_replies:
+        t = r.get("post_topic", "genel")
+        topic_count[t] = topic_count.get(t, 0) + 1
+
+    top_topic = max(topic_count, key=topic_count.get) if topic_count else "genel"
+
+    row = [
+        datetime.now().strftime("%Y-%m-%d"),
+        total_x,
+        risk_x,
+        total_replies,
+        risk_replies,
+        top_topic
+    ]
+
+    file_path.parent.mkdir(parents=True, exist_ok=True)
+
+    file_exists = file_path.exists()
+
+    with open(file_path, "a", newline="", encoding="utf-8") as f:
+        writer = csv.writer(f)
+
+        if not file_exists:
+            writer.writerow([
+                "date",
+                "total_x",
+                "risk_x",
+                "total_replies",
+                "risk_replies",
+                "top_topic"
+            ])
+
+        writer.writerow(row)
+
 def build_team_report(news, social, early_warning, crisis_plan, crisis_status, report_time):
     now_tr = dt.datetime.utcnow() + dt.timedelta(hours=3)
     today = now_tr.date().isoformat()
@@ -4690,6 +4738,7 @@ def main():
     fetch_president_x_posts()
     fetch_president_x_replies()
     social = read_social_data()
+    append_weekly_x_summary(social, president_replies)
 
     save_dynamic_keywords(generate_dynamic_keywords(news, social))
 

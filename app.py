@@ -4217,11 +4217,11 @@ th {{
 {section_label("🟠 Hizmet Şikayeti / Kurumsal Cevap Durumu", "#d97706", "#fffbeb")}
 {service_complaint_followup}
 
-{section_label("💬 Başkan X Yanıt Detayı", "#059669", "#ecfdf5")}
-{president_replies_detail}
-
 {section_label("🧭 Başkan X Gönderi Sınıflandırması", "#0f766e", "#ecfdf5")}
 {president_post_classification}
+
+{section_label("💬 Başkan X Yanıt Detayı", "#059669", "#ecfdf5")}
+{president_replies_detail}
 
 {section_label("🔁 Başkan X Tekrar Eden Yanıt Konuları", "#2563eb", "#eff6ff")}
 {president_reply_topics}

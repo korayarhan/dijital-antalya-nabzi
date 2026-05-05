@@ -3632,6 +3632,36 @@ def append_weekly_x_summary(social, president_replies):
 
         writer.writerow(row)
 
+def weekly_x_summary_html():
+    import csv
+
+    file_path = ROOT / "data" / "weekly" / "weekly_x_summary.csv"
+
+    if not file_path.exists():
+        return "<div class='card'><p class='small'>Haftalık X verisi bulunamadı.</p></div>"
+
+    try:
+        with open(file_path, encoding="utf-8") as f:
+            rows = list(csv.DictReader(f))
+
+        if not rows:
+            return "<div class='card'><p class='small'>Haftalık X verisi boş.</p></div>"
+
+        last = rows[-1]
+
+        return f"""
+<div class="card">
+<p><b>Toplam X:</b> {last.get("total_x", 0)} • 
+<b>Riskli X:</b> {last.get("risk_x", 0)} • 
+<b>Başkan Yanıt:</b> {last.get("total_replies", 0)} • 
+<b>Riskli Yanıt:</b> {last.get("risk_replies", 0)}</p>
+
+<p><b>En Çok Konu:</b> {esc(last.get("top_topic", ""))}</p>
+</div>
+"""
+    except:
+        return "<div class='card'><p class='small'>Haftalık veri okunamadı.</p></div>"
+
 def build_team_report(news, social, early_warning, crisis_plan, crisis_status, report_time):
     now_tr = dt.datetime.utcnow() + dt.timedelta(hours=3)
     today = now_tr.date().isoformat()
@@ -3659,6 +3689,7 @@ def build_team_report(news, social, early_warning, crisis_plan, crisis_status, r
     
     youtube_summary = read_youtube_summary()
     x_summary_html = x_social_summary_html(social, president_replies)
+    weekly_summary = weekly_x_summary_html()
     president_replies_detail = president_x_replies_detail_html(president_replies)
     president_reply_topics = president_x_reply_topic_summary_html(president_replies)
     unmapped_x_accounts = unmapped_x_accounts_html(social)
@@ -3864,6 +3895,9 @@ th {{
 <p class="small">Yerel YouTube kanallarında kontrol edilen videolar ve yerel gündemle alakalı bulunan yorum sayıları.</p>
 {youtube_summary_html(youtube_summary)}
 </div>
+
+{section_label("📊 X Haftalık Durum", "#1d4ed8", "#eff6ff")}
+{weekly_summary}
 
 {section_label("🐦 X Sosyal Ağ Özeti", "#111827", "#f8fafc")}
 {x_summary_html}

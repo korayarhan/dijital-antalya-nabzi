@@ -3074,6 +3074,18 @@ def x_service_followup_status(item):
     ]
 
     is_service_issue = any(term in text for term in service_terms)
+    
+        legal_crisis_terms = [
+        "teleferik", "dava", "mahkeme", "savci", "savcı", "iddianame",
+        "yargi", "yargı", "tutuklu", "tutuklama", "ceza", "hukuk",
+        "sorusturma", "soruşturma", "ihmal", "kaza", "olum", "ölüm",
+        "yarali", "yaralı", "facia"
+    ]
+
+    is_legal_crisis = any(term in text for term in legal_crisis_terms)
+
+    if is_legal_crisis:
+        return "Hukuki/kriz takip başlığı gibi görünüyor. Kurumsal cevap yerine basın-hukuk koordinasyonu ve kontrollü açıklama dili tercih edilmeli."
 
     is_corporate_account = (
         "kepezbelediyesi" in account

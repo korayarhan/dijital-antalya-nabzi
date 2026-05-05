@@ -3596,11 +3596,33 @@ def append_weekly_x_summary(social, president_replies):
     total_replies = len(president_replies)
     risk_replies = len([r for r in president_replies if safe_score_value(r.get("risk_score", 0)) >= 6])
 
-    # Basit konu bulma
+        # Basit konu bulma: önce tüm X kayıtlarına bak
     topic_count = {}
-    for r in president_replies:
-        t = r.get("post_topic", "genel")
-        topic_count[t] = topic_count.get(t, 0) + 1
+
+    for item in social:
+        platform_norm = normalize_text(item.get("platform", ""))
+
+        if "twitter" not in platform_norm and platform_norm != "x" and not platform_norm.startswith("x "):
+            continue
+
+        topic = item.get("topic", "") or item.get("risk_note", "") or "genel"
+        topic = str(topic or "").strip()
+
+        if not topic:
+            topic = "genel"
+
+        topic_count[topic] = topic_count.get(topic, 0) + 1
+
+    # Eğer X kayıtlarından konu bulunamazsa Başkan yanıtlarına bak
+    if not topic_count:
+        for r in president_replies:
+            topic = r.get("post_topic", "") or "genel"
+            topic = str(topic or "").strip()
+
+            if not topic:
+                topic = "genel"
+
+            topic_count[topic] = topic_count.get(topic, 0) + 1
 
     top_topic = max(topic_count, key=topic_count.get) if topic_count else "genel"
 

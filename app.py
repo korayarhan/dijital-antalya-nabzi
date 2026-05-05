@@ -3624,70 +3624,100 @@ def append_weekly_x_summary(social, president_replies):
     from datetime import datetime
 
     file_path = ROOT / "data" / "weekly" / "weekly_x_summary.csv"
+    today = datetime.now().strftime("%Y-%m-%d")
 
-    total_x = len([s for s in social if "x" in normalize_text(s.get("platform", ""))])
-    risk_x = len([s for s in social if safe_score_value(s.get("risk_score", 0)) >= 6])
+    def is_x_item(item):
+        platform_norm = normalize_text(item.get("platform", ""))
+        source_norm = normalize_text(item.get("source_type", ""))
+        return (
+            "twitter" in platform_norm
+            or platform_norm == "x"
+            or platform_norm.startswith("x ")
+            or "x" in source_norm
+        )
+
+    x_items = [s for s in social if is_x_item(s)]
+
+    total_x = len(x_items)
+    risk_x = len([
+        s for s in x_items
+        if safe_score_value(s.get("risk_score", 0)) >= 6
+    ])
 
     total_replies = len(president_replies)
-    risk_replies = len([r for r in president_replies if safe_score_value(r.get("risk_score", 0)) >= 6])
+    risk_replies = len([
+        r for r in president_replies
+        if safe_score_value(r.get("risk_score", 0)) >= 6
+    ])
 
-        # Basit konu bulma: önce tüm X kayıtlarına bak
+    # En çok görünen X konusunu bul
     topic_count = {}
 
-    for item in social:
-        platform_norm = normalize_text(item.get("platform", ""))
-
-        if "twitter" not in platform_norm and platform_norm != "x" and not platform_norm.startswith("x "):
-            continue
-
+    for item in x_items:
         topic = item.get("topic", "") or item.get("risk_note", "") or "genel"
         topic = str(topic or "").strip()
-
         if not topic:
             topic = "genel"
-
         topic_count[topic] = topic_count.get(topic, 0) + 1
 
-    # Eğer X kayıtlarından konu bulunamazsa Başkan yanıtlarına bak
+    # X kaydı yoksa Başkan X yanıtlarındaki konulara bak
     if not topic_count:
         for r in president_replies:
             topic = r.get("post_topic", "") or "genel"
             topic = str(topic or "").strip()
-
             if not topic:
                 topic = "genel"
-
             topic_count[topic] = topic_count.get(topic, 0) + 1
 
     top_topic = max(topic_count, key=topic_count.get) if topic_count else "genel"
 
-    row = [
-        datetime.now().strftime("%Y-%m-%d"),
-        total_x,
-        risk_x,
-        total_replies,
-        risk_replies,
-        top_topic
+    fieldnames = [
+        "date",
+        "total_x",
+        "risk_x",
+        "total_replies",
+        "risk_replies",
+        "top_topic",
     ]
+
+    new_row = {
+        "date": today,
+        "total_x": total_x,
+        "risk_x": risk_x,
+        "total_replies": total_replies,
+        "risk_replies": risk_replies,
+        "top_topic": top_topic,
+    }
 
     file_path.parent.mkdir(parents=True, exist_ok=True)
 
-    file_exists = file_path.exists()
+    rows = []
 
-    with open(file_path, "a", newline="", encoding="utf-8") as f:
-        writer = csv.writer(f)
+    # Eski kayıtları oku; bugünün eski satırlarını alma.
+    # Böylece aynı gün tekrar tekrar satır birikmez.
+    if file_path.exists():
+        try:
+            with open(file_path, encoding="utf-8-sig", newline="") as f:
+                reader = csv.DictReader(f)
+                for row in reader:
+                    row_date = str(row.get("date", "") or "").strip()
+                    if row_date and row_date != today:
+                        rows.append({
+                            key: row.get(key, "")
+                            for key in fieldnames
+                        })
+        except Exception as e:
+            print(f"Haftalık X özeti okunamadı, yeniden oluşturulacak: {e}")
+            rows = []
 
-        if not file_exists:
-            writer.writerow([
-                "date",
-                "total_x",
-                "risk_x",
-                "total_replies",
-                "risk_replies",
-                "top_topic"
-            ])
+    rows.append(new_row)
 
-        writer.writerow(row)
+    with open(file_path, "w", encoding="utf-8-sig", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(rows)
+
+    print(f"Haftalık X özeti güncellendi: {today}")
 
 def weekly_x_summary_html():
     import csv

@@ -6,3 +6,9 @@ X,@kepezbelediyesi,kurumsal,belediye,yuksek,yuksek,Kepez Belediyesi resmi X hesa
 X,@AkdenizGercek,yerel_medya,medya,orta,orta,Antalya yerel haber/medya hesabı
 X,@kepezhaber7,yerel_medya,medya,orta,orta,Kepez odaklı yerel haber hesabı
 X,@kepezocak,siyasi_cevre,rakip/yerel_siyasi,orta,orta,Kepez siyasi çevre hesabı
+X,Yerel kullanıcı,manuel_vatandas,vatandas,dusuk,normal,Manuel veya genel yerel kullanıcı kaydı
+X,@crknms,vatandas_yorum,bilinmeyen,orta,orta,X üzerinde riskli/eleştirel yorum üreten kullanıcı; tekrar ederse yeniden sınıflandırılacak
+X,@millizafer07,siyasi_yorum,bilinmeyen_siyasi,orta,orta,Siyasi içerikli yorum/paylaşım üreten hesap; tarafı kesinleşmediği için geçici sınıflandırma
+X,@benfatih07,vatandas_sikayet,vatandas,orta,orta,Hizmet/yerel şikayet içerikli vatandaş hesabı olarak geçici sınıflandırıldı
+X,@HisseArz,alakasiz_kaynak,bilinmeyen,dusuk,dusuk,X aramasına düşen muhtemel alakasız/finans içerikli kaynak; düşük öncelik
+X,@cooktatlihayat,alakasiz_kaynak,bilinmeyen,dusuk,dusuk,X aramasına düşen muhtemel alakasız kaynak; düşük öncelik

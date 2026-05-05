@@ -2566,38 +2566,51 @@ def section_label(title, color, bg):
 
 def accordion_section(title, color, bg, content, opened=False):
     open_attr = " open" if opened else ""
+
     return f"""
-    <details class="accordion-section"{open_attr} style="margin:18px 0;">
-        <summary style="cursor:pointer; list-style:none;">
-            {section_label(title, color, bg)}
+    <details class="accordion-section"{open_attr} style="
+        margin: 16px 0;
+        border-radius: 18px;
+    ">
+        <summary style="
+            cursor: pointer;
+            list-style: none;
+            outline: none;
+        ">
+            <div style="
+                border: 2px solid {color};
+                background: {bg};
+                color: {color};
+                border-radius: 18px;
+                padding: 16px 18px;
+                font-size: 22px;
+                font-weight: 800;
+                line-height: 1.25;
+                letter-spacing: 0.2px;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 12px;
+                box-shadow: 0 8px 22px rgba(15, 23, 42, 0.06);
+            ">
+                <span>{esc(title)}</span>
+                <span style="
+                    font-size: 18px;
+                    font-weight: 900;
+                    opacity: 0.75;
+                    flex-shrink: 0;
+                ">⌄</span>
+            </div>
         </summary>
-        <div class="accordion-content" style="margin-top:12px;">
+
+        <div class="accordion-content" style="
+            margin-top: 12px;
+            padding: 2px 0 4px 0;
+        ">
             {content}
         </div>
     </details>
     """
-
-def report_main_menu():
-    return """
-<div style="border:2px solid #0f172a; border-left:8px solid #0f172a; background:#f8fafc; border-radius:18px; padding:16px; margin:22px 0;">
-  <div style="font-size:24px; font-weight:800; color:#0f172a; margin-bottom:10px;">📌 Rapor Ana Menüsü / Hızlı Erişim</div>
-  <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:10px;">
-    <a href="#acil-durum" style="padding:12px; border-radius:14px; background:#fef2f2; color:#b91c1c; text-decoration:none; font-weight:800; border:1px solid #fecaca;">🚨 Acil Durum</a>
-    <a href="#haberler" style="padding:12px; border-radius:14px; background:#eff6ff; color:#2563eb; text-decoration:none; font-weight:800; border:1px solid #bfdbfe;">📰 Haberler</a>
-    <a href="#onemli-basliklar" style="padding:12px; border-radius:14px; background:#eff6ff; color:#2563eb; text-decoration:none; font-weight:800; border:1px solid #bfdbfe;">⭐ Önemli Başlıklar</a>
-    <a href="#olumlu-haberler" style="padding:12px; border-radius:14px; background:#f0fdf4; color:#15803d; text-decoration:none; font-weight:800; border:1px solid #bbf7d0;">✅ Olumlu Haberler</a>
-    <a href="#riskli-haberler" style="padding:12px; border-radius:14px; background:#fef2f2; color:#dc2626; text-decoration:none; font-weight:800; border:1px solid #fecaca;">⚠️ Riskli Haberler</a>
-    <a href="#sosyal-medya" style="padding:12px; border-radius:14px; background:#f5f3ff; color:#7c3aed; text-decoration:none; font-weight:800; border:1px solid #ddd6fe;">📱 Sosyal Medya</a>
-    <a href="#youtube-sosyal" style="padding:12px; border-radius:14px; background:#fff7ed; color:#dc2626; text-decoration:none; font-weight:800; border:1px solid #fed7aa;">📺 YouTube Nabzı</a>
-    <a href="#kriz-aksiyon" style="padding:12px; border-radius:14px; background:#fef2f2; color:#b91c1c; text-decoration:none; font-weight:800; border:1px solid #fecaca;">🧯 Kriz Aksiyon</a>
-    <a href="#baskan-x" style="padding:12px; border-radius:14px; background:#ecfdf5; color:#059669; text-decoration:none; font-weight:800; border:1px solid #bbf7d0;">👤 Başkan X</a>
-    <a href="#sosyal-kayitlar" style="padding:12px; border-radius:14px; background:#fffbeb; color:#d97706; text-decoration:none; font-weight:800; border:1px solid #fde68a;">🗂 Sosyal Kayıtlar</a>
-    <a href="#strateji" style="padding:12px; border-radius:14px; background:#f8fafc; color:#334155; text-decoration:none; font-weight:800; border:1px solid #cbd5e1;">📊 Strateji</a>
-    <a href="crisis_panel.html" style="padding:12px; border-radius:14px; background:#fee2e2; color:#991b1b; text-decoration:none; font-weight:800; border:1px solid #fecaca;">🚨 Kriz Paneli</a>
-    <a href="team_report.html" style="padding:12px; border-radius:14px; background:#f1f5f9; color:#0f172a; text-decoration:none; font-weight:800; border:1px solid #cbd5e1;">👥 Ekip Raporu</a>
-  </div>
-</div>
-"""
 
 def news_card(item):
     return f"""

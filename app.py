@@ -4096,7 +4096,7 @@ def build_report(news, social, undated_news=None):
     social_sum = social_summary(social)
     youtube_summary = read_youtube_summary()
     crisis_sum = build_auto_crisis_summary(news, social_sum)
-    crisis_plan = crisis_action_plan(social_sum)
+    crisis_plan = crisis_action_plan(crisis_sum)
     crisis_status = read_crisis_status()
     
     active_raw = str(crisis_status.get("active", "")).strip().lower()

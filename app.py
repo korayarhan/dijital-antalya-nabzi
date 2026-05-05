@@ -3428,6 +3428,45 @@ Ekip bu hesapları kontrol edip <b>accounts_map.csv</b> dosyasına ekleyebilir.
 </div>
 """
 
+def clean_topic_title(raw_topic):
+    text = normalize_text(raw_topic)
+
+    if not text:
+        return "Genel"
+
+    # Alt çizgi ve tireleri boşluk yap
+    text = text.replace("_", " ").replace("-", " ")
+
+    words = text.split()
+
+    cleaned_words = []
+    for w in words:
+        if len(w) > 2:
+            cleaned_words.append(w)
+
+    if not cleaned_words:
+        return "Genel"
+
+    cleaned = " ".join(cleaned_words[:5])  # max 5 kelime
+
+    # Türkçe karakter düzeltme
+    replacements = {
+        "ogrenci": "Öğrenci",
+        "kent": "Kent",
+        "lokanta": "Lokanta",
+        "ulasim": "Ulaşım",
+        "erisebilir": "Erişilebilir",
+        "guvenli": "Güvenli",
+    }
+
+    for k, v in replacements.items():
+        cleaned = cleaned.replace(k, v)
+
+    # Baş harfleri büyüt
+    cleaned = " ".join([w.capitalize() for w in cleaned.split()])
+
+    return cleaned
+
 def president_x_reply_topic_summary_html(replies):
     if not replies:
         return """
@@ -3444,6 +3483,7 @@ def president_x_reply_topic_summary_html(replies):
         combined = f"{post_topic} {text}"
 
         topic = post_topic or topic_key(combined)
+        topic = clean_topic_title(topic)
         if not topic:
             topic = "genel"
 

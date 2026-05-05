@@ -2991,6 +2991,51 @@ def social_account_meta_html(item):
 </div>
 """
 
+def x_risk_action_comment(item):
+    text = normalize_text(
+        f"{item.get('content', '')} {item.get('text', '')} {item.get('topic', '')} {item.get('action_note', '')}"
+    )
+
+    account_type = normalize_text(item.get("account_type", ""))
+    account_side = normalize_text(item.get("account_side", ""))
+    influence = normalize_text(item.get("account_influence_level", ""))
+    adjusted_risk = safe_score_value(
+        item.get("account_adjusted_risk_score", item.get("risk_score", 0))
+    )
+
+    service_terms = [
+        "asfalt", "yol", "temizlik", "cop", "çöp", "park", "ulasim", "ulaşim",
+        "ulaşım", "mahalle", "sikayet", "şikayet", "magdur", "mağdur"
+    ]
+
+    crisis_terms = [
+        "dava", "teleferik", "facia", "kaza", "olum", "ölüm", "yarali",
+        "yaralı", "sorusturma", "soruşturma", "ihmal"
+    ]
+
+    if any(term in text for term in crisis_terms):
+        return "Kriz/hukuki hassasiyet içeren X kaydı olabilir. Basın ve hukuk birimi birlikte kontrol etmeli; açıklama dili dikkatli kurulmalı."
+
+    if any(term in text for term in service_terms):
+        return "Hizmet/şikayet başlığı gibi görünüyor. İlgili birimden saha bilgisi alınmalı; gerekirse kurumsal hesap kısa bilgilendirme yapmalı."
+
+    if "siyasi" in account_type or "rakip" in account_side:
+        return "Siyasi çevre kaynaklı görünürlük olabilir. Polemiğe girmeden takip edilmeli; tekrar ederse algı yönetimi notu hazırlanmalı."
+
+    if "yerel_medya" in account_type or "medya" in account_side:
+        return "Yerel medya kaynağı üzerinden görünürlük oluşmuş. Ekip yorum tonunu ve haberleşme ihtimalini gözle kontrol etmeli."
+
+    if "alakasiz" in account_type:
+        return "Kaynak düşük öncelikli/alakasız görünüyor. Şimdilik sadece filtre kalitesi açısından izlenmeli."
+
+    if adjusted_risk >= 8:
+        return "Hesap etkili risk yüksek. Ekip bu kaydı öncelikli kontrol etmeli ve gerekirse aksiyon kaydı açmalı."
+
+    if adjusted_risk >= 6:
+        return "Takip gerektiren X kaydı. Yayılım, tekrar eden konu ve hesap etkisi izlenmeli."
+
+    return "Şu aşamada standart takip yeterli. Tekrar ederse yeniden değerlendirilmeli."
+
 def x_social_summary_html(social, president_replies):
     x_items = []
 
@@ -3032,6 +3077,7 @@ def x_social_summary_html(social, president_replies):
     for item in risky_x_items:
         adjusted_risk = item.get("account_adjusted_risk_score", item.get("risk_score", 0))
         reason = item.get("account_risk_reason", "")
+        action_comment = x_risk_action_comment(item)
         account_type = item.get("account_type", "bilinmeyen")
         account_side = item.get("account_side", "bilinmeyen")
         influence = item.get("account_influence_level", "dusuk")
@@ -3058,6 +3104,9 @@ def x_social_summary_html(social, president_replies):
 </div>
 <div class="small" style="margin-top:4px;">
 <b>Risk nedeni:</b> {esc(reason)}
+</div>
+<div class="small" style="margin-top:4px;">
+<b>X aksiyon yorumu:</b> {esc(action_comment)}
 </div>
 </td>
 <td>{social_link(item.get("link", ""))}</td>

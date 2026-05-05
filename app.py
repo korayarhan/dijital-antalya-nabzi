@@ -3282,8 +3282,75 @@ def x_service_complaint_followup_html(social):
         "asfalt", "yol", "kaldirim", "kaldırım", "temizlik", "cop", "çöp",
         "park", "ulasim", "ulaşım", "mahalle", "sikayet", "şikayet",
         "magdur", "mağdur", "su", "kanalizasyon", "otobus", "otobüs",
-        "durak", "cukur", "çukur", "bozuk", "sokak"
+        "durak", "cukur", "çukur", "bozuk", "sokak", "bakim", "bakım",
+        "onarim", "onarım", "calisma", "çalışma"
     ]
+
+    complaint_terms = [
+        "şikayet", "sikayet", "mağdur", "magdur", "bozuk", "çukur", "cukur",
+        "yapılmadı", "yapilmadi", "çözülmedi", "cozulmedi", "bekliyoruz",
+        "yardım", "yardim", "sorun", "rezalet", "tepki", "neden"
+    ]
+
+    corporate_reply_terms = [
+        "ekiplerimiz", "müdahale", "mudahale", "tamamlandı", "tamamlandi",
+        "çalışma başlattı", "calisma baslatti", "giderildi", "çözüldü",
+        "cozuldu", "programa alındı", "programa alindi", "bilgilendirme",
+        "teşekkür ederiz", "tesekkur ederiz", "talebiniz"
+    ]
+
+    corporate_announcement_terms = [
+        "hizmete sunduk", "çalışmalarımız", "calismalarimiz", "devam ediyor",
+        "tamamladık", "tamamladik", "açılış", "acilis", "proje",
+        "yeniledik", "bakım", "bakim", "onardık", "onardik",
+        "temizlik çalışması", "yol çalışması", "park çalışması"
+    ]
+
+    def service_record_type(item, followup):
+        text = normalize_text(
+            f"{item.get('content', '')} {item.get('text', '')} {item.get('topic', '')} {item.get('action_note', '')}"
+        )
+        account = normalize_text(item.get("account", ""))
+        account_type = normalize_text(item.get("account_type", ""))
+        account_side = normalize_text(item.get("account_side", ""))
+        followup_norm = normalize_text(followup)
+
+        is_corporate_account = (
+            "kepezbelediyesi" in account
+            or "kurumsal" in account_type
+            or "belediye" in account_side
+        )
+
+        is_media_account = (
+            "yerel_medya" in account_type
+            or "medya" in account_side
+            or "gazete" in account_type
+            or "haber" in account_type
+        )
+
+        has_complaint = any(term in text for term in complaint_terms)
+        has_reply = any(term in text for term in corporate_reply_terms)
+        has_announcement = any(term in text for term in corporate_announcement_terms)
+
+        if is_corporate_account and has_reply:
+            return "Kurumsal cevap / müdahale bilgisi"
+
+        if is_corporate_account and has_announcement:
+            return "Kurumsal duyuru / hizmet paylaşımı"
+
+        if is_corporate_account:
+            return "Kurumsal duyuru / kontrol edilecek paylaşım"
+
+        if is_media_account:
+            return "Yerel medya görünürlüğü"
+
+        if has_complaint or "vatandas" in account_type or "vatandaş" in account_type or "bilinmeyen" in account_type:
+            return "Vatandaş şikayeti / saha kontrolü"
+
+        if "kurumsal hesap" in followup_norm:
+            return "Kurumsal cevap / müdahale bilgisi"
+
+        return "Takip edilecek hizmet başlığı"
 
     items = []
 
@@ -3315,9 +3382,12 @@ def x_service_complaint_followup_html(social):
         if "hukuki" in followup_norm or "siyasi ideolojik" in followup_norm:
             continue
 
+        record_type = service_record_type(item, followup)
+
         items.append({
             "date": item.get("date", ""),
             "account": item.get("account", ""),
+            "record_type": record_type,
             "topic": clean_topic_title(item.get("topic", "")),
             "risk": safe_score_value(item.get("account_adjusted_risk_score", item.get("risk_score", 0))),
             "content": item.get("content", "") or item.get("text", ""),
@@ -3325,15 +3395,22 @@ def x_service_complaint_followup_html(social):
             "link": item.get("link", ""),
         })
 
-    items = sorted(items, key=lambda x: x.get("risk", 0), reverse=True)[:8]
+    items = sorted(items, key=lambda x: x.get("risk", 0), reverse=True)[:10]
 
     if not items:
         return """
         <div class="card">
             <b>Hizmet şikayeti / kurumsal cevap takibi:</b> Şu an X tarafında ayrı takip gerektiren net hizmet şikayeti görünmüyor.
-            <br><small>Asfalt, yol, kaldırım, temizlik, park, ulaşım, mahalle ve benzeri başlıklar geldiğinde burada listelenecek.</small>
+            <br><small>Vatandaş şikayeti, kurumsal cevap ve kurumsal duyuru kayıtları geldiğinde burada ayrı türlerle listelenecek.</small>
         </div>
         """
+
+    type_counts = {}
+    for item in items:
+        record_type = item.get("record_type", "Takip edilecek hizmet başlığı")
+        type_counts[record_type] = type_counts.get(record_type, 0) + 1
+
+    summary_text = " • ".join([f"{key}: {value}" for key, value in type_counts.items()])
 
     rows_html = ""
 
@@ -3346,6 +3423,7 @@ def x_service_complaint_followup_html(social):
         <tr>
             <td>{esc(item.get("date", ""))}</td>
             <td>{esc(item.get("account", ""))}</td>
+            <td>{esc(item.get("record_type", ""))}</td>
             <td>{esc(item.get("topic", ""))}</td>
             <td>{item.get("risk", 0)}/10</td>
             <td>
@@ -3359,13 +3437,15 @@ def x_service_complaint_followup_html(social):
     return f"""
     <div class="card">
         <b>Hizmet şikayeti / kurumsal cevap durumu:</b> {len(items)} kayıt takip listesine alındı.
-        <br><small>Bu bölüm vatandaş şikayeti, saha hizmeti ve kurumsal cevap ihtiyacı olan X kayıtlarını ekip için ayırır.</small>
+        <br><small>{esc(summary_text)}</small>
+        <br><small>Bu bölüm gerçek vatandaş şikayeti, belediyenin verdiği cevap ve belediyenin kendi hizmet duyurusunu ayrı ayrı gösterir.</small>
     </div>
 
     <table>
         <tr>
             <th>Tarih</th>
             <th>Hesap</th>
+            <th>Kayıt Türü</th>
             <th>Konu</th>
             <th>Risk</th>
             <th>Şikayet / Takip Durumu</th>

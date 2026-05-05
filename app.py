@@ -2709,6 +2709,9 @@ def classify_president_x_post(item):
     if any(term in text for term in ["teleferik", "dava", "mahkeme", "sorusturma", "soruşturma", "hukuk", "yargi", "yargı", "tutuklama"]):
         post_class = "Kriz / hukuki hassasiyet"
         communication_note = "Hassas konu. Yorumlar ve alıntılar izlenmeli; açıklama dili kontrollü ve belgeye dayalı olmalı."
+    elif any(term in text for term in ["bas sagligi", "baş sağlığı", "bassagligi", "başsağlığı", "taziye", "vefat", "rahmet", "mekani cennet", "mekanı cennet", "gecmis olsun", "geçmiş olsun", "afet", "yangin", "yangın", "sel", "deprem", "firtina", "fırtına", "kaza", "yarali", "yaralı", "hayatini kaybeden", "hayatını kaybeden"]):
+        post_class = "İnsani hassasiyet / taziye mesajı"
+        communication_note = "Hassas ve insani duygu gerektiren içerik. Siyasi polemik dili kullanılmamalı; sade, samimi, acıyı paylaşan ve dayanışma vurgusu taşıyan bir dil korunmalı."
     elif any(term in text for term in ["borc", "borç", "mali", "butce", "bütçe", "tasarruf"]):
         post_class = "Mali disiplin / borç açıklaması"
         communication_note = "Mali konu olduğu için sade, rakamlı ve savunmacı olmayan dil tercih edilmeli."

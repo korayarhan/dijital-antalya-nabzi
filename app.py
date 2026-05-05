@@ -3648,8 +3648,8 @@ def weekly_x_summary_html():
             return "<div class='card'><p class='small'>Haftalık X verisi boş.</p></div>"
 
         last = rows[-1]
-
-clean_topic = clean_topic_title(last.get("top_topic", ""))
+        
+        clean_topic = clean_topic_title(last.get("top_topic", ""))
 
         return f"""
 <div class="card">

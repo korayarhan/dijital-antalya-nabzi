@@ -2724,6 +2724,9 @@ def classify_president_x_post(item):
     elif any(term in text for term in ["cocuk", "çocuk", "aile", "23 nisan", "senlik", "şenlik", "festival", "kadin", "kadın", "genç"]):
         post_class = "Sosyal etkinlik / çocuk-aile"
         communication_note = "Pozitif duygu üretme potansiyeli yüksek. İnsan hikayesi ve sıcak görsellerle desteklenmeli."
+    elif any(term in text for term in ["antalyaspor", "spor", "mac", "maç", "futbol", "basketbol", "voleybol", "takim", "takım", "taraftar", "tribun", "tribün", "galibiyet", "final", "sampiyon", "şampiyon", "drag"]):
+        post_class = "Spor / şehir aidiyeti görünürlüğü"
+        communication_note = "Spor ve şehir aidiyeti açısından değerli içerik. Taraftar duygusu, Antalya ortaklığı ve birlik dili öne çıkarılabilir."
     elif any(term in text for term in ["odul", "ödül", "personel", "bayrak", "kurumsal", "basari", "başarı"]):
         post_class = "Kurumsal başarı / personel görünürlüğü"
         communication_note = "Kurum aidiyeti ve güven algısı için faydalı. Personel emeği görünür kılınabilir."

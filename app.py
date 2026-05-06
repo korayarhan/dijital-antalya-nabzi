@@ -3041,6 +3041,15 @@ def president_dashboard_panel(today, report_time, news, social, president_posts,
                     </div>
                 </div>
 
+                <div style="
+                    display:grid;
+                    grid-template-columns:repeat(2,minmax(0,1fr));
+                    gap:12px;
+                    margin-bottom:16px;
+                ">
+                   
+                </div>
+
                 <div id="baskan-haber" style="
                     background:white;
                     border:1px solid #e5e7eb;

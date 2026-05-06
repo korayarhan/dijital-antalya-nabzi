@@ -3560,9 +3560,17 @@ def x_social_summary_html(social, president_replies):
     x_items = []
 
     for item in social:
-        platform_raw = str(item.get("platform", "") or "").lower()
+        platform_norm = normalize_text(item.get("platform", ""))
+        source_norm = normalize_text(item.get("source_type", ""))
 
-        if "twitter" in platform_raw or platform_raw.strip() == "x" or platform_raw.startswith("x "):
+        is_x_item = (
+            "twitter" in platform_norm
+            or platform_norm == "x"
+            or platform_norm.startswith("x ")
+            or "x" in source_norm
+        )
+
+        if is_x_item:
             x_items.append(item)
 
     risky_x_items = sorted(
@@ -3572,7 +3580,7 @@ def x_social_summary_html(social, president_replies):
         ],
         key=lambda x: safe_score_value(x.get("account_adjusted_risk_score", x.get("risk_score", 0))),
         reverse=True
-    )[:5]
+    )[:6]
 
     risky_replies = [
         item for item in president_replies
@@ -3592,83 +3600,166 @@ def x_social_summary_html(social, president_replies):
         status_color = "#15803d"
         status_bg = "#f0fdf4"
 
-    rows_html = ""
+    def x_card_style(item):
+        adjusted_risk = safe_score_value(
+            item.get("account_adjusted_risk_score", item.get("risk_score", 0))
+        )
+        account_type = normalize_text(item.get("account_type", ""))
+        account_side = normalize_text(item.get("account_side", ""))
+
+        if adjusted_risk >= 8:
+            return "#b91c1c", "#fef2f2", "Yüksek risk"
+        if adjusted_risk >= 6:
+            return "#d97706", "#fffbeb", "Takip gerektirir"
+        if "yerel_medya" in account_type or "medya" in account_side:
+            return "#7c3aed", "#f5f3ff", "Yerel medya"
+        if "baskan" in account_type:
+            return "#0369a1", "#f0f9ff", "Başkan hesabı"
+        return "#475569", "#f8fafc", "Standart takip"
+
+    cards_html = ""
 
     for item in risky_x_items:
         adjusted_risk = item.get("account_adjusted_risk_score", item.get("risk_score", 0))
         reason = item.get("account_risk_reason", "")
         action_comment = x_risk_action_comment(item)
         service_followup = x_service_followup_status(item)
+
         account_type = item.get("account_type", "bilinmeyen")
         account_side = item.get("account_side", "bilinmeyen")
         influence = item.get("account_influence_level", "dusuk")
         watch = item.get("account_watch_level", "normal")
 
         content = item.get("content", "") or item.get("text", "") or ""
-        if len(content) > 180:
-            content = content[:180] + "..."
+        if len(content) > 240:
+            content = content[:240] + "..."
 
-        rows_html += f"""
-<tr>
-<td>{esc(item.get("date", ""))}</td>
-<td>{esc(item.get("account", ""))}</td>
-<td>{esc(item.get("topic", ""))}</td>
-<td>{item.get("risk_score", 0)}/10</td>
-<td>{adjusted_risk}/10</td>
-<td>
-{esc(content)}
-<div class="small" style="margin-top:6px;">
-<b>Hesap tipi:</b> {esc(account_type)} •
-<b>Taraf:</b> {esc(account_side)} •
-<b>Etki:</b> {esc(influence)} •
-<b>Takip:</b> {esc(watch)}
-</div>
-<div class="small" style="margin-top:4px;">
-<b>Risk nedeni:</b> {esc(reason)}
-</div>
-<div class="small" style="margin-top:4px;">
-<b>X aksiyon yorumu:</b> {esc(action_comment)}
-</div>
-<div class="small" style="margin-top:4px;">
-<b>Hizmet/cevap takibi:</b> {esc(service_followup)}
-</div>
-</td>
-<td>{social_link(item.get("link", ""))}</td>
-</tr>
-"""
+        badge_color, badge_bg, badge_text = x_card_style(item)
 
-    if not rows_html:
-        rows_html = "<tr><td colspan='7'>Riskli X kaydı bulunamadı.</td></tr>"
+        cards_html += f"""
+        <div class="card" style="
+            border-left: 5px solid {badge_color};
+            margin: 14px 0;
+        ">
+            <div style="
+                display:flex;
+                justify-content:space-between;
+                gap:10px;
+                align-items:flex-start;
+                flex-wrap:wrap;
+                margin-bottom:8px;
+            ">
+                <div>
+                    <b>{esc(clean_topic_title(item.get("topic", "")))}</b>
+                    <br><small>{esc(item.get("date", ""))} • {esc(item.get("account", ""))}</small>
+                </div>
+
+                <div style="
+                    background:{badge_bg};
+                    color:{badge_color};
+                    border:1px solid {badge_color};
+                    border-radius:999px;
+                    padding:5px 9px;
+                    font-size:12px;
+                    font-weight:700;
+                    white-space:normal;
+                ">
+                    {esc(badge_text)}
+                </div>
+            </div>
+
+            <p style="margin:8px 0;">
+                {esc(content)}
+            </p>
+
+            <div style="
+                display:flex;
+                gap:8px;
+                flex-wrap:wrap;
+                margin:10px 0;
+            ">
+                <span style="
+                    background:#f8fafc;
+                    border:1px solid #cbd5e1;
+                    color:#334155;
+                    border-radius:999px;
+                    padding:5px 9px;
+                    font-size:12px;
+                    font-weight:700;
+                ">
+                    Risk: {item.get("risk_score", 0)}/10
+                </span>
+
+                <span style="
+                    background:#f8fafc;
+                    border:1px solid #cbd5e1;
+                    color:#334155;
+                    border-radius:999px;
+                    padding:5px 9px;
+                    font-size:12px;
+                    font-weight:700;
+                ">
+                    Hesap etkili risk: {adjusted_risk}/10
+                </span>
+            </div>
+
+            <p style="margin:8px 0;">
+                <b>Hesap tipi:</b> {esc(account_type)} •
+                <b>Taraf:</b> {esc(account_side)} •
+                <b>Etki:</b> {esc(influence)} •
+                <b>Takip:</b> {esc(watch)}
+            </p>
+
+            <p style="margin:8px 0;">
+                <b>Risk nedeni:</b> {esc(reason)}
+            </p>
+
+            <p style="margin:8px 0;">
+                <b>X aksiyon yorumu:</b> {esc(action_comment)}
+            </p>
+
+            <p style="margin:8px 0;">
+                <b>Hizmet/cevap takibi:</b> {esc(service_followup)}
+            </p>
+
+            <div style="margin-top:10px;">
+                {social_link(item.get("link", ""))}
+            </div>
+        </div>
+        """
+
+    if not cards_html:
+        cards_html = """
+        <div class="card">
+            Riskli X kaydı bulunamadı.
+            <br><small>X tarafında şu an ekip kontrolü gerektiren belirgin riskli kayıt görünmüyor.</small>
+        </div>
+        """
 
     return f"""
-<div class="card">
-<p>
-<b>Toplam X kaydı:</b> {len(x_items)} •
-<b>Riskli X kaydı:</b> {len(risky_x_items)} •
-<b>Başkan X yanıtı:</b> {len(president_replies)} •
-<b>Riskli Başkan X yanıtı:</b> {len(risky_replies)}
-</p>
+    <div class="card">
+        <b>Toplam X kaydı:</b> {len(x_items)} •
+        <b>Riskli X kaydı:</b> {len(risky_x_items)} •
+        <b>Başkan X yanıtı:</b> {len(president_replies)} •
+        <b>Riskli Başkan X yanıtı:</b> {len(risky_replies)}
+        <br>
+        <span style="
+            display:inline-block;
+            margin-top:10px;
+            background:{status_bg};
+            color:{status_color};
+            border:1px solid {status_color};
+            border-radius:999px;
+            padding:7px 11px;
+            font-size:13px;
+            font-weight:700;
+        ">
+            {esc(status_text)}
+        </span>
+    </div>
 
-<p>
-<span style="display:inline-block; padding:6px 10px; border-radius:999px; border:1px solid {status_color}; background:{status_bg}; color:{status_color}; font-weight:700;">
-{esc(status_text)}
-</span>
-</p>
-
-<table>
-<tr>
-<th>Tarih</th>
-<th>Hesap</th>
-<th>Konu</th>
-<th>Risk</th>
-<th>Hesap Etkili Risk</th>
-<th>İçerik / Hesap Yorumu</th>
-<th>Link</th>
-</tr>
-{rows_html}
-</table>
-</div>
-"""
+    {cards_html}
+    """
 
 def president_x_replies_detail_html(replies):
     if not replies:

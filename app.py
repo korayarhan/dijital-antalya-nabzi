@@ -2776,7 +2776,7 @@ def classify_president_x_post(item):
     elif any(term in text for term in ["meclis", "meclis toplantisi", "meclis toplantısı", "gundem maddesi", "gündem maddesi", "mayis ayi meclisi", "mayıs ayı meclisi", "belediye meclisi"]):
         post_class = "Kurumsal duyuru / meclis bilgilendirmesi"
         communication_note = "Kurumsal bilgilendirme içeriği. Sade, resmi ve anlaşılır dil korunmalı; vatandaşın anlayacağı kısa gündem özeti eklenirse erişim artabilir."
-        elif any(term in text for term in [
+    elif any(term in text for term in [
         "yörük", "yoruk", "yoruk kultur", "yörük kültür",
         "topraklarin kadim", "toprakların kadim", "kadim deger", "kadim değer",
         "hidirellez", "hıdırellez",

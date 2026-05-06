@@ -2586,8 +2586,8 @@ def accordion_section(title, color, bg, content, opened=False):
 
     return f"""
     <details class="accordion-section"{open_attr} style="
-        margin: 16px 0;
-        border-radius: 18px;
+        margin: 14px 0;
+        border-radius: 16px;
     ">
         <summary style="
             cursor: pointer;
@@ -2595,26 +2595,26 @@ def accordion_section(title, color, bg, content, opened=False):
             outline: none;
         ">
             <div style="
-                border: 2px solid {color};
+                border: 1.5px solid {color};
                 background: {bg};
                 color: {color};
-                border-radius: 18px;
-                padding: 16px 18px;
-                font-size: 22px;
-                font-weight: 800;
+                border-radius: 16px;
+                padding: 13px 15px;
+                font-size: 19px;
+                font-weight: 750;
                 line-height: 1.25;
-                letter-spacing: 0.2px;
+                letter-spacing: 0.1px;
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
-                gap: 12px;
-                box-shadow: 0 8px 22px rgba(15, 23, 42, 0.06);
+                gap: 10px;
+                box-shadow: 0 5px 14px rgba(15, 23, 42, 0.04);
             ">
                 <span>{esc(title)}</span>
                 <span style="
-                    font-size: 18px;
-                    font-weight: 900;
-                    opacity: 0.75;
+                    font-size: 16px;
+                    font-weight: 800;
+                    opacity: 0.68;
                     flex-shrink: 0;
                 ">⌄</span>
             </div>
@@ -4373,9 +4373,9 @@ def build_team_report(news, social, early_warning, crisis_plan, crisis_status, r
     )
 
     learning_section = accordion_section(
-        "🧠 Günlük Sistem Öğrenme Notu",
-        "#4f46e5",
-        "#eef2ff",
+        "🧠 Günlük Sistem Öğrenme "
+        "#334155",
+        "#f8fafc",
         f"""
         <div class="card">
             <p><b>Ana risk değerlendirmesi:</b> {esc(learning_note.get("main_risk", ""))}</p>
@@ -4391,8 +4391,8 @@ def build_team_report(news, social, early_warning, crisis_plan, crisis_status, r
 
     youtube_section = accordion_section(
         "📺 YouTube Kanal Takibi",
-        "#dc2626",
-        "#fff7ed",
+        "#334155",
+        "#f8fafc",
         f"""
         <div class="card">
             Yerel YouTube kanallarında kontrol edilen videolar ve yerel gündemle alakalı bulunan yorum sayıları.
@@ -4403,15 +4403,17 @@ def build_team_report(news, social, early_warning, crisis_plan, crisis_status, r
 
     weekly_section = accordion_section(
         "📊 X Haftalık Durum",
-        "#1d4ed8",
-        "#eff6ff",
+        "#334155",
+        "#f8fafc",
+        
         weekly_summary,
     )
 
     x_social_section = accordion_section(
         "🦚 X Sosyal Ağ Özeti",
-        "#111827",
+        "#334155",
         "#f8fafc",
+        
         x_summary_html,
     )
 
@@ -4425,35 +4427,35 @@ def build_team_report(news, social, early_warning, crisis_plan, crisis_status, r
 
     president_post_section = accordion_section(
         "🧭 Başkan X Gönderi Sınıflandırması",
-        "#0f766e",
-        "#ecfdf5",
+        "#334155",
+        "#f8fafc",
         president_post_classification,
     )
 
     president_reply_detail_section = accordion_section(
         "💬 Başkan X Yanıt Detayı",
-        "#059669",
-        "#ecfdf5",
+        "#334155",
+        "#f8fafc",
         president_replies_detail,
     )
 
     president_reply_topic_section = accordion_section(
         "🔁 Başkan X Tekrar Eden Yanıt Konuları",
-        "#2563eb",
-        "#eff6ff",
+        "#334155",
+        "#f8fafc",
         president_reply_topics,
     )
 
     unmapped_section = accordion_section(
         "🧭 Sınıflandırılacak X Hesapları",
-        "#7c3aed",
-        "#f5f3ff",
+        "#334155",
+        "#f8fafc",
         unmapped_x_accounts,
     )
 
     alert_section = accordion_section(
         "📣 Bildirim Geçmişi / Alarm Kayıtları",
-        "#0ea5e9",
+        "#0369a1",
         "#f0f9ff",
         alert_content,
     )
@@ -4467,15 +4469,15 @@ def build_team_report(news, social, early_warning, crisis_plan, crisis_status, r
 
     risky_social_section = accordion_section(
         "⚠️ En Riskli Sosyal Medya Kayıtları",
-        "#7c3aed",
-        "#f5f3ff",
+        "#b91c1c",
+        "#fef2f2",
         risky_social_content,
     )
 
     risky_reply_section = accordion_section(
         "💬 Başkan X Riskli Yanıt Takibi",
-        "#059669",
-        "#ecfdf5",
+        "#b45309",
+        "#fff7ed",
         risky_reply_content,
     )
 

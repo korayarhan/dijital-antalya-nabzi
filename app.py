@@ -4661,6 +4661,22 @@ def build_team_report(news, social, early_warning, crisis_plan, crisis_status, r
         else f"""<div class="card">{team_action_rows}</div>"""
     )
 
+    if "risky_social_cards" not in locals():
+        risky_social_cards = """
+        <div class="card">
+            Riskli sosyal medya kaydı bulunamadı.
+            <br><small>Şu an ekip kontrolü gerektiren yüksek riskli sosyal medya kaydı görünmüyor.</small>
+        </div>
+        """
+
+    if "risky_reply_cards" not in locals():
+        risky_reply_cards = """
+        <div class="card">
+            Riskli Başkan X yanıtı bulunamadı.
+            <br><small>Başkan X yanıtlarında şu an ekip müdahalesi gerektiren yüksek risk görünmüyor.</small>
+        </div>
+        """
+
     risky_social_content = risky_social_cards
     risky_reply_content = risky_reply_cards
 

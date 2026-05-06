@@ -4484,58 +4484,209 @@ def build_team_report(news, social, early_warning, crisis_plan, crisis_status, r
 
             
 
-        risky_social_rows = ""
-        for item in risky_social:
-            acc_info = account_map_info(
-            item.get("platform", ""),
-            item.get("account", ""),
-            accounts_map
-        )
+            risky_social_rows = ""
 
-        account_meta = f"""
-<div class="small" style="margin-top:6px;">
-<b>Hesap tipi:</b> {esc(acc_info.get("type", ""))} •
-<b>Taraf:</b> {esc(acc_info.get("side", ""))} •
-<b>Etki:</b> {esc(acc_info.get("influence_level", ""))} •
-<b>Takip:</b> {esc(acc_info.get("watch_level", ""))}
-</div>
-"""
+    for item in risky_social:
+        content = item.get("content", "") or item.get("text", "") or item.get("action_note", "")
+        if len(content) > 240:
+            content = content[:240] + "..."
+
+        risk_value = safe_score_value(item.get("account_adjusted_risk_score", item.get("risk_score", 0)))
+        tone = item.get("tone", "") or item.get("sentiment", "")
+        account = item.get("account", "")
+        platform = item.get("platform", "")
+        topic = clean_topic_title(item.get("topic", ""))
+
+        if risk_value >= 8:
+            badge_color = "#b91c1c"
+            badge_bg = "#fef2f2"
+            badge_text = "Yüksek risk"
+        elif risk_value >= 6:
+            badge_color = "#b45309"
+            badge_bg = "#fff7ed"
+            badge_text = "Takip gerektirir"
+        else:
+            badge_color = "#475569"
+            badge_bg = "#f8fafc"
+            badge_text = "Standart takip"
 
         risky_social_rows += f"""
-<tr>
-<td>{esc(item.get("date", ""))}</td>
-<td>{esc(item.get("platform", ""))}</td>
-<td>{esc(item.get("topic", ""))}</td>
-<td>{esc(item.get("tone", ""))}</td>
-<td>{item.get("risk_score", 0)}/10</td>
-<td>{esc(item.get("action_note", ""))}{social_account_meta_html(item)}</td>
-<td>{social_link(item.get("link", ""))}</td>
-</tr>
-"""
+        <div class="card" style="
+            border-left: 5px solid {badge_color};
+            margin: 14px 0;
+        ">
+            <div style="
+                display:flex;
+                justify-content:space-between;
+                gap:10px;
+                align-items:flex-start;
+                flex-wrap:wrap;
+                margin-bottom:8px;
+            ">
+                <div>
+                    <b>{esc(topic)}</b>
+                    <br><small>{esc(item.get("date", ""))} • {esc(platform)} • {esc(account)}</small>
+                </div>
 
-    if "risky_social_rows" not in locals():
-        risky_social_rows = ""
-        
+                <div style="
+                    background:{badge_bg};
+                    color:{badge_color};
+                    border:1px solid {badge_color};
+                    border-radius:999px;
+                    padding:5px 9px;
+                    font-size:12px;
+                    font-weight:700;
+                    white-space:normal;
+                ">
+                    {esc(badge_text)}
+                </div>
+            </div>
+
+            <p style="margin:8px 0;">
+                {esc(content)}
+            </p>
+
+            <div style="
+                display:flex;
+                gap:8px;
+                flex-wrap:wrap;
+                margin:10px 0;
+            ">
+                <span style="
+                    background:#f8fafc;
+                    border:1px solid #cbd5e1;
+                    color:#334155;
+                    border-radius:999px;
+                    padding:5px 9px;
+                    font-size:12px;
+                    font-weight:700;
+                ">
+                    Risk: {risk_value}/10
+                </span>
+
+                <span style="
+                    background:#f8fafc;
+                    border:1px solid #cbd5e1;
+                    color:#334155;
+                    border-radius:999px;
+                    padding:5px 9px;
+                    font-size:12px;
+                    font-weight:700;
+                ">
+                    Ton: {esc(tone)}
+                </span>
+            </div>
+
+            <p style="margin:8px 0;">
+                <b>Aksiyon notu:</b> {esc(item.get("action_note", ""))}
+            </p>
+
+            {social_account_meta_html(item)}
+
+            <div style="margin-top:10px;">
+                {social_link(item.get("link", ""))}
+            </div>
+        </div>
+        """
+
     if not risky_social_rows:
-        risky_social_rows = "<tr><td colspan='7'>Riskli sosyal medya kaydı bulunamadı.</td></tr>"
-        
+        risky_social_rows = """
+        <div class="card">
+            Riskli sosyal medya kaydı bulunamadı.
+            <br><small>Şu an ekip kontrolü gerektiren yüksek riskli sosyal medya kaydı görünmüyor.</small>
+        </div>
+        """
+
     risky_reply_rows = ""
+
     for item in risky_replies:
+        reply_text = item.get("reply_text", "")
+        if len(reply_text) > 240:
+            reply_text = reply_text[:240] + "..."
+
+        risk_value = safe_score_value(item.get("risk_score", 0))
+
+        if risk_value >= 8:
+            badge_color = "#b91c1c"
+            badge_bg = "#fef2f2"
+            badge_text = "Yüksek riskli yanıt"
+        else:
+            badge_color = "#b45309"
+            badge_bg = "#fff7ed"
+            badge_text = "Takip edilecek yanıt"
+
         risky_reply_rows += f"""
-<tr>
-<td>{esc(item.get("reply_date", ""))}</td>
-<td>{esc(item.get("reply_account", ""))}</td>
-<td>{item.get("risk_score", 0)}/10</td>
-<td>{esc(item.get("reply_text", ""))[:220]}</td>
-<td>{social_link(item.get("reply_url", ""))}</td>
-</tr>
-"""
+        <div class="card" style="
+            border-left: 5px solid {badge_color};
+            margin: 14px 0;
+        ">
+            <div style="
+                display:flex;
+                justify-content:space-between;
+                gap:10px;
+                align-items:flex-start;
+                flex-wrap:wrap;
+                margin-bottom:8px;
+            ">
+                <div>
+                    <b>{esc(item.get("reply_account", ""))}</b>
+                    <br><small>{esc(item.get("reply_date", ""))}</small>
+                </div>
+
+                <div style="
+                    background:{badge_bg};
+                    color:{badge_color};
+                    border:1px solid {badge_color};
+                    border-radius:999px;
+                    padding:5px 9px;
+                    font-size:12px;
+                    font-weight:700;
+                    white-space:normal;
+                ">
+                    {esc(badge_text)}
+                </div>
+            </div>
+
+            <p style="margin:8px 0;">
+                {esc(reply_text)}
+            </p>
+
+            <div style="
+                display:flex;
+                gap:8px;
+                flex-wrap:wrap;
+                margin:10px 0;
+            ">
+                <span style="
+                    background:#f8fafc;
+                    border:1px solid #cbd5e1;
+                    color:#334155;
+                    border-radius:999px;
+                    padding:5px 9px;
+                    font-size:12px;
+                    font-weight:700;
+                ">
+                    Risk: {risk_value}/10
+                </span>
+            </div>
+
+            <p style="margin:8px 0;">
+                <b>İlk değerlendirme:</b> Başkan X yanıtı ekip tarafından kontrol edilmeli; aynı konu tekrar ediyorsa konu başlığı ekip raporunda takip edilmeli.
+            </p>
+
+            <div style="margin-top:10px;">
+                {social_link(item.get("reply_url", ""))}
+            </div>
+        </div>
+        """
 
     if not risky_reply_rows:
-        risky_reply_rows = "<tr><td colspan='5'>Riskli Başkan X yanıtı bulunamadı.</td></tr>"
-
-    crisis_log_rows = ""
-    for item in crisis_log:
+        risky_reply_rows = """
+        <div class="card">
+            Riskli Başkan X yanıtı bulunamadı.
+            <br><small>Başkan X yanıtlarında şu an ekip müdahalesi gerektiren yüksek risk görünmüyor.</small>
+        </div>
+        """
         crisis_log_rows += f"""
 <tr>
 <td>{esc(item.get("time", ""))}</td>
@@ -4589,41 +4740,8 @@ def build_team_report(news, social, early_warning, crisis_plan, crisis_status, r
         else f"""<div class="card">{team_action_rows}</div>"""
     )
 
-    risky_social_content = (
-        f"""
-        <table>
-            <tr>
-                <th>Tarih</th>
-                <th>Platform</th>
-                <th>Konu</th>
-                <th>Ton</th>
-                <th>Risk</th>
-                <th>Aksiyon Notu</th>
-                <th>Link</th>
-            </tr>
-            {risky_social_rows}
-        </table>
-        """
-        if "<tr" in risky_social_rows
-        else f"""<div class="card">{risky_social_rows}</div>"""
-    )
-
-    risky_reply_content = (
-        f"""
-        <table>
-            <tr>
-                <th>Tarih</th>
-                <th>Hesap</th>
-                <th>Risk</th>
-                <th>Yanıt</th>
-                <th>Link</th>
-            </tr>
-            {risky_reply_rows}
-        </table>
-        """
-        if "<tr" in risky_reply_rows
-        else f"""<div class="card">{risky_reply_rows}</div>"""
-    )
+    risky_social_content = risky_social_rows
+    risky_reply_content = risky_reply_rows
 
     crisis_log_content = (
         f"""

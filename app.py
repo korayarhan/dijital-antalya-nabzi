@@ -363,6 +363,7 @@ def fetch_news():
                 "title": title,
                 "link": link,
                 "date": date if date else "Tarih okunamadı",
+                "parsed_date": news_date.isoformat() if news_date else "",
                 "summary": summary,
                 "tone": tone,
                 "risk": risk,
@@ -2644,6 +2645,337 @@ def accordion_section(title, color, bg, content, opened=False, subtitle=""):
             {content}
         </div>
     </details>
+    """
+
+def same_day(value, today):
+    value = str(value or "").strip()
+    return value.startswith(today) or today in value
+
+
+def is_x_platform(item):
+    text = normalize_text(f"{item.get('platform', '')} {item.get('source_type', '')}")
+    return "twitter" in text or text == "x" or text.startswith("x ")
+
+
+def is_youtube_platform(item):
+    text = normalize_text(f"{item.get('platform', '')} {item.get('source_type', '')}")
+    return "youtube" in text
+
+
+def dashboard_kpi(title, value, note, color="#334155", bg="#f8fafc"):
+    return f"""
+    <div style="
+        background:{bg};
+        border:1px solid #d6d3d1;
+        border-left:5px solid {color};
+        border-radius:18px;
+        padding:16px;
+        box-shadow:0 8px 22px rgba(15,23,42,0.05);
+    ">
+        <div style="font-size:13px;font-weight:800;color:#64748b;margin-bottom:8px;">
+            {esc(title)}
+        </div>
+        <div style="font-size:34px;font-weight:900;color:#0f172a;line-height:1;">
+            {esc(value)}
+        </div>
+        <div style="font-size:13px;font-weight:700;color:#64748b;margin-top:8px;line-height:1.35;">
+            {esc(note)}
+        </div>
+    </div>
+    """
+
+
+def dashboard_bar(label, value, total, color):
+    try:
+        value = float(value or 0)
+        total = float(total or 0)
+    except:
+        value, total = 0, 0
+
+    pct = (value / total * 100) if total else 0
+    pct = max(0, min(100, pct))
+
+    return f"""
+    <div style="margin:12px 0;">
+        <div style="
+            display:flex;
+            justify-content:space-between;
+            gap:10px;
+            font-size:13px;
+            font-weight:800;
+            color:#334155;
+            margin-bottom:6px;
+        ">
+            <span>{esc(label)}</span>
+            <span>{int(value)} / {int(total)}</span>
+        </div>
+        <div style="
+            height:10px;
+            background:#e7e5e4;
+            border-radius:999px;
+            overflow:hidden;
+        ">
+            <div style="
+                width:{pct:.1f}%;
+                height:10px;
+                background:{color};
+                border-radius:999px;
+            "></div>
+        </div>
+    </div>
+    """
+
+
+def president_dashboard_panel(today, report_time, news, social, president_posts, crisis_plan, early_warning):
+    today_news = [
+        item for item in news
+        if same_day(item.get("parsed_date", item.get("date", "")), today)
+    ]
+
+    today_x = [
+        item for item in social
+        if same_day(item.get("date", ""), today) and is_x_platform(item)
+    ]
+
+    today_youtube = [
+        item for item in social
+        if same_day(item.get("date", ""), today) and is_youtube_platform(item)
+    ]
+
+    today_president_posts = [
+        item for item in president_posts
+        if same_day(item.get("date", ""), today)
+    ]
+
+    x_positive = len([
+        item for item in today_x
+        if "iyi" in normalize_text(item.get("tone", "")) or "positive" in normalize_text(item.get("sentiment", ""))
+    ])
+    x_negative = len([
+        item for item in today_x
+        if "kotu" in normalize_text(item.get("tone", "")) or "negative" in normalize_text(item.get("sentiment", ""))
+    ])
+    x_neutral = max(0, len(today_x) - x_positive - x_negative)
+
+    yt_positive = len([
+        item for item in today_youtube
+        if "iyi" in normalize_text(item.get("tone", "")) or "positive" in normalize_text(item.get("sentiment", ""))
+    ])
+    yt_negative = len([
+        item for item in today_youtube
+        if "kotu" in normalize_text(item.get("tone", "")) or "negative" in normalize_text(item.get("sentiment", ""))
+    ])
+    yt_neutral = max(0, len(today_youtube) - yt_positive - yt_negative)
+
+    x_likes = sum(safe_score_value(item.get("likes", 0)) for item in today_x)
+    x_comments = sum(safe_score_value(item.get("comments", 0)) for item in today_x)
+    x_views = sum(safe_score_value(item.get("views", 0)) for item in today_x)
+
+    yt_likes = sum(safe_score_value(item.get("likes", 0)) for item in today_youtube)
+    yt_comments = sum(safe_score_value(item.get("comments", 0)) for item in today_youtube)
+    yt_views = sum(safe_score_value(item.get("views", 0)) for item in today_youtube)
+
+    president_engagement = sum(safe_score_value(item.get("engagement", 0)) for item in today_president_posts)
+    president_likes = sum(safe_score_value(item.get("likes", 0)) for item in today_president_posts)
+    president_replies = sum(safe_score_value(item.get("replies", 0)) for item in today_president_posts)
+
+    risk_level = str(crisis_plan.get("level", "") or "")
+    risk_norm = normalize_text(risk_level)
+
+    crisis_pulse = ""
+    if "yuksek" in risk_norm or "yüksek" in risk_norm:
+        crisis_pulse = "president-pulse"
+
+    top_risk_news = ""
+    risky_news = sorted(news, key=lambda x: safe_score_value(x.get("risk", 0)), reverse=True)
+    if risky_news:
+        top_risk_news = risky_news[0].get("title", "")
+
+    top_opportunity_news = ""
+    opportunity_news = sorted(news, key=lambda x: safe_score_value(x.get("opportunity", 0)), reverse=True)
+    if opportunity_news:
+        top_opportunity_news = opportunity_news[0].get("title", "")
+
+    return f"""
+    <style>
+        @keyframes presidentPulse {{
+            0% {{ box-shadow:0 0 0 0 rgba(185,28,28,0.45); }}
+            70% {{ box-shadow:0 0 0 14px rgba(185,28,28,0); }}
+            100% {{ box-shadow:0 0 0 0 rgba(185,28,28,0); }}
+        }}
+
+        .president-pulse {{
+            animation: presidentPulse 1.4s infinite;
+        }}
+
+        .president-mobile-nav {{
+            position: sticky;
+            top: 0;
+            z-index: 20;
+            display:flex;
+            gap:8px;
+            overflow-x:auto;
+            padding:10px 0;
+            background:#f8fafc;
+        }}
+
+        .president-mobile-nav a {{
+            white-space:nowrap;
+            text-decoration:none;
+            background:#0f172a;
+            color:white;
+            padding:9px 12px;
+            border-radius:999px;
+            font-size:13px;
+            font-weight:800;
+        }}
+
+        .president-dashboard-layout {{
+            display:block;
+        }}
+
+        .president-side-nav {{
+            display:none;
+        }}
+
+        @media (min-width: 900px) {{
+            .president-dashboard-layout {{
+                display:grid;
+                grid-template-columns:220px 1fr;
+                gap:18px;
+                align-items:start;
+            }}
+
+            .president-mobile-nav {{
+                display:none;
+            }}
+
+            .president-side-nav {{
+                display:block;
+                position:sticky;
+                top:18px;
+                background:#0f172a;
+                color:white;
+                border-radius:20px;
+                padding:16px;
+            }}
+
+            .president-side-nav a {{
+                display:block;
+                color:white;
+                text-decoration:none;
+                font-weight:800;
+                padding:10px 8px;
+                border-bottom:1px solid rgba(255,255,255,0.12);
+            }}
+        }}
+    </style>
+
+    <div style="
+        background:#f8fafc;
+        border:1px solid #e5e7eb;
+        border-radius:22px;
+        padding:14px;
+        margin:18px 0 24px 0;
+    ">
+        <div class="president-mobile-nav">
+            <a href="#baskan-ozet">Özet</a>
+            <a href="#baskan-haber">Haber</a>
+            <a href="#baskan-x">X</a>
+            <a href="#baskan-youtube">YouTube</a>
+            <a href="#baskan-kriz">Kriz</a>
+            <a href="team_report.html">Ekip</a>
+        </div>
+
+        <div class="president-dashboard-layout">
+            <div class="president-side-nav">
+                <div style="font-size:18px;font-weight:900;margin-bottom:12px;">Başkan Paneli</div>
+                <a href="#baskan-ozet">Genel Özet</a>
+                <a href="#baskan-haber">Haber Nabzı</a>
+                <a href="#baskan-x">X Nabzı</a>
+                <a href="#baskan-youtube">YouTube</a>
+                <a href="#baskan-kriz">Kriz / Alarm</a>
+                <a href="team_report.html">Ekip Raporu</a>
+            </div>
+
+            <div>
+                <div id="baskan-ozet" class="{crisis_pulse}" style="
+                    background:#fff;
+                    border:2px solid #b91c1c;
+                    border-radius:22px;
+                    padding:18px;
+                    margin-bottom:16px;
+                ">
+                    <div style="font-size:14px;font-weight:900;color:#64748b;margin-bottom:8px;">
+                        Bugünkü Başkan Karar Özeti • {esc(today)} • {esc(report_time)}
+                    </div>
+                    <div style="font-size:26px;font-weight:950;color:#991b1b;line-height:1.15;">
+                        Risk seviyesi: {esc(risk_level)}
+                    </div>
+                    <div style="font-size:15px;font-weight:800;color:#334155;margin-top:10px;line-height:1.45;">
+                        Karar: {esc(early_warning.get("decision", ""))} • Başkan konuşmalı mı: {esc(early_warning.get("show_to_president", ""))}
+                    </div>
+                </div>
+
+                <div style="
+                    display:grid;
+                    grid-template-columns:repeat(2,minmax(0,1fr));
+                    gap:12px;
+                    margin-bottom:16px;
+                ">
+                    {dashboard_kpi("Bugünkü haber", len(today_news), f"Son 7 gün tarandı • bugün {len(today_news)} haber", "#2563eb", "#eff6ff")}
+                    {dashboard_kpi("Bugünkü X nabzı", len(today_x), f"Lehte {x_positive} • Aleyhte {x_negative} • Nötr {x_neutral}", "#7c3aed", "#f5f3ff")}
+                    {dashboard_kpi("YouTube nabzı", len(today_youtube), f"Lehte {yt_positive} • Aleyhte {yt_negative} • Nötr {yt_neutral}", "#dc2626", "#fff7ed")}
+                    {dashboard_kpi("Başkan X", len(today_president_posts), f"Etkileşim {int(president_engagement)} • Yanıt {int(president_replies)}", "#059669", "#ecfdf5")}
+                </div>
+
+                <div id="baskan-haber" style="
+                    background:white;
+                    border:1px solid #e5e7eb;
+                    border-radius:22px;
+                    padding:18px;
+                    margin:14px 0;
+                ">
+                    <h2 style="margin-top:0;">📊 Günlük Haber ve Sosyal Nabız</h2>
+
+                    <p><b>Bugünün risk başlığı:</b> {esc(top_risk_news or "Bugün öne çıkan risk haberi yok.")}</p>
+                    <p><b>Bugünün fırsat başlığı:</b> {esc(top_opportunity_news or "Bugün öne çıkan fırsat haberi yok.")}</p>
+
+                    <div id="baskan-x" style="margin-top:16px;">
+                        <h3>X Nabzı</h3>
+                        {dashboard_bar("Lehte", x_positive, len(today_x), "#16a34a")}
+                        {dashboard_bar("Nötr", x_neutral, len(today_x), "#64748b")}
+                        {dashboard_bar("Aleyhte", x_negative, len(today_x), "#dc2626")}
+                        <p style="font-size:14px;color:#475569;">
+                            X toplam görüntülenme: <b>{int(x_views)}</b> • Beğeni: <b>{int(x_likes)}</b> • Yorum: <b>{int(x_comments)}</b>
+                        </p>
+                    </div>
+
+                    <div id="baskan-youtube" style="margin-top:16px;">
+                        <h3>YouTube Nabzı</h3>
+                        {dashboard_bar("Lehte", yt_positive, len(today_youtube), "#16a34a")}
+                        {dashboard_bar("Nötr", yt_neutral, len(today_youtube), "#64748b")}
+                        {dashboard_bar("Aleyhte", yt_negative, len(today_youtube), "#dc2626")}
+                        <p style="font-size:14px;color:#475569;">
+                            YouTube toplam görüntülenme: <b>{int(yt_views)}</b> • Beğeni: <b>{int(yt_likes)}</b> • Yorum: <b>{int(yt_comments)}</b>
+                        </p>
+                    </div>
+
+                    <div id="baskan-kriz" style="
+                        margin-top:16px;
+                        padding:14px;
+                        border-radius:18px;
+                        background:#fef2f2;
+                        border:1px solid #fecaca;
+                        color:#7f1d1d;
+                        font-weight:800;
+                    ">
+                        Kriz / alarm: {esc(early_warning.get("decision", ""))}. Detay gerekiyorsa kriz paneli veya ekip raporu açılmalı.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     """
 
 def news_card(item):
@@ -5463,6 +5795,15 @@ def build_report(news, social, undated_news=None):
     president_replies = read_president_x_replies()
     president_reply_summary = president_x_replies_summary(president_replies)
     president_reply_html = president_x_replies_card(president_reply_summary)
+    dashboard_html = president_dashboard_panel(
+        today,
+        report_time,
+        news,
+        social,
+        president_posts,
+        crisis_plan,
+        early_warning,
+    )
 
     html_doc = f"""
 <html lang="tr">
@@ -5559,6 +5900,9 @@ a {{ color:#1f2933; font-weight:800; }}
 <header>
     <h1>Yerel Liderlik AI Günlük Raporu</h1>
     <p>Takip edilen isim: Mesut Kocagöz • Bölge: Antalya / Kepez • Tarih: {today} • Güncelleme saati: {report_time}
+       
+       {dashboard_html}
+    
     <div id="acil-durum"></div>
     {section_label("🚨 Acil Durum / Kriz Paneli", "#b91c1c", "#fef2f2")}
 <div style="margin:18px 0; padding:16px; border:2px solid #dc2626; border-left:8px solid #b91c1c; border-radius:16px; background:#fef2f2; box-shadow:0 2px 10px rgba(185,28,28,0.10);">

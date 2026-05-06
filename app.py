@@ -3694,6 +3694,38 @@ def x_service_complaint_followup_html(social):
     {cards_html}
     """
 
+def is_official_pr_or_service_item(item):
+    account = normalize_text(item.get("account", ""))
+    account_type = normalize_text(item.get("account_type", ""))
+    source_type = normalize_text(item.get("source_type", ""))
+
+    text = normalize_text(
+        f"{item.get('content', '')} {item.get('text', '')} {item.get('topic', '')} {item.get('action_note', '')}"
+    )
+
+    is_official_account = (
+        "mesutkocagoztr" in account
+        or "kepezbelediyesi" in account
+        or "baskan" in account_type
+        or "başkan" in account_type
+        or "kurumsal" in account_type
+        or "belediye" in account_type
+        or "baskan x hesabi" in source_type
+        or "başkan x hesabi" in source_type
+    )
+
+    serious_risk_terms = [
+        "teleferik", "facia", "kaza", "olum", "ölüm", "yarali", "yaralı",
+        "dava", "mahkeme", "savci", "savcı", "iddianame", "yargi", "yargı",
+        "sorusturma", "soruşturma", "tutuklama", "tutuklu", "ceza",
+        "yolsuzluk", "rüşvet", "rusvet", "usulsuz", "usulsüz",
+        "ihmal", "skandal", "protesto", "kriz"
+    ]
+
+    has_serious_risk = any(term in text for term in serious_risk_terms)
+
+    return is_official_account and not has_serious_risk
+
 def x_social_summary_html(social, president_replies):
     x_items = []
 
@@ -4471,10 +4503,13 @@ def build_team_report(news, social, early_warning, crisis_plan, crisis_status, r
     unmapped_x_accounts = unmapped_x_accounts_html(social)
     
     risky_social = sorted(
-        social,
-        key=lambda x: safe_float(x.get("risk_score", 0)),
-        reverse=True
-    )[:10]
+    [
+        item for item in social
+        if not is_official_pr_or_service_item(item)
+    ],
+    key=lambda x: safe_float(x.get("risk_score", 0)),
+    reverse=True
+)[:10]
 
     risky_replies = sorted(
         [x for x in president_replies if safe_float(x.get("risk_score", 0)) >= 6],

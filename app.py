@@ -2752,6 +2752,17 @@ def classify_president_x_post(item):
     if any(term in text for term in ["teleferik", "dava", "mahkeme", "sorusturma", "soruşturma", "hukuk", "yargi", "yargı", "tutuklama"]):
         post_class = "Kriz / hukuki hassasiyet"
         communication_note = "Hassas konu. Yorumlar ve alıntılar izlenmeli; açıklama dili kontrollü ve belgeye dayalı olmalı."
+    elif any(term in text for term in ["7 gun", "7 gün", "bir hafta", "haftalik", "haftalık", "hafta nasil gecti", "hafta nasıl geçti", "nasil gecti", "nasıl geçti", "gelecegi kepez", "geleceği kepez", "kepezde 7 gun", "kepezde 7 gün", "kepez de 7 gun", "kepez de 7 gün"]):
+        post_class = "Haftalık hizmet özeti / kurumsal iletişim"
+        communication_note = "Haftalık hizmet özeti niteliğinde içerik. Hizmetlerin toplu görünürlüğü için değerli; kısa video, mahalle adı, önce-sonra görseli ve somut sonuç diliyle güçlendirilebilir."
+
+    elif any(term in text for term in ["meclis", "meclis toplantisi", "meclis toplantısı", "gundem maddesi", "gündem maddesi", "mayis ayi meclisi", "mayıs ayı meclisi", "belediye meclisi"]):
+        post_class = "Kurumsal duyuru / meclis bilgilendirmesi"
+        communication_note = "Kurumsal bilgilendirme içeriği. Sade, resmi ve anlaşılır dil korunmalı; vatandaşın anlayacağı kısa gündem özeti eklenirse erişim artabilir."
+
+    elif any(term in text for term in ["video", "youtube", "youtu", "t co", "link", "canli yayin", "canlı yayın"]):
+        post_class = "Video/link paylaşımı / kontrol edilecek içerik"
+        communication_note = "Link veya video ağırlıklı paylaşım. İçeriğin ne anlattığı kısa bir cümleyle açıklanmalı; görsel başlık ve ilk cümle güçlendirilirse etkileşim artabilir."
     elif any(term in text for term in ["bas sagligi", "baş sağlığı", "bassagligi", "başsağlığı", "taziye", "vefat", "rahmet", "mekani cennet", "mekanı cennet", "gecmis olsun", "geçmiş olsun", "afet", "yangin", "yangın", "sel", "deprem", "firtina", "fırtına", "kaza", "yarali", "yaralı", "hayatini kaybeden", "hayatını kaybeden"]):
         post_class = "İnsani hassasiyet / taziye mesajı"
         communication_note = "Hassas ve insani duygu gerektiren içerik. Siyasi polemik dili kullanılmamalı; sade, samimi, acıyı paylaşan ve dayanışma vurgusu taşıyan bir dil korunmalı."

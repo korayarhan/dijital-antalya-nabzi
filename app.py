@@ -2867,6 +2867,16 @@ def president_dashboard_panel(today, report_time, news, social, president_posts,
         </div>
         """
 
+    if today_x:
+        x_kpi_note = f"Lehte {x_positive} • Aleyhte {x_negative} • Nötr {x_neutral}"
+    else:
+        x_kpi_note = f"Bugün kayıt yok • Takip havuzu {len(all_x_dashboard)}"
+
+    if today_youtube:
+        youtube_kpi_note = f"Lehte {yt_positive} • Aleyhte {yt_negative} • Nötr {yt_neutral}"
+    else:
+        youtube_kpi_note = f"Bugün kayıt yok • Takip havuzu {len(all_youtube_dashboard)}"
+
     return f"""
     <style>
         html, body {{
@@ -3038,8 +3048,8 @@ def president_dashboard_panel(today, report_time, news, social, president_posts,
                     margin-bottom:16px;
                 ">
                     {dashboard_kpi("Bugünkü haber", len(today_news), f"Son 7 gün tarandı • bugün {len(today_news)} haber", "#2563eb", "#eff6ff")}
-                    {dashboard_kpi("Bugünkü X nabzı", len(today_x), f"Lehte {x_positive} • Aleyhte {x_negative} • Nötr {x_neutral} • Takip havuzu {len(all_x_dashboard)}", "#7c3aed", "#f5f3ff")}
-                     {dashboard_kpi("YouTube nabzı", len(today_youtube), f"Lehte {yt_positive} • Aleyhte {yt_negative} • Nötr {yt_neutral} • Takip havuzu {len(all_youtube_dashboard)}", "#dc2626", "#fff7ed")}
+                    {dashboard_kpi("Bugünkü X nabzı", len(today_x), x_kpi_note, "#7c3aed", "#f5f3ff")}
+                    {dashboard_kpi("YouTube nabzı", len(today_youtube), youtube_kpi_note, "#dc2626", "#fff7ed")}
                     {dashboard_kpi("Başkan X", len(today_president_posts), f"Etkileşim {int(president_engagement)} • Yanıt {int(president_replies)}", "#059669", "#ecfdf5")}
                 </div>
 

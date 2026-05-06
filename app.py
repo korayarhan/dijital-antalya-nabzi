@@ -5028,6 +5028,7 @@ def build_team_report(news, social, early_warning, crisis_plan, crisis_status, r
         "#d97706",
         "#fffbeb",
         crisis_log_content,
+        opened=True,
         subtitle=crisis_log_subtitle,
 
     )

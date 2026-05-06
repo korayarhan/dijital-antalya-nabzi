@@ -2798,6 +2798,47 @@ def president_dashboard_panel(today, report_time, news, social, president_posts,
 
     return f"""
     <style>
+        html, body {{
+            max-width: 100%;
+            overflow-x: hidden;
+        }}
+
+        * {{
+            box-sizing: border-box;
+        }}
+
+        img, video {{
+            max-width: 100%;
+        }}
+
+        table {{
+            display: block;
+            width: 100%;
+            max-width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }}
+
+        @media (max-width: 700px) {{
+            body {{
+                margin: 0;
+                overflow-x: hidden;
+            }}
+
+            .container {{
+                width: 100% !important;
+                max-width: 100% !important;
+                padding-left: 12px !important;
+                padding-right: 12px !important;
+            }}
+
+            header {{
+                width: 100% !important;
+                max-width: 100% !important;
+            }}
+        }}
+    </style>
+    <style>
         @keyframes presidentPulse {{
             0% {{ box-shadow:0 0 0 0 rgba(185,28,28,0.45); }}
             70% {{ box-shadow:0 0 0 14px rgba(185,28,28,0); }}
@@ -2913,7 +2954,9 @@ def president_dashboard_panel(today, report_time, news, social, president_posts,
                         Risk seviyesi: {esc(risk_level)}
                     </div>
                     <div style="font-size:15px;font-weight:800;color:#334155;margin-top:10px;line-height:1.45;">
-                        Karar: {esc(early_warning.get("decision", ""))} • Başkan konuşmalı mı: {esc(early_warning.get("show_to_president", ""))}
+                        Karar: {esc(early_warning.get("decision", ""))} • Başkan'a gösterilsin mi: {esc(early_warning.get("show_to_president", ""))}
+                         <br>
+                         Başkan konuşmalı mı: {esc(crisis_plan.get("speaker_decision", crisis_plan.get("speaker", "")))}
                     </div>
                 </div>
 

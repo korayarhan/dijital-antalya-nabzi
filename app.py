@@ -3601,18 +3601,8 @@ def x_service_complaint_followup_html(social):
             or "bahse konu" in text_norm_for_pr
         )
 
-        is_general_pr_or_service_announcement = (
-            is_official_president_or_municipality
-            and not is_direct_reply_or_public_response
-            and record_type in [
-                "Takip edilecek hizmet başlığı",
-                "Kurumsal duyuru / hizmet paylaşımı",
-                "Kurumsal duyuru / kontrol edilecek paylaşım",
-            ]
-        )
-
-        if is_general_pr_or_service_announcement:
-            continue
+        if is_official_president_or_municipality and not is_direct_reply_or_public_response:
+    continue
 
         items.append({
             "date": item.get("date", ""),

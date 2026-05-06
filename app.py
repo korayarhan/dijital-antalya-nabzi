@@ -4484,7 +4484,7 @@ def build_team_report(news, social, early_warning, crisis_plan, crisis_status, r
 
             
 
-            risky_social_rows = ""
+    risky_social_rows = ""
 
     for item in risky_social:
         content = item.get("content", "") or item.get("text", "") or item.get("action_note", "")

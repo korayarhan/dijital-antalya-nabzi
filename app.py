@@ -3395,6 +3395,23 @@ def x_service_complaint_followup_html(social):
 
         return "Takip edilecek hizmet başlığı"
 
+    def record_type_style(record_type):
+        record_norm = normalize_text(record_type)
+
+        if "vatandas" in record_norm or "vatandaş" in record_norm:
+            return "#b45309", "#fff7ed"
+
+        if "kurumsal cevap" in record_norm or "mudahale" in record_norm or "müdahale" in record_norm:
+            return "#166534", "#f0fdf4"
+
+        if "kurumsal duyuru" in record_norm:
+            return "#0369a1", "#f0f9ff"
+
+        if "medya" in record_norm:
+            return "#7c3aed", "#f5f3ff"
+
+        return "#475569", "#f8fafc"
+
     items = []
 
     for item in social:
@@ -3444,7 +3461,7 @@ def x_service_complaint_followup_html(social):
         return """
         <div class="card">
             <b>Hizmet şikayeti / kurumsal cevap takibi:</b> Şu an X tarafında ayrı takip gerektiren net hizmet şikayeti görünmüyor.
-            <br><small>Vatandaş şikayeti, kurumsal cevap ve kurumsal duyuru kayıtları geldiğinde burada ayrı türlerle listelenecek.</small>
+            <br><small>Vatandaş şikayeti, kurumsal cevap ve kurumsal duyuru kayıtları geldiğinde burada kartlar halinde listelenecek.</small>
         </div>
         """
 
@@ -3455,26 +3472,78 @@ def x_service_complaint_followup_html(social):
 
     summary_text = " • ".join([f"{key}: {value}" for key, value in type_counts.items()])
 
-    rows_html = ""
+    cards_html = ""
 
     for item in items:
         content = item.get("content", "")
-        if len(content) > 180:
-            content = content[:180] + "..."
+        if len(content) > 240:
+            content = content[:240] + "..."
 
-        rows_html += f"""
-        <tr>
-            <td>{esc(item.get("date", ""))}</td>
-            <td>{esc(item.get("account", ""))}</td>
-            <td>{esc(item.get("record_type", ""))}</td>
-            <td>{esc(item.get("topic", ""))}</td>
-            <td>{item.get("risk", 0)}/10</td>
-            <td>
+        record_type = item.get("record_type", "")
+        badge_color, badge_bg = record_type_style(record_type)
+
+        cards_html += f"""
+        <div class="card" style="
+            border-left: 5px solid {badge_color};
+            margin: 14px 0;
+        ">
+            <div style="
+                display:flex;
+                justify-content:space-between;
+                gap:10px;
+                align-items:flex-start;
+                flex-wrap:wrap;
+                margin-bottom:8px;
+            ">
+                <div>
+                    <b>{esc(item.get("topic", ""))}</b>
+                    <br><small>{esc(item.get("date", ""))} • {esc(item.get("account", ""))}</small>
+                </div>
+                <div style="
+                    background:{badge_bg};
+                    color:{badge_color};
+                    border:1px solid {badge_color};
+                    border-radius:999px;
+                    padding:5px 9px;
+                    font-size:12px;
+                    font-weight:700;
+                    white-space:normal;
+                ">
+                    {esc(record_type)}
+                </div>
+            </div>
+
+            <p style="margin:8px 0;">
                 {esc(content)}
-                <br><small><b>Takip durumu:</b> {esc(item.get("followup", ""))}</small>
-            </td>
-            <td>{social_link(item.get("link", ""))}</td>
-        </tr>
+            </p>
+
+            <div style="
+                display:flex;
+                gap:8px;
+                flex-wrap:wrap;
+                margin:10px 0;
+            ">
+                <span style="
+                    background:#f8fafc;
+                    border:1px solid #cbd5e1;
+                    color:#334155;
+                    border-radius:999px;
+                    padding:5px 9px;
+                    font-size:12px;
+                    font-weight:700;
+                ">
+                    Risk: {item.get("risk", 0)}/10
+                </span>
+            </div>
+
+            <p style="margin:8px 0;">
+                <b>Takip durumu:</b> {esc(item.get("followup", ""))}
+            </p>
+
+            <div style="margin-top:10px;">
+                {social_link(item.get("link", ""))}
+            </div>
+        </div>
         """
 
     return f"""
@@ -3484,18 +3553,7 @@ def x_service_complaint_followup_html(social):
         <br><small>Bu bölüm gerçek vatandaş şikayeti, belediyenin verdiği cevap ve belediyenin kendi hizmet duyurusunu ayrı ayrı gösterir.</small>
     </div>
 
-    <table>
-        <tr>
-            <th>Tarih</th>
-            <th>Hesap</th>
-            <th>Kayıt Türü</th>
-            <th>Konu</th>
-            <th>Risk</th>
-            <th>Şikayet / Takip Durumu</th>
-            <th>Link</th>
-        </tr>
-        {rows_html}
-    </table>
+    {cards_html}
     """
 
 def x_social_summary_html(social, president_replies):

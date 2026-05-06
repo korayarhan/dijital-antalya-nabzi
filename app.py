@@ -2828,7 +2828,7 @@ def president_dashboard_panel(today, report_time, news, social, president_posts,
             font-weight:800;
             line-height:1.45;
         ">
-            Bugün tarihli X kaydı yok.
+            Özet gününde X kaydı yok.
             <br>
             <span style="color:#64748b;font-weight:700;">
                 Takip havuzunda {len(all_x_dashboard)} X kaydı var. Sistem izlemeye devam ediyor.
@@ -2859,7 +2859,7 @@ def president_dashboard_panel(today, report_time, news, social, president_posts,
             font-weight:800;
             line-height:1.45;
         ">
-            Bugün tarihli YouTube kaydı yok.
+            Özet gününde YouTube kaydı yok.
             <br>
             <span style="color:#64748b;font-weight:700;">
                 Takip havuzunda {len(all_youtube_dashboard)} YouTube kaydı var. Sistem izlemeye devam ediyor.
@@ -2870,12 +2870,12 @@ def president_dashboard_panel(today, report_time, news, social, president_posts,
     if today_x:
         x_kpi_note = f"Lehte {x_positive} • Aleyhte {x_negative} • Nötr {x_neutral}"
     else:
-        x_kpi_note = f"Bugün kayıt yok • Takip havuzu {len(all_x_dashboard)}"
+        x_kpi_note = f"Özet günü kayıt yok • Takip havuzu {len(all_x_dashboard)}"
 
     if today_youtube:
         youtube_kpi_note = f"Lehte {yt_positive} • Aleyhte {yt_negative} • Nötr {yt_neutral}"
     else:
-        youtube_kpi_note = f"Bugün kayıt yok • Takip havuzu {len(all_youtube_dashboard)}"
+        youtube_kpi_note = f"Özet günü kayıt yok • Takip havuzu {len(all_youtube_dashboard)}"
 
     return f"""
     <style>
@@ -3029,7 +3029,7 @@ def president_dashboard_panel(today, report_time, news, social, president_posts,
                     margin-bottom:16px;
                 ">
                     <div style="font-size:14px;font-weight:900;color:#64748b;margin-bottom:8px;">
-                        Bugünkü Başkan Karar Özeti • {esc(today)} • {esc(report_time)}
+                        Günlük Başkan Özeti • Özet günü: {esc(today)} • Rapor saati: {esc(report_time)}
                     </div>
                     <div style="font-size:26px;font-weight:950;color:#991b1b;line-height:1.15;">
                         Risk seviyesi: {esc(risk_level)}
@@ -3047,7 +3047,7 @@ def president_dashboard_panel(today, report_time, news, social, president_posts,
                     gap:12px;
                     margin-bottom:16px;
                 ">
-                    {dashboard_kpi("Bugünkü haber", len(today_news), f"Son 7 gün tarandı • bugün {len(today_news)} haber", "#2563eb", "#eff6ff")}
+                    {dashboard_kpi("Özet günü haberleri", len(today_news), f"Son 7 gün tarandı • özet günü {len(today_news)} haber", "#2563eb", "#eff6ff")} {dashboard_kpi("Özet günü X nabzı", len(today_x), x_kpi_note, "#7c3aed", "#f5f3ff")} {dashboard_kpi("Özet günü YouTube", len(today_youtube), youtube_kpi_note, "#dc2626", "#fff7ed")} {dashboard_kpi("Başkan X performansı", len(today_president_posts), f"Etkileşim {int(president_engagement)} • Yanıt {int(president_replies)}", "#059669", "#ecfdf5")}
                     {dashboard_kpi("Bugünkü X nabzı", len(today_x), x_kpi_note, "#7c3aed", "#f5f3ff")}
                     {dashboard_kpi("YouTube nabzı", len(today_youtube), youtube_kpi_note, "#dc2626", "#fff7ed")}
                     {dashboard_kpi("Başkan X", len(today_president_posts), f"Etkileşim {int(president_engagement)} • Yanıt {int(president_replies)}", "#059669", "#ecfdf5")}
@@ -3062,8 +3062,8 @@ def president_dashboard_panel(today, report_time, news, social, president_posts,
                 ">
                     <h2 style="margin-top:0;">📊 Günlük Haber ve Sosyal Nabız</h2>
 
-                    <p><b>Bugünün risk başlığı:</b> {esc(top_risk_news or "Bugün öne çıkan risk haberi yok.")}</p>
-                    <p><b>Bugünün fırsat başlığı:</b> {esc(top_opportunity_news or "Bugün öne çıkan fırsat haberi yok.")}</p>
+                    <p><b>Özet gününün risk başlığı::</b> {esc(top_risk_news or "Bugün öne çıkan risk haberi yok.")}</p>
+                    <p><b>Özet gününün fırsat başlığı::</b> {esc(top_opportunity_news or "Bugün öne çıkan fırsat haberi yok.")}</p>
 
                     <div id="baskan-x" style="margin-top:16px;">
                         <h3>X Nabzı</h3>

@@ -4764,40 +4764,71 @@ def build_team_report(news, social, early_warning, crisis_plan, crisis_status, r
         else f"""<div class="card">{team_action_rows}</div>"""
     )
 
-    crisis_log_rows = ""
+    crisis_log_content = ""
 
     for item in crisis_log:
-        crisis_log_rows += f"""
-        <tr>
-            <td>{esc(item.get("time", ""))}</td>
-            <td>{esc(item.get("event", ""))}</td>
-            <td>{esc(item.get("action", ""))}</td>
-            <td>{esc(item.get("result", ""))}</td>
-            <td>{esc(item.get("responsible", ""))}</td>
-            <td>{esc(item.get("next_step", ""))}</td>
-        </tr>
+        event_text = item.get("event", "")
+        action_text = item.get("action", "")
+        result_text = item.get("result", "")
+        responsible_text = item.get("responsible", "")
+        next_step_text = item.get("next_step", "")
+
+        crisis_log_content += f"""
+        <div class="card" style="
+            border-left: 5px solid #d97706;
+            margin: 14px 0;
+        ">
+            <div style="
+                display:flex;
+                justify-content:space-between;
+                gap:10px;
+                align-items:flex-start;
+                flex-wrap:wrap;
+                margin-bottom:8px;
+            ">
+                <div>
+                    <b>{esc(event_text)}</b>
+                    <br><small>Saat: {esc(item.get("time", ""))}</small>
+                </div>
+
+                <div style="
+                    background:#fff7ed;
+                    color:#b45309;
+                    border:1px solid #b45309;
+                    border-radius:999px;
+                    padding:5px 9px;
+                    font-size:12px;
+                    font-weight:700;
+                ">
+                    Müdahale kaydı
+                </div>
+            </div>
+
+            <p style="margin:8px 0;">
+                <b>Yapılan işlem:</b> {esc(action_text)}
+            </p>
+
+            <p style="margin:8px 0;">
+                <b>Sonuç:</b> {esc(result_text)}
+            </p>
+
+            <p style="margin:8px 0;">
+                <b>Sorumlu:</b> {esc(responsible_text)}
+            </p>
+
+            <p style="margin:8px 0;">
+                <b>Sıradaki adım:</b> {esc(next_step_text)}
+            </p>
+        </div>
         """
 
-    if not crisis_log_rows:
-        crisis_log_rows = "Henüz müdahale kaydı yok."
-
-    crisis_log_content = (
-        f"""
-        <table>
-            <tr>
-                <th>Saat</th>
-                <th>Olay</th>
-                <th>Yapılan İşlem</th>
-                <th>Sonuç</th>
-                <th>Sorumlu</th>
-                <th>Sıradaki Adım</th>
-            </tr>
-            {crisis_log_rows}
-        </table>
+    if not crisis_log_content:
+        crisis_log_content = """
+        <div class="card">
+            Henüz müdahale kaydı yok.
+            <br><small>Kriz panelinden müdahale kaydı girildiğinde burada kart olarak görünecek.</small>
+        </div>
         """
-        if "<tr" in crisis_log_rows
-        else f"""<div class="card">{crisis_log_rows}</div>"""
-    )
 
     # Accordion başlıkları için kısa özetler
     def is_x_summary_item(item):

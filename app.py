@@ -4482,9 +4482,7 @@ def build_team_report(news, social, early_warning, crisis_plan, crisis_status, r
     if not team_action_rows:
         team_action_rows = "<tr><td colspan='8'>Henüz ekip aksiyon kaydı yok.</td></tr>"
 
-            
-
-    risky_social_cards = ""
+    risky_social_content = ""
 
     for item in risky_social:
         content = item.get("content", "") or item.get("text", "") or item.get("action_note", "")
@@ -4510,7 +4508,7 @@ def build_team_report(news, social, early_warning, crisis_plan, crisis_status, r
             badge_bg = "#f8fafc"
             badge_text = "Standart takip"
 
-        risky_social_cards += f"""
+        risky_social_content += f"""
         <div class="card" style="border-left: 5px solid {badge_color}; margin: 14px 0;">
             <div style="display:flex; justify-content:space-between; gap:10px; align-items:flex-start; flex-wrap:wrap; margin-bottom:8px;">
                 <div>
@@ -4536,23 +4534,21 @@ def build_team_report(news, social, early_warning, crisis_plan, crisis_status, r
 
             <p style="margin:8px 0;"><b>Aksiyon notu:</b> {esc(item.get("action_note", ""))}</p>
 
-            {social_account_meta_html(item)}
-
             <div style="margin-top:10px;">
                 {social_link(item.get("link", ""))}
             </div>
         </div>
         """
 
-    if not risky_social_cards:
-        risky_social_cards = """
+    if not risky_social_content:
+        risky_social_content = """
         <div class="card">
             Riskli sosyal medya kaydı bulunamadı.
             <br><small>Şu an ekip kontrolü gerektiren yüksek riskli sosyal medya kaydı görünmüyor.</small>
         </div>
         """
 
-    risky_reply_cards = ""
+    risky_reply_content = ""
 
     for item in risky_replies:
         reply_text = item.get("reply_text", "")
@@ -4570,7 +4566,7 @@ def build_team_report(news, social, early_warning, crisis_plan, crisis_status, r
             badge_bg = "#fff7ed"
             badge_text = "Takip edilecek yanıt"
 
-        risky_reply_cards += f"""
+        risky_reply_content += f"""
         <div class="card" style="border-left: 5px solid {badge_color}; margin: 14px 0;">
             <div style="display:flex; justify-content:space-between; gap:10px; align-items:flex-start; flex-wrap:wrap; margin-bottom:8px;">
                 <div>
@@ -4601,26 +4597,13 @@ def build_team_report(news, social, early_warning, crisis_plan, crisis_status, r
         </div>
         """
 
-    if not risky_reply_cards:
-        risky_reply_cards = """
+    if not risky_reply_content:
+        risky_reply_content = """
         <div class="card">
             Riskli Başkan X yanıtı bulunamadı.
             <br><small>Başkan X yanıtlarında şu an ekip müdahalesi gerektiren yüksek risk görünmüyor.</small>
         </div>
         """
-        crisis_log_rows += f"""
-<tr>
-<td>{esc(item.get("time", ""))}</td>
-<td>{esc(item.get("event", ""))}</td>
-<td>{esc(item.get("action", ""))}</td>
-<td>{esc(item.get("result", ""))}</td>
-<td>{esc(item.get("responsible", ""))}</td>
-<td>{esc(item.get("next_step", ""))}</td>
-</tr>
-"""
-
-    if not crisis_log_rows:
-        crisis_log_rows = "<tr><td colspan='6'>Henüz müdahale kaydı yok.</td></tr>"
 
     alert_content = (
         f"""
@@ -4661,24 +4644,22 @@ def build_team_report(news, social, early_warning, crisis_plan, crisis_status, r
         else f"""<div class="card">{team_action_rows}</div>"""
     )
 
-    if "risky_social_cards" not in locals():
-        risky_social_cards = """
-        <div class="card">
-            Riskli sosyal medya kaydı bulunamadı.
-            <br><small>Şu an ekip kontrolü gerektiren yüksek riskli sosyal medya kaydı görünmüyor.</small>
-        </div>
+    crisis_log_rows = ""
+
+    for item in crisis_log:
+        crisis_log_rows += f"""
+        <tr>
+            <td>{esc(item.get("time", ""))}</td>
+            <td>{esc(item.get("event", ""))}</td>
+            <td>{esc(item.get("action", ""))}</td>
+            <td>{esc(item.get("result", ""))}</td>
+            <td>{esc(item.get("responsible", ""))}</td>
+            <td>{esc(item.get("next_step", ""))}</td>
+        </tr>
         """
 
-    if "risky_reply_cards" not in locals():
-        risky_reply_cards = """
-        <div class="card">
-            Riskli Başkan X yanıtı bulunamadı.
-            <br><small>Başkan X yanıtlarında şu an ekip müdahalesi gerektiren yüksek risk görünmüyor.</small>
-        </div>
-        """
-
-    risky_social_content = risky_social_cards
-    risky_reply_content = risky_reply_cards
+    if not crisis_log_rows:
+        crisis_log_rows = "Henüz müdahale kaydı yok."
 
     crisis_log_content = (
         f"""

@@ -3581,6 +3581,38 @@ def x_service_complaint_followup_html(social):
             continue
 
         record_type = service_record_type(item, followup)
+        
+        account_norm = normalize_text(item.get("account", ""))
+        text_norm_for_pr = normalize_text(item.get("content", "") or item.get("text", ""))
+
+        is_official_president_or_municipality = (
+            "mesutkocagoztr" in account_norm
+            or "kepezbelediyesi" in account_norm
+        )
+
+        is_direct_reply_or_public_response = (
+            text_norm_for_pr.startswith("haberantalya")
+            or text_norm_for_pr.startswith("akdeniz")
+            or text_norm_for_pr.startswith("benfatih")
+            or text_norm_for_pr.startswith("hissearz")
+            or "merhabalar" in text_norm_for_pr
+            or "dm" in text_norm_for_pr
+            or "adres bilgileri" in text_norm_for_pr
+            or "bahse konu" in text_norm_for_pr
+        )
+
+        is_general_pr_or_service_announcement = (
+            is_official_president_or_municipality
+            and not is_direct_reply_or_public_response
+            and record_type in [
+                "Takip edilecek hizmet başlığı",
+                "Kurumsal duyuru / hizmet paylaşımı",
+                "Kurumsal duyuru / kontrol edilecek paylaşım",
+            ]
+        )
+
+        if is_general_pr_or_service_announcement:
+            continue
 
         items.append({
             "date": item.get("date", ""),

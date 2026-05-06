@@ -2836,29 +2836,178 @@ def president_x_post_classification_html(posts):
         </div>
         """
 
-    rows_html = ""
+    def post_class_style(post_class):
+        class_norm = normalize_text(post_class)
+
+        if "kriz" in class_norm or "hukuki" in class_norm:
+            return "#b91c1c", "#fef2f2"
+
+        if "insani" in class_norm or "taziye" in class_norm:
+            return "#7c3aed", "#f5f3ff"
+
+        if "hizmet" in class_norm or "proje" in class_norm:
+            return "#0369a1", "#f0f9ff"
+
+        if "mahalle" in class_norm or "saha" in class_norm:
+            return "#166534", "#f0fdf4"
+
+        if "kultur" in class_norm or "kültür" in class_norm or "toplum" in class_norm:
+            return "#0f766e", "#ecfdf5"
+
+        if "spor" in class_norm or "sehir" in class_norm or "şehir" in class_norm:
+            return "#1d4ed8", "#eff6ff"
+
+        if "siyasi" in class_norm or "algi" in class_norm or "algı" in class_norm:
+            return "#b45309", "#fff7ed"
+
+        if "mali" in class_norm or "borc" in class_norm or "borç" in class_norm:
+            return "#b45309", "#fffbeb"
+
+        return "#475569", "#f8fafc"
+
+    def performance_style(performance):
+        perf_norm = normalize_text(performance)
+
+        if "yuksek" in perf_norm or "yüksek" in perf_norm:
+            return "#166534", "#f0fdf4"
+
+        if "iyi" in perf_norm:
+            return "#0369a1", "#f0f9ff"
+
+        if "orta" in perf_norm:
+            return "#b45309", "#fff7ed"
+
+        if "dusuk" in perf_norm or "düşük" in perf_norm:
+            return "#475569", "#f8fafc"
+
+        return "#475569", "#f8fafc"
+
+    cards_html = ""
 
     for post in posts[:10]:
         result = classify_president_x_post(post)
-        content = str(post.get("content", "") or "")
-        if len(content) > 180:
-            content = content[:180] + "..."
 
-        rows_html += f"""
-        <tr>
-            <td>{esc(post.get("date", ""))}</td>
-            <td>{esc(result.get("class", ""))}</td>
-            <td>{esc(result.get("performance", ""))}</td>
-            <td>{int(result.get("engagement", 0))}</td>
-            <td>{int(result.get("replies", 0))}</td>
-            <td>
+        post_class = result.get("class", "")
+        performance = result.get("performance", "")
+
+        class_color, class_bg = post_class_style(post_class)
+        perf_color, perf_bg = performance_style(performance)
+
+        content = str(post.get("content", "") or "")
+        if len(content) > 260:
+            content = content[:260] + "..."
+
+        engagement = int(result.get("engagement", 0))
+        replies = int(result.get("replies", 0))
+        likes = int(result.get("likes", 0))
+
+        cards_html += f"""
+        <div class="card" style="
+            border-left: 5px solid {class_color};
+            margin: 14px 0;
+        ">
+            <div style="
+                display:flex;
+                justify-content:space-between;
+                gap:10px;
+                align-items:flex-start;
+                flex-wrap:wrap;
+                margin-bottom:8px;
+            ">
+                <div>
+                    <b>{esc(post_class)}</b>
+                    <br><small>{esc(post.get("date", ""))} • {esc(post.get("account", ""))}</small>
+                </div>
+
+                <div style="
+                    background:{class_bg};
+                    color:{class_color};
+                    border:1px solid {class_color};
+                    border-radius:999px;
+                    padding:5px 9px;
+                    font-size:12px;
+                    font-weight:700;
+                    white-space:normal;
+                ">
+                    {esc(post_class)}
+                </div>
+            </div>
+
+            <p style="margin:8px 0;">
                 {esc(content)}
-                <br><small><b>İletişim yorumu:</b> {esc(result.get("communication_note", ""))}</small>
-                <br><small><b>Performans notu:</b> {esc(result.get("performance_note", ""))}</small>
-                <br><small><b>Aksiyon:</b> {esc(result.get("action_note", ""))}</small>
-            </td>
-            <td>{social_link(post.get("url", ""))}</td>
-        </tr>
+            </p>
+
+            <div style="
+                display:flex;
+                gap:8px;
+                flex-wrap:wrap;
+                margin:10px 0;
+            ">
+                <span style="
+                    background:#f8fafc;
+                    border:1px solid #cbd5e1;
+                    color:#334155;
+                    border-radius:999px;
+                    padding:5px 9px;
+                    font-size:12px;
+                    font-weight:700;
+                ">
+                    Etkileşim: {engagement}
+                </span>
+
+                <span style="
+                    background:#f8fafc;
+                    border:1px solid #cbd5e1;
+                    color:#334155;
+                    border-radius:999px;
+                    padding:5px 9px;
+                    font-size:12px;
+                    font-weight:700;
+                ">
+                    Beğeni: {likes}
+                </span>
+
+                <span style="
+                    background:#f8fafc;
+                    border:1px solid #cbd5e1;
+                    color:#334155;
+                    border-radius:999px;
+                    padding:5px 9px;
+                    font-size:12px;
+                    font-weight:700;
+                ">
+                    Yanıt: {replies}
+                </span>
+
+                <span style="
+                    background:{perf_bg};
+                    border:1px solid {perf_color};
+                    color:{perf_color};
+                    border-radius:999px;
+                    padding:5px 9px;
+                    font-size:12px;
+                    font-weight:700;
+                ">
+                    {esc(performance)}
+                </span>
+            </div>
+
+            <p style="margin:8px 0;">
+                <b>İletişim yorumu:</b> {esc(result.get("communication_note", ""))}
+            </p>
+
+            <p style="margin:8px 0;">
+                <b>Performans notu:</b> {esc(result.get("performance_note", ""))}
+            </p>
+
+            <p style="margin:8px 0;">
+                <b>Aksiyon:</b> {esc(result.get("action_note", ""))}
+            </p>
+
+            <div style="margin-top:10px;">
+                {social_link(post.get("url", "") or post.get("link", ""))}
+            </div>
+        </div>
         """
 
     return f"""
@@ -2867,18 +3016,7 @@ def president_x_post_classification_html(posts):
         <br><small>Bu bölüm Başkan’ın kendi X paylaşımlarını sadece etkileşim olarak değil, siyasi iletişim ve içerik türü açısından da değerlendirir.</small>
     </div>
 
-    <table>
-        <tr>
-            <th>Tarih</th>
-            <th>Gönderi Türü</th>
-            <th>Performans</th>
-            <th>Etkileşim</th>
-            <th>Yanıt</th>
-            <th>İçerik / Yorum</th>
-            <th>Link</th>
-        </tr>
-        {rows_html}
-    </table>
+    {cards_html}
     """
 
 def read_president_x_replies():

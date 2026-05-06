@@ -2776,7 +2776,9 @@ def classify_president_x_post(item):
     elif any(term in text for term in ["meclis", "meclis toplantisi", "meclis toplantısı", "gundem maddesi", "gündem maddesi", "mayis ayi meclisi", "mayıs ayı meclisi", "belediye meclisi"]):
         post_class = "Kurumsal duyuru / meclis bilgilendirmesi"
         communication_note = "Kurumsal bilgilendirme içeriği. Sade, resmi ve anlaşılır dil korunmalı; vatandaşın anlayacağı kısa gündem özeti eklenirse erişim artabilir."
-
+    elif any(term in text for term in ["yörük", "yoruk", "hidirellez", "hıdırellez", "kultur", "kültür", "senlik", "şenlik", "festival", "konser", "bayram", "kutlama", "anma", "nevruz", "yerel etkinlik", "gelenek", "kadim"]):
+        post_class = "Yerel kültür / toplum etkinliği"
+        communication_note = "Yerel kültür, mahalle aidiyeti ve sıcak toplum ilişkisi açısından değerli içerik. Gelenek, mahalle adı, katılım ve insan hikayesi vurgusu güçlendirilebilir."
     elif any(term in text for term in ["video", "youtube", "youtu", "t co", "link", "canli yayin", "canlı yayın"]):
         post_class = "Video/link paylaşımı / kontrol edilecek içerik"
         communication_note = "Link veya video ağırlıklı paylaşım. İçeriğin ne anlattığı kısa bir cümleyle açıklanmalı; görsel başlık ve ilk cümle güçlendirilirse etkileşim artabilir."
@@ -2792,9 +2794,6 @@ def classify_president_x_post(item):
     elif any(term in text for term in ["mahalle", "saha", "ziyaret", "vatandas", "vatandaş", "esnaf", "muhtar"]):
         post_class = "Mahalle / saha teması"
         communication_note = "Başkanın sahada ve ulaşılabilir görünmesini destekler. Benzer içerikler düzenli artırılabilir."
-    elif any(term in text for term in ["hidirellez", "hıdırellez", "kultur", "kültür", "senlik", "şenlik", "festival", "konser", "bayram", "kutlama", "anma", "nevruz", "yerel etkinlik"]):
-        post_class = "Yerel kültür / toplum etkinliği"
-        communication_note = "Yerel kültür, mahalle aidiyeti ve sıcak toplum ilişkisi açısından değerli içerik. Gelenek, mahalle adı, katılım ve insan hikayesi vurgusu güçlendirilebilir."
     elif any(term in text for term in ["cocuk", "çocuk", "aile", "23 nisan", "senlik", "şenlik", "festival", "kadin", "kadın", "genç"]):
         post_class = "Sosyal etkinlik / çocuk-aile"
         communication_note = "Pozitif duygu üretme potansiyeli yüksek. İnsan hikayesi ve sıcak görsellerle desteklenmeli."

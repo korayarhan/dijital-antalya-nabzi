@@ -2581,8 +2581,22 @@ def report_main_menu():
     </div>
     """
 
-def accordion_section(title, color, bg, content, opened=False):
+def accordion_section(title, color, bg, content, opened=False, subtitle=""):
     open_attr = " open" if opened else ""
+
+    subtitle_html = ""
+    if subtitle:
+        subtitle_html = f"""
+                <div style="
+                    font-size: 13px;
+                    font-weight: 600;
+                    opacity: 0.78;
+                    margin-top: 6px;
+                    line-height: 1.35;
+                ">
+                    {esc(subtitle)}
+                </div>
+        """
 
     return f"""
     <details class="accordion-section"{open_attr} style="
@@ -2610,7 +2624,10 @@ def accordion_section(title, color, bg, content, opened=False):
                 gap: 10px;
                 box-shadow: 0 5px 14px rgba(15, 23, 42, 0.04);
             ">
-                <span>{esc(title)}</span>
+                <span>
+                    <span>{esc(title)}</span>
+                    {subtitle_html}
+                </span>
                 <span style="
                     font-size: 16px;
                     font-weight: 800;
@@ -4782,6 +4799,46 @@ def build_team_report(news, social, early_warning, crisis_plan, crisis_status, r
         else f"""<div class="card">{crisis_log_rows}</div>"""
     )
 
+    # Accordion başlıkları için kısa özetler
+    def is_x_summary_item(item):
+        platform_norm = normalize_text(item.get("platform", ""))
+        source_norm = normalize_text(item.get("source_type", ""))
+        return (
+            "twitter" in platform_norm
+            or platform_norm == "x"
+            or platform_norm.startswith("x ")
+            or "x" in source_norm
+        )
+
+    x_items_for_summary = [item for item in social if is_x_summary_item(item)]
+
+    risky_x_for_summary = [
+        item for item in x_items_for_summary
+        if safe_float(item.get("account_adjusted_risk_score", item.get("risk_score", 0))) >= 6
+        and not is_official_pr_or_service_item(item)
+    ]
+
+    risky_reply_count_for_summary = len([
+        item for item in president_replies
+        if safe_float(item.get("risk_score", 0)) >= 6
+    ])
+
+    crisis_subtitle = f"{early_warning.get('decision', '')} • Risk: {crisis_plan.get('level', '')}"
+    learning_subtitle = f"Öne çıkan konu: {learning_note.get('repeated_topic', '')}"
+    youtube_subtitle = f"{len(youtube_summary)} kaynak / kanal takipte"
+    weekly_subtitle = f"{len(x_items_for_summary)} X kaydı • {len(risky_x_for_summary)} riskli"
+    x_social_subtitle = f"{len(x_items_for_summary)} kayıt • {len(risky_x_for_summary)} riskli/takip gerektiren kayıt"
+    service_subtitle = "Vatandaş şikayeti, kurumsal cevap ve hizmet duyurusu ayrımı"
+    president_post_subtitle = f"Son {min(len(president_posts), 10)} Başkan X gönderisi analiz edildi"
+    president_reply_subtitle = f"{len(president_replies)} yanıt • {risky_reply_count_for_summary} riskli yanıt"
+    president_topic_subtitle = "Başkan X yanıtlarında tekrar eden konular"
+    unmapped_subtitle = "Hesap haritasına eklenmesi gereken X hesapları"
+    alert_subtitle = f"Son {len(alert_logs)} bildirim / alarm kaydı"
+    team_action_subtitle = f"Son {len(team_actions)} ekip aksiyon kaydı"
+    risky_social_subtitle = f"En riskli {len(risky_social)} sosyal medya kaydı"
+    risky_reply_subtitle = f"{len(risky_replies)} riskli Başkan X yanıtı"
+    crisis_log_subtitle = f"{len(crisis_log)} müdahale kaydı"
+
     crisis_alarm_section = accordion_section(
         "🚨 Güncel Kriz / Alarm Özeti",
         "#b91c1c",
@@ -4796,6 +4853,8 @@ def build_team_report(news, social, early_warning, crisis_plan, crisis_status, r
         </div>
         """,
         opened=True,
+        subtitle=crisis_subtitle,
+
     )
 
     learning_section = accordion_section(
@@ -4813,6 +4872,8 @@ def build_team_report(news, social, early_warning, crisis_plan, crisis_status, r
         </div>
         """,
         opened=True,
+        subtitle=learning_subtitle,
+
     )
 
     youtube_section = accordion_section(
@@ -4825,6 +4886,8 @@ def build_team_report(news, social, early_warning, crisis_plan, crisis_status, r
         </div>
         {youtube_summary_html(youtube_summary)}
         """,
+        subtitle=youtube_subtitle,
+
     )
 
     weekly_section = accordion_section(
@@ -4833,6 +4896,8 @@ def build_team_report(news, social, early_warning, crisis_plan, crisis_status, r
         "#f8fafc",
         
         weekly_summary,
+        subtitle=weekly_subtitle,
+
     )
 
     x_social_section = accordion_section(
@@ -4841,6 +4906,8 @@ def build_team_report(news, social, early_warning, crisis_plan, crisis_status, r
         "#f8fafc",
         
         x_summary_html,
+        subtitle=x_social_subtitle,
+
     )
 
     service_section = accordion_section(
@@ -4849,6 +4916,8 @@ def build_team_report(news, social, early_warning, crisis_plan, crisis_status, r
         "#fffbeb",
         service_complaint_followup,
         opened=True,
+        subtitle=service_subtitle,
+
     )
 
     president_post_section = accordion_section(
@@ -4856,6 +4925,8 @@ def build_team_report(news, social, early_warning, crisis_plan, crisis_status, r
         "#334155",
         "#f8fafc",
         president_post_classification,
+        subtitle=president_post_subtitle,
+
     )
 
     president_reply_detail_section = accordion_section(
@@ -4863,6 +4934,8 @@ def build_team_report(news, social, early_warning, crisis_plan, crisis_status, r
         "#334155",
         "#f8fafc",
         president_replies_detail,
+        subtitle=president_reply_subtitle,
+
     )
 
     president_reply_topic_section = accordion_section(
@@ -4870,6 +4943,8 @@ def build_team_report(news, social, early_warning, crisis_plan, crisis_status, r
         "#334155",
         "#f8fafc",
         president_reply_topics,
+        subtitle=president_topic_subtitle,
+
     )
 
     unmapped_section = accordion_section(
@@ -4877,6 +4952,8 @@ def build_team_report(news, social, early_warning, crisis_plan, crisis_status, r
         "#334155",
         "#f8fafc",
         unmapped_x_accounts,
+        subtitle=unmapped_subtitle,
+
     )
 
     alert_section = accordion_section(
@@ -4884,6 +4961,8 @@ def build_team_report(news, social, early_warning, crisis_plan, crisis_status, r
         "#0369a1",
         "#f0f9ff",
         alert_content,
+        subtitle=alert_subtitle,
+
     )
 
     team_action_section = accordion_section(
@@ -4891,6 +4970,8 @@ def build_team_report(news, social, early_warning, crisis_plan, crisis_status, r
         "#16a34a",
         "#f0fdf4",
         team_action_content,
+        subtitle=team_action_subtitle,
+
     )
 
     risky_social_section = accordion_section(
@@ -4898,6 +4979,8 @@ def build_team_report(news, social, early_warning, crisis_plan, crisis_status, r
         "#b91c1c",
         "#fef2f2",
         risky_social_content,
+        subtitle=risky_social_subtitle,
+        
     )
 
     risky_reply_section = accordion_section(
@@ -4905,6 +4988,8 @@ def build_team_report(news, social, early_warning, crisis_plan, crisis_status, r
         "#b45309",
         "#fff7ed",
         risky_reply_content,
+        subtitle=risky_reply_subtitle,
+
     )
 
     crisis_log_section = accordion_section(
@@ -4912,6 +4997,8 @@ def build_team_report(news, social, early_warning, crisis_plan, crisis_status, r
         "#d97706",
         "#fffbeb",
         crisis_log_content,
+        subtitle=crisis_log_subtitle,
+
     )
 
     team_doc = f"""

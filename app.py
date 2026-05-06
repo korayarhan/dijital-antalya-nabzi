@@ -4271,10 +4271,11 @@ def clean_topic_title(raw_topic):
 def president_x_reply_topic_summary_html(replies):
     if not replies:
         return """
-<div class="card">
-<p class="small">Başkan X yanıtlarında konu analizi yapılacak veri bulunamadı.</p>
-</div>
-"""
+        <div class="card">
+            Başkan X yanıtlarında konu analizi yapılacak veri bulunamadı.
+            <br><small>Başkan X yanıtları geldikçe tekrar eden konu başlıkları burada kart olarak görünecek.</small>
+        </div>
+        """
 
     topic_map = {}
 
@@ -4285,8 +4286,9 @@ def president_x_reply_topic_summary_html(replies):
 
         topic = post_topic or topic_key(combined)
         topic = clean_topic_title(topic)
+
         if not topic:
-            topic = "genel"
+            topic = "Genel yorum gündemi"
 
         if topic not in topic_map:
             topic_map[topic] = {
@@ -4324,8 +4326,8 @@ def president_x_reply_topic_summary_html(replies):
 
     if risky_topics:
         status_text = "Başkan X yanıtlarında risk içeren konu başlıkları var. Ekip yorumları gözle kontrol etmeli."
-        status_color = "#d97706"
-        status_bg = "#fffbeb"
+        status_color = "#b45309"
+        status_bg = "#fff7ed"
         action_text = "Riskli başlıkların yayılıp yayılmadığı ve aynı konuda yeni yanıt gelip gelmediği takip edilmeli."
     elif repeated_topics:
         status_text = "Başkan X yanıtlarında tekrar eden konu var. Şimdilik risk düşük ama izlenmeli."
@@ -4338,52 +4340,132 @@ def president_x_reply_topic_summary_html(replies):
         status_bg = "#f0fdf4"
         action_text = "Standart takip yeterli."
 
-    rows_html = ""
+    cards_html = ""
 
     for item in topics:
         sample_text = item.get("sample_text", "")
-        if len(sample_text) > 180:
-            sample_text = sample_text[:180] + "..."
+        if len(sample_text) > 220:
+            sample_text = sample_text[:220] + "..."
 
-        rows_html += f"""
-<tr>
-<td>{esc(item.get("topic", ""))}</td>
-<td>{item.get("count", 0)}</td>
-<td>{item.get("risk_count", 0)}</td>
-<td>{item.get("max_risk", 0)}/10</td>
-<td>{esc(item.get("sample_account", ""))}</td>
-<td>{esc(sample_text)}</td>
-<td>{social_link(item.get("sample_link", ""))}</td>
-</tr>
-"""
+        max_risk = safe_score_value(item.get("max_risk", 0))
+        risk_count = int(item.get("risk_count", 0))
+        count = int(item.get("count", 0))
 
-    if not rows_html:
-        rows_html = "<tr><td colspan='7'>Konu özeti üretilemedi.</td></tr>"
+        if risk_count >= 1 or max_risk >= 6:
+            badge_color = "#b45309"
+            badge_bg = "#fff7ed"
+            badge_text = "Riskli konu"
+        elif count >= 2:
+            badge_color = "#2563eb"
+            badge_bg = "#eff6ff"
+            badge_text = "Tekrar eden konu"
+        else:
+            badge_color = "#475569"
+            badge_bg = "#f8fafc"
+            badge_text = "Standart takip"
+
+        cards_html += f"""
+        <div class="card" style="
+            border-left: 5px solid {badge_color};
+            margin: 14px 0;
+        ">
+            <div style="
+                display:flex;
+                justify-content:space-between;
+                gap:10px;
+                align-items:flex-start;
+                flex-wrap:wrap;
+                margin-bottom:8px;
+            ">
+                <div>
+                    <b>{esc(item.get("topic", ""))}</b>
+                    <br><small>Yanıt sayısı: {count} • Riskli yanıt: {risk_count}</small>
+                </div>
+
+                <div style="
+                    background:{badge_bg};
+                    color:{badge_color};
+                    border:1px solid {badge_color};
+                    border-radius:999px;
+                    padding:5px 9px;
+                    font-size:12px;
+                    font-weight:700;
+                ">
+                    {esc(badge_text)}
+                </div>
+            </div>
+
+            <div style="
+                display:flex;
+                gap:8px;
+                flex-wrap:wrap;
+                margin:10px 0;
+            ">
+                <span style="
+                    background:#f8fafc;
+                    border:1px solid #cbd5e1;
+                    color:#334155;
+                    border-radius:999px;
+                    padding:5px 9px;
+                    font-size:12px;
+                    font-weight:700;
+                ">
+                    En yüksek risk: {max_risk}/10
+                </span>
+
+                <span style="
+                    background:#f8fafc;
+                    border:1px solid #cbd5e1;
+                    color:#334155;
+                    border-radius:999px;
+                    padding:5px 9px;
+                    font-size:12px;
+                    font-weight:700;
+                ">
+                    Örnek hesap: {esc(item.get("sample_account", ""))}
+                </span>
+            </div>
+
+            <p style="margin:8px 0;">
+                <b>Örnek yanıt:</b> {esc(sample_text)}
+            </p>
+
+            <div style="margin-top:10px;">
+                {social_link(item.get("sample_link", ""))}
+            </div>
+        </div>
+        """
+
+    if not cards_html:
+        cards_html = """
+        <div class="card">
+            Konu özeti üretilemedi.
+            <br><small>Başkan X yanıtları çoğaldıkça tekrar eden konu kartları burada görünecek.</small>
+        </div>
+        """
 
     return f"""
-<div class="card">
-<p>
-<span style="display:inline-block; padding:6px 10px; border-radius:999px; border:1px solid {status_color}; background:{status_bg}; color:{status_color}; font-weight:700;">
-{esc(status_text)}
-</span>
-</p>
+    <div class="card">
+        <span style="
+            display:inline-block;
+            background:{status_bg};
+            color:{status_color};
+            border:1px solid {status_color};
+            border-radius:999px;
+            padding:7px 11px;
+            font-size:13px;
+            font-weight:700;
+        ">
+            {esc(status_text)}
+        </span>
 
-<p><b>İlk aksiyon:</b> {esc(action_text)}</p>
+        <p style="margin:12px 0 0 0;">
+            <b>İlk aksiyon:</b> {esc(action_text)}
+        </p>
+    </div>
 
-<table>
-<tr>
-<th>Konu</th>
-<th>Yanıt Sayısı</th>
-<th>Riskli Yanıt</th>
-<th>En Yüksek Risk</th>
-<th>Örnek Hesap</th>
-<th>Örnek Yanıt</th>
-<th>Link</th>
-</tr>
-{rows_html}
-</table>
-</div>
-"""
+    {cards_html}
+    """
 
 def append_weekly_x_summary(social, president_replies):
     import csv

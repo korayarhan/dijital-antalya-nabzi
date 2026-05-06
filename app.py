@@ -4373,7 +4373,7 @@ def build_team_report(news, social, early_warning, crisis_plan, crisis_status, r
     )
 
     learning_section = accordion_section(
-        "🧠 Günlük Sistem Öğrenme "
+        "🧠 Günlük Sistem Öğrenme Notu",
         "#334155",
         "#f8fafc",
         f"""
@@ -4387,6 +4387,7 @@ def build_team_report(news, social, early_warning, crisis_plan, crisis_status, r
         </div>
         """,
         opened=True,
+    )
     )
 
     youtube_section = accordion_section(

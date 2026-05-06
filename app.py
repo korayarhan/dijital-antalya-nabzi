@@ -4725,24 +4725,86 @@ def build_team_report(news, social, early_warning, crisis_plan, crisis_status, r
         </div>
         """
 
-    alert_content = (
-        f"""
-        <table>
-            <tr>
-                <th>Tarih</th>
-                <th>Saat</th>
-                <th>Risk</th>
-                <th>Karar</th>
-                <th>Kriz Başlığı</th>
-                <th>Mail</th>
-                <th>Not</th>
-            </tr>
-            {alert_rows}
-        </table>
+    alert_content = ""
+
+    for item in alert_logs:
+        risk_text = item.get("risk_level", "")
+        decision_text = item.get("decision", "")
+        title_text = item.get("crisis_title", "")
+        mail_text = item.get("email_sent", "")
+        note_text = item.get("note", "")
+
+        risk_norm = normalize_text(risk_text)
+
+        if "yuksek" in risk_norm or "yüksek" in risk_norm:
+            badge_color = "#b91c1c"
+            badge_bg = "#fef2f2"
+            badge_text = "Yüksek risk alarmı"
+        elif "orta" in risk_norm:
+            badge_color = "#b45309"
+            badge_bg = "#fff7ed"
+            badge_text = "Orta risk alarmı"
+        else:
+            badge_color = "#0369a1"
+            badge_bg = "#f0f9ff"
+            badge_text = "Alarm kaydı"
+
+        alert_content += f"""
+        <div class="card" style="
+            border-left: 5px solid {badge_color};
+            margin: 14px 0;
+        ">
+            <div style="
+                display:flex;
+                justify-content:space-between;
+                gap:10px;
+                align-items:flex-start;
+                flex-wrap:wrap;
+                margin-bottom:8px;
+            ">
+                <div>
+                    <b>{esc(title_text)}</b>
+                    <br><small>{esc(item.get("date", ""))} • Saat: {esc(item.get("time", ""))}</small>
+                </div>
+
+                <div style="
+                    background:{badge_bg};
+                    color:{badge_color};
+                    border:1px solid {badge_color};
+                    border-radius:999px;
+                    padding:5px 9px;
+                    font-size:12px;
+                    font-weight:700;
+                ">
+                    {esc(badge_text)}
+                </div>
+            </div>
+
+            <p style="margin:8px 0;">
+                <b>Risk:</b> {esc(risk_text)}
+            </p>
+
+            <p style="margin:8px 0;">
+                <b>Karar:</b> {esc(decision_text)}
+            </p>
+
+            <p style="margin:8px 0;">
+                <b>Mail gönderildi mi?</b> {esc(mail_text)}
+            </p>
+
+            <p style="margin:8px 0;">
+                <b>Not:</b> {esc(note_text)}
+            </p>
+        </div>
         """
-        if "<tr" in alert_rows
-        else f"""<div class="card">{alert_rows}</div>"""
-    )
+
+    if not alert_content:
+        alert_content = """
+        <div class="card">
+            Henüz bildirim / alarm kaydı yok.
+            <br><small>Yeni alarm kayıtları burada kart görünümünde listelenecek.</small>
+        </div>
+        """
 
     team_action_content = (
         f"""

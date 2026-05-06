@@ -5794,6 +5794,9 @@ def build_report(news, social, undated_news=None):
     now_tr = dt.datetime.utcnow() + dt.timedelta(hours=3)
     today = now_tr.date().isoformat()
     report_time = now_tr.strftime("%H:%M")
+    dashboard_day = today
+    if now_tr.hour < 6:
+        dashboard_day = (now_tr.date() - dt.timedelta(days=1)).isoformat()
     important, positive_news, risky_news = top_items(news)
     social_sum = social_summary(social)
     youtube_summary = read_youtube_summary()
@@ -5910,7 +5913,7 @@ def build_report(news, social, undated_news=None):
     president_reply_summary = president_x_replies_summary(president_replies)
     president_reply_html = president_x_replies_card(president_reply_summary)
     dashboard_html = president_dashboard_panel(
-        today,
+        dashboard_day,
         report_time,
         news,
         social,

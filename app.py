@@ -3711,10 +3711,45 @@ def x_social_summary_html(social, president_replies):
         if is_x_item:
             x_items.append(item)
 
+    def is_official_pr_or_service_item(item):
+        account = normalize_text(item.get("account", ""))
+        account_type = normalize_text(item.get("account_type", ""))
+        source_type = normalize_text(item.get("source_type", ""))
+
+        text = normalize_text(
+            f"{item.get('content', '')} {item.get('text', '')} {item.get('topic', '')} {item.get('action_note', '')}"
+        )
+
+        is_official_account = (
+            "mesutkocagoztr" in account
+            or "kepezbelediyesi" in account
+            or "baskan" in account_type
+            or "başkan" in account_type
+            or "kurumsal" in account_type
+            or "belediye" in account_type
+            or "baskan x hesabi" in source_type
+            or "başkan x hesabi" in source_type
+        )
+
+        serious_risk_terms = [
+            "teleferik", "facia", "kaza", "olum", "ölüm", "yarali", "yaralı",
+            "dava", "mahkeme", "savci", "savcı", "iddianame", "yargi", "yargı",
+            "sorusturma", "soruşturma", "tutuklama", "tutuklu", "ceza",
+            "yolsuzluk", "rüşvet", "rusvet", "usulsuz", "usulsüz",
+            "ihmal", "skandal", "protesto", "kriz"
+        ]
+
+        has_serious_risk = any(term in text for term in serious_risk_terms)
+
+        # Başkan / belediye hesabından gelen normal hizmet, duyuru veya PR içerikleri
+        # yüksek etki nedeniyle riskli sosyal medya kartına düşmesin.
+        return is_official_account and not has_serious_risk
+
     risky_x_items = sorted(
         [
             item for item in x_items
             if safe_score_value(item.get("account_adjusted_risk_score", item.get("risk_score", 0))) >= 6
+            and not is_official_pr_or_service_item(item)
         ],
         key=lambda x: safe_score_value(x.get("account_adjusted_risk_score", x.get("risk_score", 0))),
         reverse=True

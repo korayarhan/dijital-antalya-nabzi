@@ -4388,7 +4388,6 @@ def build_team_report(news, social, early_warning, crisis_plan, crisis_status, r
         """,
         opened=True,
     )
-    )
 
     youtube_section = accordion_section(
         "📺 YouTube Kanal Takibi",

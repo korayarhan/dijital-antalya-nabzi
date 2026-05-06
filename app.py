@@ -3602,7 +3602,7 @@ def x_service_complaint_followup_html(social):
         )
 
         if is_official_president_or_municipality and not is_direct_reply_or_public_response:
-    continue
+            continue
 
         items.append({
             "date": item.get("date", ""),

@@ -2805,6 +2805,67 @@ def president_dashboard_panel(today, report_time, news, social, president_posts,
     opportunity_news = sorted(news, key=lambda x: safe_score_value(x.get("opportunity", 0)), reverse=True)
     if opportunity_news:
         top_opportunity_news = opportunity_news[0].get("title", "")
+    if today_x:
+        x_nabiz_html = f"""
+        {dashboard_bar("Lehte", x_positive, len(today_x), "#16a34a")}
+        {dashboard_bar("Nötr", x_neutral, len(today_x), "#64748b")}
+        {dashboard_bar("Aleyhte", x_negative, len(today_x), "#dc2626")}
+
+        <p style="font-size:14px;color:#475569;">
+            X toplam görüntülenme: <b>{int(x_views)}</b> • Beğeni: <b>{int(x_likes)}</b> • Yorum: <b>{int(x_comments)}</b>
+        </p>
+        """
+    else:
+        x_nabiz_html = f"""
+        <div style="
+            background:#f8fafc;
+            border:1px solid #e2e8f0;
+            border-left:5px solid #7c3aed;
+            border-radius:16px;
+            padding:14px;
+            margin:10px 0;
+            color:#334155;
+            font-weight:800;
+            line-height:1.45;
+        ">
+            Bugün tarihli X kaydı yok.
+            <br>
+            <span style="color:#64748b;font-weight:700;">
+                Takip havuzunda {len(all_x_dashboard)} X kaydı var. Sistem izlemeye devam ediyor.
+            </span>
+        </div>
+        """
+
+    if today_youtube:
+        youtube_nabiz_html = f"""
+        {dashboard_bar("Lehte", yt_positive, len(today_youtube), "#16a34a")}
+        {dashboard_bar("Nötr", yt_neutral, len(today_youtube), "#64748b")}
+        {dashboard_bar("Aleyhte", yt_negative, len(today_youtube), "#dc2626")}
+
+        <p style="font-size:14px;color:#475569;">
+            YouTube toplam görüntülenme: <b>{int(yt_views)}</b> • Beğeni: <b>{int(yt_likes)}</b> • Yorum: <b>{int(yt_comments)}</b>
+        </p>
+        """
+    else:
+        youtube_nabiz_html = f"""
+        <div style="
+            background:#fff7ed;
+            border:1px solid #fed7aa;
+            border-left:5px solid #dc2626;
+            border-radius:16px;
+            padding:14px;
+            margin:10px 0;
+            color:#334155;
+            font-weight:800;
+            line-height:1.45;
+        ">
+            Bugün tarihli YouTube kaydı yok.
+            <br>
+            <span style="color:#64748b;font-weight:700;">
+                Takip havuzunda {len(all_youtube_dashboard)} YouTube kaydı var. Sistem izlemeye devam ediyor.
+            </span>
+        </div>
+        """
 
     return f"""
     <style>
@@ -2996,22 +3057,12 @@ def president_dashboard_panel(today, report_time, news, social, president_posts,
 
                     <div id="baskan-x" style="margin-top:16px;">
                         <h3>X Nabzı</h3>
-                        {dashboard_bar("Lehte", x_positive, len(today_x), "#16a34a")}
-                        {dashboard_bar("Nötr", x_neutral, len(today_x), "#64748b")}
-                        {dashboard_bar("Aleyhte", x_negative, len(today_x), "#dc2626")}
-                        <p style="font-size:14px;color:#475569;">
-                            X toplam görüntülenme: <b>{int(x_views)}</b> • Beğeni: <b>{int(x_likes)}</b> • Yorum: <b>{int(x_comments)}</b>
-                        </p>
+                        {x_nabiz_html}
                     </div>
 
                     <div id="baskan-youtube" style="margin-top:16px;">
                         <h3>YouTube Nabzı</h3>
-                        {dashboard_bar("Lehte", yt_positive, len(today_youtube), "#16a34a")}
-                        {dashboard_bar("Nötr", yt_neutral, len(today_youtube), "#64748b")}
-                        {dashboard_bar("Aleyhte", yt_negative, len(today_youtube), "#dc2626")}
-                        <p style="font-size:14px;color:#475569;">
-                            YouTube toplam görüntülenme: <b>{int(yt_views)}</b> • Beğeni: <b>{int(yt_likes)}</b> • Yorum: <b>{int(yt_comments)}</b>
-                        </p>
+                        {youtube_nabiz_html}
                     </div>
 
                     <div id="baskan-kriz" style="

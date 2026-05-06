@@ -4806,25 +4806,95 @@ def build_team_report(news, social, early_warning, crisis_plan, crisis_status, r
         </div>
         """
 
-    team_action_content = (
-        f"""
-        <table>
-            <tr>
-                <th>Tarih</th>
-                <th>Saat</th>
-                <th>Konu</th>
-                <th>Alınan Aksiyon</th>
-                <th>Sonuç</th>
-                <th>Sorumlu</th>
-                <th>Sıradaki Adım</th>
-                <th>Durum</th>
-            </tr>
-            {team_action_rows}
-        </table>
+    team_action_content = ""
+
+    for item in team_actions:
+        topic_text = item.get("alert_topic", "")
+        action_text = item.get("action_taken", "")
+        result_text = item.get("result", "")
+        responsible_text = item.get("responsible", "")
+        next_step_text = item.get("next_step", "")
+        status_text = item.get("status", "")
+
+        status_norm = normalize_text(status_text)
+
+        if "tamam" in status_norm or "çözüldü" in status_norm or "cozuldu" in status_norm:
+            badge_color = "#166534"
+            badge_bg = "#f0fdf4"
+            badge_text = "Tamamlandı"
+        elif "bekle" in status_norm or "devam" in status_norm:
+            badge_color = "#b45309"
+            badge_bg = "#fff7ed"
+            badge_text = "Takipte"
+        elif "başkan" in status_norm or "baskan" in status_norm:
+            badge_color = "#0369a1"
+            badge_bg = "#f0f9ff"
+            badge_text = "Başkan bilgisi"
+        else:
+            badge_color = "#16a34a"
+            badge_bg = "#f0fdf4"
+            badge_text = status_text or "Ekip aksiyonu"
+
+        team_action_content += f"""
+        <div class="card" style="
+            border-left: 5px solid {badge_color};
+            margin: 14px 0;
+        ">
+            <div style="
+                display:flex;
+                justify-content:space-between;
+                gap:10px;
+                align-items:flex-start;
+                flex-wrap:wrap;
+                margin-bottom:8px;
+            ">
+                <div>
+                    <b>{esc(topic_text)}</b>
+                    <br><small>{esc(item.get("date", ""))} • Saat: {esc(item.get("time", ""))}</small>
+                </div>
+
+                <div style="
+                    background:{badge_bg};
+                    color:{badge_color};
+                    border:1px solid {badge_color};
+                    border-radius:999px;
+                    padding:5px 9px;
+                    font-size:12px;
+                    font-weight:700;
+                ">
+                    {esc(badge_text)}
+                </div>
+            </div>
+
+            <p style="margin:8px 0;">
+                <b>Alınan aksiyon:</b> {esc(action_text)}
+            </p>
+
+            <p style="margin:8px 0;">
+                <b>Sonuç:</b> {esc(result_text)}
+            </p>
+
+            <p style="margin:8px 0;">
+                <b>Sorumlu:</b> {esc(responsible_text)}
+            </p>
+
+            <p style="margin:8px 0;">
+                <b>Sıradaki adım:</b> {esc(next_step_text)}
+            </p>
+
+            <p style="margin:8px 0;">
+                <b>Durum:</b> {esc(status_text)}
+            </p>
+        </div>
         """
-        if "<tr" in team_action_rows
-        else f"""<div class="card">{team_action_rows}</div>"""
-    )
+
+    if not team_action_content:
+        team_action_content = """
+        <div class="card">
+            Henüz ekip aksiyon kaydı yok.
+            <br><small>Bildirim veya kriz sonrası ekip aksiyonu girildiğinde burada kart olarak görünecek.</small>
+        </div>
+        """
 
     crisis_log_content = ""
 

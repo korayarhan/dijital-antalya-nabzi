@@ -2915,7 +2915,7 @@ def president_dashboard_panel(today, report_time, news, social, president_posts,
             border:1px solid #e2e8f0;
             border-left:5px solid #7c3aed;
             border-radius:16px;
-            padding:14px;
+            padding:12px;
             margin:10px 0;
             color:#334155;
             font-weight:800;
@@ -2946,8 +2946,8 @@ def president_dashboard_panel(today, report_time, news, social, president_posts,
             border:1px solid #fed7aa;
             border-left:5px solid #dc2626;
             border-radius:16px;
-            padding:14px;
-            margin:10px 0;
+            padding:12px;
+            margin:8px 0 0 0;
             color:#334155;
             font-weight:800;
             line-height:1.45;
@@ -3152,7 +3152,7 @@ def president_dashboard_panel(today, report_time, news, social, president_posts,
                     background:white;
                     border:1px solid #e5e7eb;
                     border-radius:22px;
-                    padding:18px;
+                    padding:16px;
                     margin:14px 0;
                 ">
                     <div style="
@@ -3176,7 +3176,7 @@ def president_dashboard_panel(today, report_time, news, social, president_posts,
                         display:grid;
                         grid-template-columns:1fr;
                         gap:10px;
-                        margin:0 0 12px 0;
+                        margin:0 0 10px 0;
                     ">
                         <div style="
                             background:#fef2f2;

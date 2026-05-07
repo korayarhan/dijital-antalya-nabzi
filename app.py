@@ -3058,6 +3058,65 @@ def build_platform_social_pulse_html(social, summary_day):
         shares = sum(safe_score_value(x.get("shares", 0)) for x in items)
         views = sum(safe_score_value(x.get("views", 0)) for x in items)
 
+        def platform_item_priority(x):
+            risk_value = safe_score_value(x.get("account_adjusted_risk_score", x.get("risk_score", 0)))
+            opportunity_value = safe_score_value(x.get("opportunity_score", 0))
+            engagement_value = (
+                safe_score_value(x.get("likes", 0))
+                + safe_score_value(x.get("comments", 0))
+                + safe_score_value(x.get("shares", 0))
+                + safe_score_value(x.get("views", 0)) / 1000
+            )
+            return (risk_value * 1000) + (opportunity_value * 200) + engagement_value
+
+        featured_item = max(items, key=platform_item_priority)
+        featured_url = clean_text(featured_item.get("url", ""))
+        featured_topic = clean_text(
+            featured_item.get("topic", "")
+            or featured_item.get("title", "")
+            or featured_item.get("content", "")
+            or "Öne çıkan içerik"
+        )
+
+        if featured_url.startswith("http"):
+            featured_link_html = f"""
+            <div style="margin-top:10px;">
+                <div style="
+                    font-size:12px;
+                    font-weight:800;
+                    color:#64748b;
+                    margin-bottom:6px;
+                    line-height:1.35;
+                ">
+                    Öne çıkan: {esc(featured_topic[:90])}
+                </div>
+                <a href="{esc(featured_url)}" target="_blank" rel="noopener noreferrer" style="
+                    display:inline-block;
+                    background:{color};
+                    color:white;
+                    text-decoration:none;
+                    border-radius:999px;
+                    padding:8px 12px;
+                    font-size:13px;
+                    font-weight:900;
+                ">
+                    Gönderiyi aç
+                </a>
+            </div>
+            """
+        else:
+            featured_link_html = f"""
+            <div style="
+                margin-top:10px;
+                font-size:12px;
+                font-weight:800;
+                color:#64748b;
+                line-height:1.35;
+            ">
+                Öne çıkan içerik için bağlantı yok.
+            </div>
+            """
+
         if risky_count > 0:
             color = "#dc2626"
             bg = "#fef2f2"
@@ -3116,6 +3175,8 @@ def build_platform_social_pulse_html(social, summary_day):
                 <br>
                 Görüntülenme: {int(views)}
             </div>
+            
+            {featured_link_html}
         </div>
         """
 

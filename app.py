@@ -2380,6 +2380,69 @@ def build_auto_crisis_summary(news, social_sum):
 
     return result
 
+def opportunity_context(text, source=""):
+    norm = normalize_text(text)
+    source_norm = normalize_text(source)
+
+    if any(term in norm for term in [
+        "asfalt", "yol", "altyapi", "alt yapi", "duaci",
+        "park", "bahce", "temizlik", "bakim", "onarim"
+    ]):
+        return (
+            "Hizmet görünürlüğü fırsatı",
+            "Kurumsal hesap + ilgili müdürlük",
+            "Sahadan fotoğraf/video toplanıp kısa hizmet kartı hazırlanmalı. Mahalle adı özellikle vurgulanmalı."
+        )
+
+    if any(term in norm for term in [
+        "mahalle", "muhtar", "saha", "hemsehri", "ziyaret", "vatandas"
+    ]):
+        return (
+            "Mahalle / saha teması fırsatı",
+            "Basın birimi + saha ekibi",
+            "Başkanın sahada dinleyen ve çözüm takip eden profili kısa içerikle desteklenmeli."
+        )
+
+    if any(term in norm for term in [
+        "cocuk", "aile", "kadin", "yasli", "sosyal", "yardim", "etkinlik"
+    ]):
+        return (
+            "Sosyal belediyecilik fırsatı",
+            "Basın birimi + sosyal destek ekibi",
+            "İnsani ve sıcak dil kullanılmalı. Fotoğraf/video varsa aile ve çocuk teması öne çıkarılmalı."
+        )
+
+    if any(term in norm for term in [
+        "spor", "antalyaspor", "turnuva", "genclik", "genc", "kulup"
+    ]):
+        return (
+            "Spor / şehir aidiyeti fırsatı",
+            "Başkan hesabı + kurumsal hesap",
+            "Şehir aidiyeti, gençlik ve ortak Antalya duygusu üzerinden pozitif iletişim yapılabilir."
+        )
+
+    if any(term in norm for term in [
+        "butce", "basari", "odul", "proje", "acilis", "yeni adres", "yatirim"
+    ]):
+        return (
+            "Kurumsal başarı / proje fırsatı",
+            "Basın birimi + kurumsal hesap",
+            "Başarı dili abartılmadan, somut hizmet ve vatandaş faydası üzerinden anlatılmalı."
+        )
+
+    if "baskan" in source_norm or "x performans" in source_norm:
+        return (
+            "Başkan iletişim performansı fırsatı",
+            "Başkan iletişim ekibi",
+            "İyi çalışan dil ve format not alınmalı; benzer içerik haftalık iletişim planına eklenmeli."
+        )
+
+    return (
+        "Genel PR / görünürlük fırsatı",
+        "Basın birimi",
+        "Başlık takip edilmeli; uygun görülürse kısa sosyal medya içeriğine çevrilmeli."
+    )
+
 def build_opportunity_summary(news, social, president_posts, summary_day):
     candidates = []
 
@@ -2394,14 +2457,18 @@ def build_opportunity_summary(news, social, president_posts, summary_day):
         opportunity_score = safe_score_value(item.get("opportunity", 0))
         risk_score = safe_score_value(item.get("risk", 0))
 
-        if opportunity_score >= 3 or tone == "Olumlu":
-            score = opportunity_score
-            if risk_score <= 3:
-                score += 1
+        if opportunity_score >= 5 or engagement >= 20 or views >= 1000:
+            score = opportunity_score + min(3, engagement / 50)
+            if risk_score >= 6:
+                score -= 2
+
+            opp_type, opp_owner, smart_action = opportunity_context(title, "Haber fırsatı")
 
             candidates.append({
                 "score": score,
                 "source": "Haber fırsatı",
+                "type": opp_type,
+                "owner": opp_owner,
                 "title": title or "Olumlu haber başlığı",
                 "reason": "Özet gününde olumlu/hizmet odaklı haber görünürlüğü oluştu.",
                 "action": "Bu başlık kısa sosyal medya içeriğiyle büyütülebilir.",
@@ -2451,20 +2518,27 @@ def build_opportunity_summary(news, social, president_posts, summary_day):
 
         if engagement > 0:
             score = min(10, 4 + (engagement / 50))
-
+            
+            opp_type, opp_owner, smart_action = opportunity_context(f"{topic} {content}", "Başkan X performans fırsatı")
+            
             candidates.append({
                 "score": score,
                 "source": "Başkan X performans fırsatı",
+                "type": opp_type,
+                "owner": opp_owner,
                 "title": topic or content[:90],
                 "reason": f"Başkan X gönderisi etkileşim aldı. Beğeni: {int(likes)}, repost: {int(reposts)}, toplam etkileşim: {int(engagement)}.",
-                "action": "Benzer dil ve format tekrar kullanılabilir; iyi çalışan başlık haftalık rapora alınmalı.",
+                "action": smart_action,
                 "format": "Başkan hesabından devam paylaşımı veya kurumsal hesapla destekleme",
                 "notify": "Mail gerekmez; performans fırsatı olarak izlenmeli.",
-            })
+
+           })
 
     if not candidates:
         return {
             "level": "Fırsat yok",
+            "type": "Belirgin fırsat yok",
+            "owner": "Standart takip",
             "title": "Özet gününde belirgin fırsat görünmüyor.",
             "source": "Genel takip",
             "score": 0,
@@ -2490,6 +2564,8 @@ def build_opportunity_summary(news, social, president_posts, summary_day):
     best["level"] = level
     best["notify"] = notify
     best["score"] = round(best_score, 1)
+    best.setdefault("type", "Genel PR / görünürlük fırsatı")
+    best.setdefault("owner", "Basın birimi")
     return best
 
 def crisis_action_plan(social_sum):
@@ -3076,6 +3152,8 @@ def president_dashboard_panel(today, report_time, news, social, president_posts,
     opportunity_level = str(opportunity_sum.get("level", "Fırsat yok"))
     opportunity_title = str(opportunity_sum.get("title", "Özet gününde belirgin fırsat görünmüyor."))
     opportunity_source = str(opportunity_sum.get("source", "Genel takip"))
+    opportunity_type = str(opportunity_sum.get("type", "Genel PR / görünürlük fırsatı"))
+    opportunity_owner = str(opportunity_sum.get("owner", "Basın birimi"))
     opportunity_reason = str(opportunity_sum.get("reason", "Fırsat değerlendirmesi yapılmadı."))
     opportunity_action = str(opportunity_sum.get("action", "Standart takip yeterli."))
     opportunity_format = str(opportunity_sum.get("format", "Standart takip"))
@@ -3157,6 +3235,8 @@ def president_dashboard_panel(today, report_time, news, social, president_posts,
             font-weight:800;
             line-height:1.35;
         ">
+            <div><b>Fırsat türü:</b> {esc(opportunity_type)}</div>
+            <div><b>Kim hareket etmeli?</b> {esc(opportunity_owner)}</div>
             <div><b>Önerilen format:</b> {esc(opportunity_format)}</div>
             <div><b>Bildirim kararı:</b> {esc(opportunity_notify)}</div>
         </div>

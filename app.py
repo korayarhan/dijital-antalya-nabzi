@@ -2788,6 +2788,21 @@ def president_dashboard_panel(today, report_time, news, social, president_posts,
     president_engagement = sum(safe_score_value(item.get("engagement", 0)) for item in today_president_posts)
     president_likes = sum(safe_score_value(item.get("likes", 0)) for item in today_president_posts)
     president_replies = sum(safe_score_value(item.get("replies", 0)) for item in today_president_posts)
+    president_reposts = sum(safe_score_value(item.get("reposts", 0)) for item in today_president_posts)
+    president_quotes = sum(safe_score_value(item.get("quotes", 0)) for item in today_president_posts)
+
+    president_max_metric = max(
+        president_likes,
+        president_replies,
+        president_reposts,
+        president_quotes,
+        1
+    )
+
+    president_likes_pct = int((president_likes / president_max_metric) * 100)
+    president_replies_pct = int((president_replies / president_max_metric) * 100)
+    president_reposts_pct = int((president_reposts / president_max_metric) * 100)
+    president_quotes_pct = int((president_quotes / president_max_metric) * 100)
 
     risk_level = str(crisis_plan.get("level", "") or "")
     risk_norm = normalize_text(risk_level)
@@ -2805,6 +2820,84 @@ def president_dashboard_panel(today, report_time, news, social, president_posts,
     opportunity_news = sorted(news, key=lambda x: safe_score_value(x.get("opportunity", 0)), reverse=True)
     if opportunity_news:
         top_opportunity_news = opportunity_news[0].get("title", "")
+        
+    if today_president_posts:
+        president_x_graph_html = f"""
+        <div id="baskan-x-performans-grafik" style="
+            background:#f0fdf4;
+            border:1px solid #bbf7d0;
+            border-left:6px solid #059669;
+            border-radius:20px;
+            padding:16px;
+            margin:14px 0 16px 0;
+        ">
+            <div style="font-size:18px;font-weight:900;color:#064e3b;margin-bottom:6px;">
+                👤 Başkan X Performans Grafiği
+            </div>
+
+            <div style="font-size:13px;font-weight:700;color:#64748b;margin-bottom:12px;line-height:1.35;">
+                Özet gününde {len(today_president_posts)} Başkan X gönderisi analiz edildi.
+                Toplam etkileşim: {int(president_engagement)}
+            </div>
+
+            <div style="margin-bottom:10px;">
+                <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:800;color:#334155;">
+                    <span>Beğeni</span><span>{int(president_likes)}</span>
+                </div>
+                <div style="height:10px;background:#dcfce7;border-radius:999px;overflow:hidden;margin-top:5px;">
+                    <div style="height:10px;width:{president_likes_pct}%;background:#16a34a;border-radius:999px;"></div>
+                </div>
+            </div>
+
+            <div style="margin-bottom:10px;">
+                <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:800;color:#334155;">
+                    <span>Repost</span><span>{int(president_reposts)}</span>
+                </div>
+                <div style="height:10px;background:#dcfce7;border-radius:999px;overflow:hidden;margin-top:5px;">
+                    <div style="height:10px;width:{president_reposts_pct}%;background:#16a34a;border-radius:999px;"></div>
+                </div>
+            </div>
+
+            <div style="margin-bottom:10px;">
+                <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:800;color:#334155;">
+                    <span>Yanıt</span><span>{int(president_replies)}</span>
+                </div>
+                <div style="height:10px;background:#dcfce7;border-radius:999px;overflow:hidden;margin-top:5px;">
+                    <div style="height:10px;width:{president_replies_pct}%;background:#16a34a;border-radius:999px;"></div>
+                </div>
+            </div>
+
+            <div>
+                <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:800;color:#334155;">
+                    <span>Alıntı / Quote</span><span>{int(president_quotes)}</span>
+                </div>
+                <div style="height:10px;background:#dcfce7;border-radius:999px;overflow:hidden;margin-top:5px;">
+                    <div style="height:10px;width:{president_quotes_pct}%;background:#16a34a;border-radius:999px;"></div>
+                </div>
+            </div>
+        </div>
+        """
+    else:
+        president_x_graph_html = f"""
+        <div id="baskan-x-performans-grafik" style="
+            background:#f8fafc;
+            border:1px solid #e2e8f0;
+            border-left:6px solid #64748b;
+            border-radius:20px;
+            padding:16px;
+            margin:14px 0 16px 0;
+            color:#334155;
+            font-weight:800;
+            line-height:1.45;
+        ">
+            👤 Özet gününde Başkan X gönderisi bulunamadı.
+            <br>
+            <span style="color:#64748b;font-weight:700;">
+                Gönderi geldiğinde performans grafiği burada görünecek.
+            </span>
+        </div>
+        """
+        
     if today_x:
         x_nabiz_html = f"""
         {dashboard_bar("Lehte", x_positive, len(today_x), "#16a34a")}
@@ -3052,6 +3145,8 @@ def president_dashboard_panel(today, report_time, news, social, president_posts,
                     {dashboard_kpi("Özet günü YouTube", len(today_youtube), youtube_kpi_note, "#dc2626", "#fff7ed")}
                     {dashboard_kpi("Başkan X performansı", len(today_president_posts), f"Etkileşim {int(president_engagement)} • Yanıt {int(president_replies)}", "#059669", "#ecfdf5")}
                 </div>
+
+                     {president_x_graph_html}
 
                 <div id="baskan-haber" style="
                     background:white;

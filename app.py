@@ -2380,6 +2380,118 @@ def build_auto_crisis_summary(news, social_sum):
 
     return result
 
+def build_opportunity_summary(news, social, president_posts, summary_day):
+    candidates = []
+
+    # 1) Haberlerden fırsat yakala
+    for item in news:
+        item_date = item.get("parsed_date", item.get("date", ""))
+        if not same_day(item_date, summary_day):
+            continue
+
+        title = clean_text(item.get("title", ""))
+        tone = str(item.get("tone", ""))
+        opportunity_score = safe_score_value(item.get("opportunity", 0))
+        risk_score = safe_score_value(item.get("risk", 0))
+
+        if opportunity_score >= 3 or tone == "Olumlu":
+            score = opportunity_score
+            if risk_score <= 3:
+                score += 1
+
+            candidates.append({
+                "score": score,
+                "source": "Haber fırsatı",
+                "title": title or "Olumlu haber başlığı",
+                "reason": "Özet gününde olumlu/hizmet odaklı haber görünürlüğü oluştu.",
+                "action": "Bu başlık kısa sosyal medya içeriğiyle büyütülebilir.",
+                "format": "Kısa video, görsel kart veya başkan/kurumsal hesap paylaşımı",
+                "notify": "Mail gerekmez; günlük fırsat olarak takip edilsin.",
+            })
+
+    # 2) Sosyal medyadan fırsat yakala
+    for item in social:
+        if not same_day(item.get("date", ""), summary_day):
+            continue
+
+        topic = clean_text(item.get("topic", "Sosyal medya fırsatı"))
+        opportunity_score = safe_score_value(item.get("opportunity_score", 0))
+        risk_score = safe_score_value(item.get("risk_score", 0))
+        likes = safe_score_value(item.get("likes", 0))
+        comments = safe_score_value(item.get("comments", 0))
+        shares = safe_score_value(item.get("shares", 0))
+        views = safe_score_value(item.get("views", 0))
+        engagement = likes + comments + shares
+
+        if opportunity_score >= 5 or engagement >= 20 or views >= 1000:
+            score = opportunity_score + min(3, engagement / 50)
+            if risk_score >= 6:
+                score -= 2
+
+            candidates.append({
+                "score": score,
+                "source": "Sosyal medya fırsatı",
+                "title": topic,
+                "reason": "Sosyal medyada etkileşim veya görünürlük değeri olan bir başlık tespit edildi.",
+                "action": "İçerik olumlu hizmet iletişimine çevrilebilir; yorum tonu takip edilmelidir.",
+                "format": "Repost, hikaye, kısa video veya hizmet vurgulu ikinci paylaşım",
+                "notify": "Takip edilsin; çok hızlı büyürse fırsat alarmına çevrilsin.",
+            })
+
+    # 3) Başkan X gönderilerinden fırsat yakala
+    for item in president_posts:
+        if not same_day(item.get("date", ""), summary_day):
+            continue
+
+        content = clean_text(item.get("content", "Başkan X gönderisi"))
+        topic = clean_text(item.get("topic", "Başkan X gönderisi"))
+        engagement = safe_score_value(item.get("engagement", 0))
+        likes = safe_score_value(item.get("likes", 0))
+        reposts = safe_score_value(item.get("reposts", 0))
+
+        if engagement > 0:
+            score = min(10, 4 + (engagement / 50))
+
+            candidates.append({
+                "score": score,
+                "source": "Başkan X performans fırsatı",
+                "title": topic or content[:90],
+                "reason": f"Başkan X gönderisi etkileşim aldı. Beğeni: {int(likes)}, repost: {int(reposts)}, toplam etkileşim: {int(engagement)}.",
+                "action": "Benzer dil ve format tekrar kullanılabilir; iyi çalışan başlık haftalık rapora alınmalı.",
+                "format": "Başkan hesabından devam paylaşımı veya kurumsal hesapla destekleme",
+                "notify": "Mail gerekmez; performans fırsatı olarak izlenmeli.",
+            })
+
+    if not candidates:
+        return {
+            "level": "Fırsat yok",
+            "title": "Özet gününde belirgin fırsat görünmüyor.",
+            "source": "Genel takip",
+            "score": 0,
+            "reason": "Haber, sosyal medya ve Başkan X tarafında güçlü fırsat sinyali bulunmadı.",
+            "action": "Standart takip yeterli. Yeni olumlu haber veya etkileşim artışı olursa tekrar değerlendirilir.",
+            "format": "Standart günlük takip",
+            "notify": "Bildirim gerekmez.",
+        }
+
+    best = sorted(candidates, key=lambda x: x.get("score", 0), reverse=True)[0]
+    best_score = safe_score_value(best.get("score", 0))
+
+    if best_score >= 8:
+        level = "Yüksek fırsat"
+        notify = "FIRSAT ALARMI: Mail/WhatsApp bildirimi için aday."
+    elif best_score >= 5:
+        level = "Takip edilebilir fırsat"
+        notify = best.get("notify", "Günlük takip yeterli.")
+    else:
+        level = "Düşük fırsat"
+        notify = "Bildirim gerekmez; günlük raporda izlenmeli."
+
+    best["level"] = level
+    best["notify"] = notify
+    best["score"] = round(best_score, 1)
+    return best
+
 def crisis_action_plan(social_sum):
     risky_item = social_sum.get("risky") or {}
 
@@ -2726,7 +2838,8 @@ def dashboard_bar(label, value, total, color):
     """
 
 
-def president_dashboard_panel(today, report_time, news, social, president_posts, crisis_plan, early_warning):
+def president_dashboard_panel(today, report_time, news, social, president_posts, crisis_plan, early_warning, opportunity_sum=None):
+    opportunity_sum = opportunity_sum or {}
     today_news = [
         item for item in news
         if same_day(item.get("parsed_date", item.get("date", "")), today)
@@ -2960,6 +3073,96 @@ def president_dashboard_panel(today, report_time, news, social, president_posts,
         </div>
         """
 
+    opportunity_level = str(opportunity_sum.get("level", "Fırsat yok"))
+    opportunity_title = str(opportunity_sum.get("title", "Özet gününde belirgin fırsat görünmüyor."))
+    opportunity_source = str(opportunity_sum.get("source", "Genel takip"))
+    opportunity_reason = str(opportunity_sum.get("reason", "Fırsat değerlendirmesi yapılmadı."))
+    opportunity_action = str(opportunity_sum.get("action", "Standart takip yeterli."))
+    opportunity_format = str(opportunity_sum.get("format", "Standart takip"))
+    opportunity_notify = str(opportunity_sum.get("notify", "Bildirim gerekmez."))
+    opportunity_score = safe_score_value(opportunity_sum.get("score", 0))
+
+    opportunity_norm = normalize_text(opportunity_level)
+
+    if "yuksek" in opportunity_norm or "yüksek" in opportunity_norm:
+        opportunity_color = "#16a34a"
+        opportunity_bg = "#ecfdf5"
+        opportunity_border = "#86efac"
+    elif "takip" in opportunity_norm:
+        opportunity_color = "#d97706"
+        opportunity_bg = "#fffbeb"
+        opportunity_border = "#fed7aa"
+    else:
+        opportunity_color = "#64748b"
+        opportunity_bg = "#f8fafc"
+        opportunity_border = "#e2e8f0"
+
+    opportunity_card_html = f"""
+    <div id="baskan-firsat" style="
+        background:{opportunity_bg};
+        border:1px solid {opportunity_border};
+        border-left:6px solid {opportunity_color};
+        border-radius:20px;
+        padding:16px;
+        margin:14px 0 16px 0;
+    ">
+        <div style="font-size:18px;font-weight:900;color:{opportunity_color};margin-bottom:6px;">
+            🌟 Özet Gününün Fırsatı
+        </div>
+
+        <div style="font-size:13px;font-weight:800;color:#64748b;margin-bottom:10px;line-height:1.35;">
+            Seviye: {esc(opportunity_level)} • Skor: {esc(opportunity_score)}/10 • Kaynak: {esc(opportunity_source)}
+        </div>
+
+        <div style="font-size:16px;font-weight:900;color:#0f172a;line-height:1.35;margin-bottom:10px;">
+            {esc(opportunity_title)}
+        </div>
+
+        <div style="
+            background:white;
+            border:1px solid {opportunity_border};
+            border-radius:14px;
+            padding:12px;
+            margin-bottom:10px;
+            color:#334155;
+            font-size:14px;
+            font-weight:700;
+            line-height:1.45;
+        ">
+            <b>Neden önemli?</b><br>
+            {esc(opportunity_reason)}
+        </div>
+
+        <div style="
+            background:white;
+            border:1px solid {opportunity_border};
+            border-radius:14px;
+            padding:12px;
+            margin-bottom:10px;
+            color:#334155;
+            font-size:14px;
+            font-weight:700;
+            line-height:1.45;
+        ">
+            <b>Önerilen aksiyon</b><br>
+            {esc(opportunity_action)}
+        </div>
+
+        <div style="
+            display:grid;
+            grid-template-columns:1fr;
+            gap:8px;
+            color:#334155;
+            font-size:13px;
+            font-weight:800;
+            line-height:1.35;
+        ">
+            <div><b>Önerilen format:</b> {esc(opportunity_format)}</div>
+            <div><b>Bildirim kararı:</b> {esc(opportunity_notify)}</div>
+        </div>
+    </div>
+    """
+
     if today_x:
         x_kpi_note = f"Lehte {x_positive} • Aleyhte {x_negative} • Nötr {x_neutral}"
     else:
@@ -3147,6 +3350,8 @@ def president_dashboard_panel(today, report_time, news, social, president_posts,
                 </div>
 
                      {president_x_graph_html}
+                      
+                      {opportunity_card_html}
 
                 <div id="baskan-haber" style="
                     background:white;
@@ -6056,6 +6261,8 @@ def build_report(news, social, undated_news=None):
     president_replies = read_president_x_replies()
     president_reply_summary = president_x_replies_summary(president_replies)
     president_reply_html = president_x_replies_card(president_reply_summary)
+    opportunity_sum = build_opportunity_summary(news, social, president_posts, dashboard_day)
+    
     dashboard_html = president_dashboard_panel(
         dashboard_day,
         report_time,
@@ -6064,7 +6271,8 @@ def build_report(news, social, undated_news=None):
         president_posts,
         crisis_plan,
         early_warning,
-    )
+        opportunity_sum,
+   )
 
     html_doc = f"""
 <html lang="tr">

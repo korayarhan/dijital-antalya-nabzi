@@ -2443,6 +2443,47 @@ def opportunity_context(text, source=""):
         "Başlık takip edilmeli; uygun görülürse kısa sosyal medya içeriğine çevrilmeli."
     )
 
+def opportunity_alert_decision(opportunity):
+    score = safe_score_value(opportunity.get("score", 0))
+    risk_score = safe_score_value(opportunity.get("risk_score", 0))
+    opportunity_type = str(opportunity.get("type", ""))
+    source = str(opportunity.get("source", ""))
+
+    if score >= 8 and risk_score < 6:
+        return {
+            "alarm": True,
+            "alarm_label": "FIRSAT ALARMI",
+            "mail_candidate": "Evet",
+            "whatsapp_candidate": "İleri aşamada evet",
+            "alarm_reason": "Fırsat skoru yüksek, risk seviyesi kontrol edilebilir ve başlık görünürlük açısından büyütülebilir.",
+        }
+
+    if score >= 6 and risk_score < 6:
+        return {
+            "alarm": False,
+            "alarm_label": "Güçlü fırsat / ekip takip",
+            "mail_candidate": "Hayır",
+            "whatsapp_candidate": "Hayır",
+            "alarm_reason": "Fırsat değerli ancak anlık alarm gerektirecek seviyede değil. Ekip tarafından takip edilmesi yeterli.",
+        }
+
+    if "Başkan" in source or "performans" in source:
+        return {
+            "alarm": False,
+            "alarm_label": "Performans fırsatı",
+            "mail_candidate": "Hayır",
+            "whatsapp_candidate": "Hayır",
+            "alarm_reason": "Başkan iletişimi açısından not alınmalı; haftalık performans değerlendirmesine eklenebilir.",
+        }
+
+    return {
+        "alarm": False,
+        "alarm_label": "Günlük fırsat",
+        "mail_candidate": "Hayır",
+        "whatsapp_candidate": "Hayır",
+        "alarm_reason": "Günlük raporda görünmesi yeterli. Şimdilik ayrıca bildirim gerekmez.",
+    }
+
 def build_opportunity_summary(news, social, president_posts, summary_day):
     candidates = []
 
@@ -2469,6 +2510,7 @@ def build_opportunity_summary(news, social, president_posts, summary_day):
                 "source": "Haber fırsatı",
                 "type": opp_type,
                 "owner": opp_owner,
+                "risk_score": risk_score,
                 "title": title or "Olumlu haber başlığı",
                 "reason": "Özet gününde olumlu/hizmet odaklı haber görünürlüğü oluştu.",
                 "action": smart_action,
@@ -2502,6 +2544,7 @@ def build_opportunity_summary(news, social, president_posts, summary_day):
                 "source": "Sosyal medya fırsatı",
                 "type": opp_type,
                 "owner": opp_owner,
+                "risk_score": risk_score,
                 "title": topic,
                 "reason": "Sosyal medyada etkileşim veya görünürlük değeri olan bir başlık tespit edildi.",
                 "action": smart_action,
@@ -2530,6 +2573,7 @@ def build_opportunity_summary(news, social, president_posts, summary_day):
                 "source": "Başkan X performans fırsatı",
                 "type": opp_type,
                 "owner": opp_owner,
+                "risk_score": 0,
                 "title": topic or content[:90],
                 "reason": f"Başkan X gönderisi etkileşim aldı. Beğeni: {int(likes)}, repost: {int(reposts)}, toplam etkileşim: {int(engagement)}.",
                 "action": smart_action,
@@ -2543,6 +2587,11 @@ def build_opportunity_summary(news, social, president_posts, summary_day):
             "level": "Fırsat yok",
             "type": "Belirgin fırsat yok",
             "owner": "Standart takip",
+            "alarm": False,
+            "alarm_label": "Fırsat yok",
+            "mail_candidate": "Hayır",
+            "whatsapp_candidate": "Hayır",
+            "alarm_reason": "Belirgin fırsat bulunmadığı için bildirim gerekmez.",
             "title": "Özet gününde belirgin fırsat görünmüyor.",
             "source": "Genel takip",
             "score": 0,
@@ -2570,6 +2619,10 @@ def build_opportunity_summary(news, social, president_posts, summary_day):
     best["score"] = round(best_score, 1)
     best.setdefault("type", "Genel PR / görünürlük fırsatı")
     best.setdefault("owner", "Basın birimi")
+    
+    alert_decision = opportunity_alert_decision(best)
+    best.update(alert_decision)
+
     return best
 
 def crisis_action_plan(social_sum):
@@ -3163,6 +3216,11 @@ def president_dashboard_panel(today, report_time, news, social, president_posts,
     opportunity_format = str(opportunity_sum.get("format", "Standart takip"))
     opportunity_notify = str(opportunity_sum.get("notify", "Bildirim gerekmez."))
     opportunity_score = safe_score_value(opportunity_sum.get("score", 0))
+    opportunity_alarm = bool(opportunity_sum.get("alarm", False))
+    opportunity_alarm_label = str(opportunity_sum.get("alarm_label", "Günlük fırsat"))
+    opportunity_mail_candidate = str(opportunity_sum.get("mail_candidate", "Hayır"))
+    opportunity_whatsapp_candidate = str(opportunity_sum.get("whatsapp_candidate", "Hayır"))
+    opportunity_alarm_reason = str(opportunity_sum.get("alarm_reason", "Bildirim gerekmez."))
 
     opportunity_norm = normalize_text(opportunity_level)
 
@@ -3178,6 +3236,55 @@ def president_dashboard_panel(today, report_time, news, social, president_posts,
         opportunity_color = "#64748b"
         opportunity_bg = "#f8fafc"
         opportunity_border = "#e2e8f0"
+
+if opportunity_alarm:
+    opportunity_alarm_html = f"""
+    <div style="
+        background:#ecfdf5;
+        border:1px solid #86efac;
+        border-left:6px solid #16a34a;
+        border-radius:14px;
+        padding:12px;
+        margin:10px 0;
+        color:#065f46;
+        font-size:14px;
+        font-weight:900;
+        line-height:1.45;
+    ">
+        🚀 {esc(opportunity_alarm_label)}<br>
+        <span style="font-weight:800;color:#047857;">
+            Mail adayı: {esc(opportunity_mail_candidate)} • WhatsApp/app adayı: {esc(opportunity_whatsapp_candidate)}
+        </span>
+        <br>
+        <span style="font-weight:700;color:#334155;">
+            {esc(opportunity_alarm_reason)}
+        </span>
+    </div>
+    """
+else:
+    opportunity_alarm_html = f"""
+    <div style="
+        background:#f8fafc;
+        border:1px solid #e2e8f0;
+        border-left:6px solid #94a3b8;
+        border-radius:14px;
+        padding:12px;
+        margin:10px 0;
+        color:#334155;
+        font-size:14px;
+        font-weight:800;
+        line-height:1.45;
+    ">
+        {esc(opportunity_alarm_label)}<br>
+        <span style="font-weight:700;color:#64748b;">
+            Mail adayı: {esc(opportunity_mail_candidate)} • WhatsApp/app adayı: {esc(opportunity_whatsapp_candidate)}
+        </span>
+        <br>
+        <span style="font-weight:700;color:#64748b;">
+            {esc(opportunity_alarm_reason)}
+        </span>
+    </div>
+    """
 
     opportunity_card_html = f"""
     <div id="baskan-firsat" style="
@@ -3199,6 +3306,8 @@ def president_dashboard_panel(today, report_time, news, social, president_posts,
         <div style="font-size:16px;font-weight:900;color:#0f172a;line-height:1.35;margin-bottom:10px;">
             {esc(opportunity_title)}
         </div>
+
+        {opportunity_alarm_html}
 
         <div style="
             background:white;

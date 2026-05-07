@@ -3078,6 +3078,19 @@ def build_platform_social_pulse_html(social, summary_day):
             or "Öne çıkan içerik"
         )
 
+        if risky_count > 0:
+            color = "#dc2626"
+            bg = "#fef2f2"
+            label = f"{risky_count} riskli kayıt"
+        elif opportunity_count > 0:
+            color = "#16a34a"
+            bg = "#ecfdf5"
+            label = f"{opportunity_count} fırsat kaydı"
+        else:
+            color = "#334155"
+            bg = "#f8fafc"
+            label = "Standart takip"
+            
         if featured_url.startswith("http"):
             featured_link_html = f"""
             <div style="margin-top:10px;">
@@ -3116,19 +3129,6 @@ def build_platform_social_pulse_html(social, summary_day):
                 Öne çıkan içerik için bağlantı yok.
             </div>
             """
-
-        if risky_count > 0:
-            color = "#dc2626"
-            bg = "#fef2f2"
-            label = f"{risky_count} riskli kayıt"
-        elif opportunity_count > 0:
-            color = "#16a34a"
-            bg = "#ecfdf5"
-            label = f"{opportunity_count} fırsat kaydı"
-        else:
-            color = "#334155"
-            bg = "#f8fafc"
-            label = "Standart takip"
 
         cards_html += f"""
         <div style="

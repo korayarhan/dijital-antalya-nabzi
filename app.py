@@ -2476,8 +2476,8 @@ def build_opportunity_summary(news, social, president_posts, summary_day):
                 "notify": "Mail gerekmez; günlük fırsat olarak takip edilsin.",
             })
 
-    # 2) Sosyal medyadan fırsat yakala
-    for item in social:
+        # 2) Sosyal medyadan fırsat yakala
+        for item in social:
         if not same_day(item.get("date", ""), summary_day):
             continue
 
@@ -2495,12 +2495,16 @@ def build_opportunity_summary(news, social, president_posts, summary_day):
             if risk_score >= 6:
                 score -= 2
 
+            opp_type, opp_owner, smart_action = opportunity_context(topic, "Sosyal medya fırsatı")
+
             candidates.append({
                 "score": score,
                 "source": "Sosyal medya fırsatı",
+                "type": opp_type,
+                "owner": opp_owner,
                 "title": topic,
                 "reason": "Sosyal medyada etkileşim veya görünürlük değeri olan bir başlık tespit edildi.",
-                "action": "İçerik olumlu hizmet iletişimine çevrilebilir; yorum tonu takip edilmelidir.",
+                "action": smart_action,
                 "format": "Repost, hikaye, kısa video veya hizmet vurgulu ikinci paylaşım",
                 "notify": "Takip edilsin; çok hızlı büyürse fırsat alarmına çevrilsin.",
             })

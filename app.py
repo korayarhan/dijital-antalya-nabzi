@@ -2457,10 +2457,10 @@ def build_opportunity_summary(news, social, president_posts, summary_day):
         opportunity_score = safe_score_value(item.get("opportunity", 0))
         risk_score = safe_score_value(item.get("risk", 0))
 
-        if opportunity_score >= 5 or engagement >= 20 or views >= 1000:
-            score = opportunity_score + min(3, engagement / 50)
-            if risk_score >= 6:
-                score -= 2
+        if opportunity_score >= 3 or tone == "Olumlu":
+            score = opportunity_score
+            if risk_score <= 3:
+                score += 1
 
             opp_type, opp_owner, smart_action = opportunity_context(title, "Haber fırsatı")
 
@@ -2471,7 +2471,7 @@ def build_opportunity_summary(news, social, president_posts, summary_day):
                 "owner": opp_owner,
                 "title": title or "Olumlu haber başlığı",
                 "reason": "Özet gününde olumlu/hizmet odaklı haber görünürlüğü oluştu.",
-                "action": "Bu başlık kısa sosyal medya içeriğiyle büyütülebilir.",
+                "action": smart_action,
                 "format": "Kısa video, görsel kart veya başkan/kurumsal hesap paylaşımı",
                 "notify": "Mail gerekmez; günlük fırsat olarak takip edilsin.",
             })

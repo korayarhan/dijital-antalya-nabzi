@@ -6391,15 +6391,6 @@ a {{ color:#1f2933; font-weight:800; }}
     </div>
 </details>
 
-<script>
-document.addEventListener("DOMContentLoaded", function() {
-    var detay = document.getElementById("detay-rapor-akisi");
-    if (detay) {
-        detay.removeAttribute("open");
-    }
-});
-</script>
-
 </main>
 </body>
 </html>"""

@@ -2478,8 +2478,8 @@ def build_opportunity_summary(news, social, president_posts, summary_day):
 
         # 2) Sosyal medyadan fırsat yakala
         for item in social:
-        if not same_day(item.get("date", ""), summary_day):
-            continue
+            if not same_day(item.get("date", ""), summary_day):
+               continue
 
         topic = clean_text(item.get("topic", "Sosyal medya fırsatı"))
         opportunity_score = safe_score_value(item.get("opportunity_score", 0))

@@ -3001,6 +3001,38 @@ def social_tone_group(item):
 
     return "neutral"
 
+def platform_pulse_comment(platform, risky_count, opportunity_count, positive_count, negative_count, comments, views, featured_topic):
+    platform_norm = normalize_text(platform)
+    topic_norm = normalize_text(featured_topic)
+
+    if risky_count > 0:
+        if "tiktok" in platform_norm or views >= 10000 or comments >= 50:
+            return "Yayılım riski yüksek. Yorum artışı ve paylaşım hızı ekip tarafından takip edilmeli."
+
+        if any(term in topic_norm for term in ["temizlik", "cop", "çöp", "asfalt", "yol", "park", "ulasim", "ulaşım"]):
+            return "Hizmet şikayeti olarak takip edilmeli. İlgili birimden saha bilgisi alınmalı."
+
+        if any(term in topic_norm for term in ["dava", "teleferik", "sorusturma", "soruşturma", "yolsuzluk", "rusvet", "rüşvet"]):
+            return "Hukuki / kriz hassasiyeti var. Basın ve hukuk diliyle kontrollü takip edilmeli."
+
+        return "Riskli sosyal medya başlığı var. Konu büyümeden yorum tonu ve yayılım kontrol edilmeli."
+
+    if opportunity_count > 0:
+        if any(term in topic_norm for term in ["asfalt", "yol", "park", "mahalle", "hizmet", "proje"]):
+            return "Hizmet görünürlüğü fırsatı var. Kısa video veya görsel kartla büyütülebilir."
+
+        if any(term in topic_norm for term in ["cocuk", "çocuk", "aile", "yasli", "yaşlı", "sosyal", "etkinlik"]):
+            return "Sosyal belediyecilik fırsatı var. Sıcak ve insan odaklı dille paylaşılabilir."
+
+        return "Olumlu görünürlük fırsatı var. Kurumsal hesap veya başkan hesabı destek paylaşımı yapabilir."
+
+    if positive_count > negative_count:
+        return "Genel ton olumlu. İyi çalışan içerik dili haftalık değerlendirmeye alınabilir."
+
+    if negative_count > positive_count:
+        return "Genel ton olumsuza yakın. Konu büyümeden ekip gözle kontrol etmeli."
+
+    return "Standart takip yeterli. Belirgin risk veya fırsat sinyali görünmüyor."
 
 def build_platform_social_pulse_html(social, summary_day):
     platform_groups = {}
@@ -3091,6 +3123,17 @@ def build_platform_social_pulse_html(social, summary_day):
             bg = "#f8fafc"
             label = "Standart takip"
             
+        platform_comment = platform_pulse_comment(
+            platform,
+            risky_count,
+            opportunity_count,
+            positive_count,
+            negative_count,
+            comments,
+            views,
+            featured_topic
+        )
+            
         if featured_url.startswith("http"):
             featured_link_html = f"""
             <div style="margin-top:10px;">
@@ -3175,7 +3218,21 @@ def build_platform_social_pulse_html(social, summary_day):
                 <br>
                 Görüntülenme: {int(views)}
             </div>
-            
+
+            <div style="
+                margin-top:10px;
+                background:white;
+                border:1px solid #e2e8f0;
+                border-radius:14px;
+                padding:10px;
+                font-size:12px;
+                font-weight:800;
+                color:#334155;
+                line-height:1.4;
+            ">
+                <b>Kısa yorum:</b> {esc(platform_comment)}
+            </div>
+
             {featured_link_html}
         </div>
         """

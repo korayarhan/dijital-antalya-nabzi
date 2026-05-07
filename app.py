@@ -4236,6 +4236,49 @@ def build_system_learning_note(news, social, alert_logs, team_actions, president
 
     risk_level = crisis_plan.get("level", "")
     decision = early_warning.get("decision", "")
+    
+    news_count = len(news)
+    social_count = len(social)
+    alert_count = len(alert_logs)
+    action_count = len(team_actions)
+    reply_count = len(president_replies)
+
+    x_count = len([
+        x for x in social
+        if "twitter" in normalize_text(x.get("platform", "")) or normalize_text(x.get("platform", "")) == "x"
+    ])
+
+    youtube_count = len([
+        x for x in social
+        if "youtube" in normalize_text(x.get("platform", ""))
+    ])
+
+    data_warnings = []
+
+    if news_count == 0:
+        data_warnings.append("Haber verisi boş geldi")
+
+    if social_count == 0:
+        data_warnings.append("Sosyal medya verisi boş geldi")
+
+    if x_count == 0:
+        data_warnings.append("X verisi bugün boş görünüyor")
+
+    if youtube_count == 0:
+        data_warnings.append("YouTube verisi bugün boş görünüyor")
+
+    if "ACİL ALARM" in decision or "ACIL ALARM" in decision:
+        if action_count == 0:
+            data_warnings.append("Alarm var ama ekip aksiyon kaydı yok")
+
+    if data_warnings:
+        operator_status = "Kontrol gerekiyor"
+        data_health = " • ".join(data_warnings)
+        operator_action = "Operatör raporu gözle kontrol etmeli; veri kanalları, alarm kararı ve ekip aksiyon kaydı kontrol edilmeli."
+    else:
+        operator_status = "Sistem sağlıklı"
+        data_health = "Haber, sosyal medya ve ekip raporu temel kontrolleri normal görünüyor."
+        operator_action = "Standart takip yeterli. Kritik alarm yoksa manuel müdahale gerekmiyor."
 
     if high_risk_social_count >= 1 or "ACİL ALARM" in decision or "ACIL ALARM" in decision:
         main_risk = "Bugün sistem yüksek riskli bir başlık yakaladı. Kriz paneli ve ekip aksiyonları yakından takip edilmeli."
@@ -4276,6 +4319,9 @@ def build_system_learning_note(news, social, alert_logs, team_actions, president
         "archive_note": archive_note,
         "next_improvement": next_improvement,
         "risk_level": risk_level,
+        "operator_status": operator_status,
+        "data_health": data_health,
+        "operator_action": operator_action,
     }
 
 def team_action_status_badge(status):
@@ -6068,7 +6114,7 @@ def build_team_report(news, social, early_warning, crisis_plan, crisis_status, r
     ])
 
     crisis_subtitle = f"{early_warning.get('decision', '')} • Risk: {crisis_plan.get('level', '')}"
-    learning_subtitle = f"Öne çıkan konu: {learning_note.get('repeated_topic', '')}"
+    learning_subtitle = f"{learning_note.get('operator_status', '')} • {learning_note.get('repeated_topic', '')}"
     youtube_subtitle = f"{len(youtube_summary)} kaynak / kanal takipte"
     weekly_subtitle = f"{len(x_items_for_summary)} X kaydı • {len(risky_x_for_summary)} riskli"
     x_social_subtitle = f"{len(x_items_for_summary)} kayıt • {len(risky_x_for_summary)} riskli/takip gerektiren kayıt"
@@ -6107,6 +6153,10 @@ def build_team_report(news, social, early_warning, crisis_plan, crisis_status, r
         "#f8fafc",
         f"""
         <div class="card">
+             
+            <p><b>Operatör kontrol durumu:</b> {esc(learning_note.get("operator_status", ""))}</p>
+            <p><b>Veri sağlık notu:</b> {esc(learning_note.get("data_health", ""))}</p>
+            <p><b>Operatör aksiyon önerisi:</b> {esc(learning_note.get("operator_action", ""))}</p>
             <p><b>Ana risk değerlendirmesi:</b> {esc(learning_note.get("main_risk", ""))}</p>
             <p><b>Tekrarlayan / öne çıkan konu:</b> {esc(learning_note.get("repeated_topic", ""))}</p>
             <p><b>Filtre notu:</b> {esc(learning_note.get("filter_note", ""))}</p>

@@ -2972,6 +2972,187 @@ def dashboard_bar(label, value, total, color):
     </div>
     """
 
+def detect_social_platform(item):
+    text = normalize_text(f"{item.get('platform', '')} {item.get('source_type', '')}")
+
+    if "instagram" in text:
+        return "Instagram"
+    if "facebook" in text:
+        return "Facebook"
+    if "tiktok" in text or "tik tok" in text:
+        return "TikTok"
+    if "youtube" in text:
+        return "YouTube"
+    if "twitter" in text or text == "x" or text.startswith("x ") or "x twitter" in text:
+        return "X"
+
+    platform = clean_text(item.get("platform", ""))
+    return platform or "Diğer"
+
+
+def social_tone_group(item):
+    tone = normalize_text(f"{item.get('tone', '')} {item.get('sentiment', '')}")
+
+    if "positive" in tone or "olumlu" in tone or "iyi" in tone:
+        return "positive"
+
+    if "negative" in tone or "riskli" in tone or "kotu" in tone or "kötü" in tone:
+        return "negative"
+
+    return "neutral"
+
+
+def build_platform_social_pulse_html(social, summary_day):
+    platform_groups = {}
+
+    for item in social:
+        if not same_day(item.get("date", ""), summary_day):
+            continue
+
+        platform = detect_social_platform(item)
+        platform_groups.setdefault(platform, []).append(item)
+
+    platform_order = ["X", "Instagram", "Facebook", "TikTok", "YouTube", "Diğer"]
+
+    total_count = sum(len(items) for items in platform_groups.values())
+
+    if total_count == 0:
+        return """
+        <div class="card" style="
+            border-left:6px solid #64748b;
+            background:#f8fafc;
+            margin:14px 0 16px 0;
+        ">
+            <h2 style="margin-top:0;color:#334155;">📱 Platform Bazlı Sosyal Nabız</h2>
+            <p style="font-weight:700;color:#64748b;">
+                Özet gününde sosyal medya kaydı bulunamadı. Takip havuzu çalışmaya devam ediyor.
+            </p>
+        </div>
+        """
+
+    cards_html = ""
+
+    for platform in platform_order:
+        items = platform_groups.get(platform, [])
+        if not items:
+            continue
+
+        count = len(items)
+
+        positive_count = len([x for x in items if social_tone_group(x) == "positive"])
+        negative_count = len([x for x in items if social_tone_group(x) == "negative"])
+        neutral_count = max(0, count - positive_count - negative_count)
+
+        risky_count = len([
+            x for x in items
+            if safe_score_value(x.get("account_adjusted_risk_score", x.get("risk_score", 0))) >= 6
+        ])
+
+        opportunity_count = len([
+            x for x in items
+            if safe_score_value(x.get("opportunity_score", 0)) >= 5
+        ])
+
+        likes = sum(safe_score_value(x.get("likes", 0)) for x in items)
+        comments = sum(safe_score_value(x.get("comments", 0)) for x in items)
+        shares = sum(safe_score_value(x.get("shares", 0)) for x in items)
+        views = sum(safe_score_value(x.get("views", 0)) for x in items)
+
+        if risky_count > 0:
+            color = "#dc2626"
+            bg = "#fef2f2"
+            label = f"{risky_count} riskli kayıt"
+        elif opportunity_count > 0:
+            color = "#16a34a"
+            bg = "#ecfdf5"
+            label = f"{opportunity_count} fırsat kaydı"
+        else:
+            color = "#334155"
+            bg = "#f8fafc"
+            label = "Standart takip"
+
+        cards_html += f"""
+        <div style="
+            background:{bg};
+            border:1px solid #e5e7eb;
+            border-left:5px solid {color};
+            border-radius:18px;
+            padding:14px;
+            box-shadow:0 6px 18px rgba(15,23,42,0.04);
+        ">
+            <div style="display:flex;justify-content:space-between;gap:8px;align-items:flex-start;">
+                <div>
+                    <div style="font-size:17px;font-weight:900;color:#0f172a;">
+                        {esc(platform)}
+                    </div>
+                    <div style="font-size:12px;font-weight:800;color:{color};margin-top:4px;">
+                        {esc(label)}
+                    </div>
+                </div>
+
+                <div style="
+                    background:white;
+                    border:1px solid #e2e8f0;
+                    border-radius:999px;
+                    padding:5px 9px;
+                    font-size:13px;
+                    font-weight:900;
+                    color:#0f172a;
+                ">
+                    {count}
+                </div>
+            </div>
+
+            <div style="
+                margin-top:10px;
+                font-size:13px;
+                font-weight:800;
+                color:#475569;
+                line-height:1.45;
+            ">
+                Lehte: {positive_count} • Aleyhte: {negative_count} • Nötr: {neutral_count}
+                <br>
+                Beğeni: {int(likes)} • Yorum: {int(comments)} • Paylaşım: {int(shares)}
+                <br>
+                Görüntülenme: {int(views)}
+            </div>
+        </div>
+        """
+
+    return f"""
+    <div id="platform-sosyal-nabiz" style="
+        background:white;
+        border:1px solid #e5e7eb;
+        border-radius:22px;
+        padding:16px;
+        margin:14px 0 16px 0;
+    ">
+        <div style="
+            display:flex;
+            align-items:center;
+            gap:10px;
+            margin-bottom:12px;
+        ">
+            <div style="font-size:24px;">📱</div>
+            <div>
+                <div style="font-size:20px;font-weight:900;color:#0f172a;">
+                    Platform Bazlı Sosyal Nabız
+                </div>
+                <div style="font-size:13px;font-weight:700;color:#64748b;">
+                    Özet gününde sosyal medya platformlarının kayıt, risk, fırsat ve etkileşim durumu
+                </div>
+            </div>
+        </div>
+
+        <div style="
+            display:grid;
+            grid-template-columns:repeat(auto-fit,minmax(170px,1fr));
+            gap:10px;
+        ">
+            {cards_html}
+        </div>
+    </div>
+    """
 
 def president_dashboard_panel(today, report_time, news, social, president_posts, crisis_plan, early_warning, opportunity_sum=None):
     opportunity_sum = opportunity_sum or {}
@@ -3146,6 +3327,8 @@ def president_dashboard_panel(today, report_time, news, social, president_posts,
         </div>
         """
         
+    platform_social_pulse_html = build_platform_social_pulse_html(social, today)
+
     if today_x:
         x_nabiz_html = f"""
         {dashboard_bar("Lehte", x_positive, len(today_x), "#16a34a")}
@@ -3546,7 +3729,9 @@ def president_dashboard_panel(today, report_time, news, social, president_posts,
 
                      {president_x_graph_html}
                       
-                      {opportunity_card_html}
+                     {opportunity_card_html}
+                    
+                     {platform_social_pulse_html}
 
                 <div id="baskan-haber" style="
                     background:white;

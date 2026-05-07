@@ -28,6 +28,8 @@ CRISIS_CSV = ROOT / "data" / "manual_crisis" / "crisis_status.csv"
 CRISIS_LOG_CSV = ROOT / "data" / "manual_crisis" / "crisis_log.csv"
 ALERT_LOG_CSV = ROOT / "data" / "alerts" / "alert_log.csv"
 TEAM_ACTIONS_CSV = ROOT / "data" / "team_actions" / "team_actions.csv"
+ARCHIVE_DIR = ROOT / "data" / "archive"
+DAILY_DECISION_LOG_CSV = ARCHIVE_DIR / "daily_decision_log.csv"
 DYNAMIC_KEYWORDS = ROOT / "data" / "dynamic_keywords.txt"
 REPORTS = ROOT / "reports"
 REPORTS.mkdir(exist_ok=True)
@@ -4213,6 +4215,69 @@ def read_alert_log(limit=20):
 
     return rows[-limit:]
 
+def append_daily_decision_log(report_date, report_time, news, social, crisis_plan, early_warning, opportunity_sum, learning_note=None, team_actions=None):
+    learning_note = learning_note or {}
+    opportunity_sum = opportunity_sum or {}
+    team_actions = team_actions or []
+
+    ARCHIVE_DIR.mkdir(parents=True, exist_ok=True)
+
+    risky_news = sorted(
+        news,
+        key=lambda x: safe_score_value(x.get("risk", 0)),
+        reverse=True
+    )
+
+    main_risk_title = clean_text(
+        crisis_plan.get("risk_topic", "")
+        or crisis_plan.get("title", "")
+        or (risky_news[0].get("title", "") if risky_news else "")
+    )
+
+    x_count = len([
+        x for x in social
+        if "twitter" in normalize_text(x.get("platform", "")) or normalize_text(x.get("platform", "")) == "x"
+    ])
+
+    youtube_count = len([
+        x for x in social
+        if "youtube" in normalize_text(x.get("platform", ""))
+    ])
+
+    row = {
+        "date": report_date,
+        "time": report_time,
+        "news_count": len(news),
+        "social_count": len(social),
+        "x_count": x_count,
+        "youtube_count": youtube_count,
+        "risk_level": crisis_plan.get("level", ""),
+        "early_warning_decision": early_warning.get("decision", ""),
+        "main_risk_title": main_risk_title,
+        "opportunity_level": opportunity_sum.get("level", ""),
+        "opportunity_score": opportunity_sum.get("score", ""),
+        "opportunity_title": opportunity_sum.get("title", ""),
+        "opportunity_type": opportunity_sum.get("type", ""),
+        "opportunity_owner": opportunity_sum.get("owner", ""),
+        "opportunity_alarm_label": opportunity_sum.get("alarm_label", ""),
+        "opportunity_mail_candidate": opportunity_sum.get("mail_candidate", ""),
+        "operator_status": learning_note.get("operator_status", ""),
+        "data_health": learning_note.get("data_health", ""),
+        "team_action_count": len(team_actions),
+        "note": "Otomatik günlük karar hafızası kaydı",
+    }
+
+    fieldnames = list(row.keys())
+    file_exists = DAILY_DECISION_LOG_CSV.exists()
+
+    with DAILY_DECISION_LOG_CSV.open("a", encoding="utf-8-sig", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        if not file_exists:
+            writer.writeheader()
+        writer.writerow(row)
+
+    print(f"Günlük karar hafızası kaydı eklendi: {DAILY_DECISION_LOG_CSV}")
+
 def build_system_learning_note(news, social, alert_logs, team_actions, president_replies, crisis_plan, early_warning):
     def safe_float(value, default=0):
         try:
@@ -6505,6 +6570,31 @@ def build_report(news, social, undated_news=None):
     president_reply_summary = president_x_replies_summary(president_replies)
     president_reply_html = president_x_replies_card(president_reply_summary)
     opportunity_sum = build_opportunity_summary(news, social, president_posts, dashboard_day)
+    archive_alert_logs = read_alert_log()
+    archive_team_actions = read_team_actions()
+    archive_president_replies = read_president_x_replies()
+
+    archive_learning_note = build_system_learning_note(
+        news,
+        social,
+        archive_alert_logs,
+        archive_team_actions,
+        archive_president_replies,
+        crisis_plan,
+        early_warning
+    )
+
+    append_daily_decision_log(
+        dashboard_day,
+        report_time,
+        news,
+        social,
+        crisis_plan,
+        early_warning,
+        opportunity_sum,
+        archive_learning_note,
+        archive_team_actions
+    )
     
     dashboard_html = president_dashboard_panel(
         dashboard_day,

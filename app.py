@@ -6071,7 +6071,18 @@ a {{ color:#1f2933; font-weight:800; }}
 
 
 
-{section_label(" Acil Durum / Kriz Paneli", "#b91c1c", "#fef2f2")}
+{section_label(" Acil Durum ve Operasyon Hızlı Erişim", "#b91c1c", "#fef2f2")}
+<div class="card" style="
+    border-left:6px solid #b91c1c;
+    background:#fff7f7;
+    margin:14px 0;
+">
+    <h2 style="margin-top:0;color:#991b1b;">🚨 Kriz ve Operasyon Kısayolları</h2>
+    <p style="color:#475569;font-weight:700;line-height:1.45;">
+        Kriz paneli, acil eylem planı ve ekip operasyon raporu başkan ekranında hızlı erişim için açık bırakılmıştır.
+        Detaylı haber, sosyal medya ve analiz akışı aşağıdaki “Detaylı Rapor Akışını Aç” bölümündedir.
+    </p>
+</div>
 <div style="margin:18px 0; padding:16px; border:2px solid #dc2626; border-left:8px solid #b91c1c; border-radius:16px; background:#fef2f2; box-shadow:0 2px 10px rgba(185,28,28,0.10);">
   <a href="crisis_panel.html" style="font-size:18px; font-weight:bold; color:#991b1b; text-decoration:none;">
     🚨 Acil Eylem Planı / Kriz Panelini Aç
@@ -6083,7 +6094,7 @@ a {{ color:#1f2933; font-weight:800; }}
   </div>
 </div>
 </div>
-... Acil Eylem Planı / Kriz Paneli kartı ...
+
 
 <div style="margin:10px 0 18px 0; padding:14px; border:2px solid #334155; border-left:8px solid #0f172a; border-radius:16px; background:#f8fafc;">
   <a href="team_report.html" style="font-size:22px; font-weight:bold; color:#0f172a; text-decoration:none;">

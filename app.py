@@ -6069,6 +6069,35 @@ a {{ color:#1f2933; font-weight:800; }}
        
 {dashboard_html}
 
+
+
+{section_label(" Acil Durum / Kriz Paneli", "#b91c1c", "#fef2f2")}
+<div style="margin:18px 0; padding:16px; border:2px solid #dc2626; border-left:8px solid #b91c1c; border-radius:16px; background:#fef2f2; box-shadow:0 2px 10px rgba(185,28,28,0.10);">
+  <a href="crisis_panel.html" style="font-size:18px; font-weight:bold; color:#991b1b; text-decoration:none;">
+    🚨 Acil Eylem Planı / Kriz Panelini Aç
+  </a>
+  <div style="margin-top:6px; color:#7f1d1d;">
+    Risk seviyesi: {esc(crisis_plan.get("level", ""))} • Durum: {esc(crisis_status.get("status", ""))} • Son güncelleme: {report_time}
+  <div style="margin-top:8px; color:#7f1d1d;">
+    Erken uyarı: {esc(early_warning.get("decision", ""))} • Bildirim: {esc(early_warning.get("notify_level", ""))}
+  </div>
+</div>
+</div>
+... Acil Eylem Planı / Kriz Paneli kartı ...
+
+<div style="margin:10px 0 18px 0; padding:14px; border:2px solid #334155; border-left:8px solid #0f172a; border-radius:16px; background:#f8fafc;">
+  <a href="team_report.html" style="font-size:22px; font-weight:bold; color:#0f172a; text-decoration:none;">
+    👥 Ekip Operasyon Raporunu Aç
+  </a>
+  <div style="margin-top:6px; color:#475569;">
+    Alarm geçmişi, riskli sosyal medya kayıtları, Başkan X yanıtları ve müdahale kayıtları ekip tarafından buradan takip edilir.
+  </div>
+</div>
+
+</header>
+
+<main>
+
 <details id="detay-rapor-akisi" style="
     margin:18px 0;
     border-radius:20px;
@@ -6101,33 +6130,6 @@ a {{ color:#1f2933; font-weight:800; }}
         margin-top:14px;
         padding:4px 0;
     ">
-
-{section_label(" Acil Durum / Kriz Paneli", "#b91c1c", "#fef2f2")}
-<div style="margin:18px 0; padding:16px; border:2px solid #dc2626; border-left:8px solid #b91c1c; border-radius:16px; background:#fef2f2; box-shadow:0 2px 10px rgba(185,28,28,0.10);">
-  <a href="crisis_panel.html" style="font-size:18px; font-weight:bold; color:#991b1b; text-decoration:none;">
-    🚨 Acil Eylem Planı / Kriz Panelini Aç
-  </a>
-  <div style="margin-top:6px; color:#7f1d1d;">
-    Risk seviyesi: {esc(crisis_plan.get("level", ""))} • Durum: {esc(crisis_status.get("status", ""))} • Son güncelleme: {report_time}
-  <div style="margin-top:8px; color:#7f1d1d;">
-    Erken uyarı: {esc(early_warning.get("decision", ""))} • Bildirim: {esc(early_warning.get("notify_level", ""))}
-  </div>
-</div>
-</div>
-... Acil Eylem Planı / Kriz Paneli kartı ...
-
-<div style="margin:10px 0 18px 0; padding:14px; border:2px solid #334155; border-left:8px solid #0f172a; border-radius:16px; background:#f8fafc;">
-  <a href="team_report.html" style="font-size:22px; font-weight:bold; color:#0f172a; text-decoration:none;">
-    👥 Ekip Operasyon Raporunu Aç
-  </a>
-  <div style="margin-top:6px; color:#475569;">
-    Alarm geçmişi, riskli sosyal medya kayıtları, Başkan X yanıtları ve müdahale kayıtları ekip tarafından buradan takip edilir.
-  </div>
-</div>
-
-</header>
-
-<main>
 
 {report_main_menu()}
 

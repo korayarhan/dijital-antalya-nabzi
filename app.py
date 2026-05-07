@@ -6067,10 +6067,42 @@ a {{ color:#1f2933; font-weight:800; }}
     <h1>Yerel Liderlik AI Günlük Raporu</h1>
     <p>Takip edilen isim: Mesut Kocagöz • Bölge: Antalya / Kepez • Tarih: {today} • Güncelleme saati: {report_time}
        
-       {dashboard_html}
-    
-    <div id="acil-durum"></div>
-    {section_label("🚨 Acil Durum / Kriz Paneli", "#b91c1c", "#fef2f2")}
+{dashboard_html}
+
+<details style="
+    margin:18px 0;
+    border-radius:20px;
+">
+    <summary style="
+        cursor:pointer;
+        list-style:none;
+        background:#f8fafc;
+        border:1.5px solid #334155;
+        color:#334155;
+        border-radius:20px;
+        padding:16px;
+        font-size:18px;
+        font-weight:900;
+        box-shadow:0 6px 18px rgba(15,23,42,0.05);
+    ">
+        📂 Detaylı Rapor Akışını Aç
+        <div style="
+            font-size:13px;
+            font-weight:700;
+            color:#64748b;
+            margin-top:6px;
+            line-height:1.35;
+        ">
+            Haber listeleri, sosyal medya detayları, kriz aksiyon planı, YouTube ve Başkan X ayrıntıları bu bölümde yer alır.
+        </div>
+    </summary>
+
+    <div style="
+        margin-top:14px;
+        padding:4px 0;
+    ">
+
+{section_label(" Acil Durum / Kriz Paneli", "#b91c1c", "#fef2f2")}
 <div style="margin:18px 0; padding:16px; border:2px solid #dc2626; border-left:8px solid #b91c1c; border-radius:16px; background:#fef2f2; box-shadow:0 2px 10px rgba(185,28,28,0.10);">
   <a href="crisis_panel.html" style="font-size:18px; font-weight:bold; color:#991b1b; text-decoration:none;">
     🚨 Acil Eylem Planı / Kriz Panelini Aç
@@ -6355,6 +6387,9 @@ a {{ color:#1f2933; font-weight:800; }}
     <div class="item"><h3>C) Sosyal Medyada Bakılacak Başlıklar</h3><p>Instagram, Facebook, X, YouTube ve TikTok üzerinde beğeni oranı, yorum tonu, kötü yorum artışı ve en çok paylaşılan içerikler kontrol edilmelidir.</p></div>
     <div class="item"><h3>D) Sistem Anahtar Kelimeleri</h3><p>{esc(tomorrow_keywords)}</p></div>
 </div>
+
+    </div>
+</details>
 
 </main>
 </body>

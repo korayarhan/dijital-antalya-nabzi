@@ -3237,54 +3237,54 @@ def president_dashboard_panel(today, report_time, news, social, president_posts,
         opportunity_bg = "#f8fafc"
         opportunity_border = "#e2e8f0"
 
-if opportunity_alarm:
-    opportunity_alarm_html = f"""
-    <div style="
-        background:#ecfdf5;
-        border:1px solid #86efac;
-        border-left:6px solid #16a34a;
-        border-radius:14px;
-        padding:12px;
-        margin:10px 0;
-        color:#065f46;
-        font-size:14px;
-        font-weight:900;
-        line-height:1.45;
-    ">
-        🚀 {esc(opportunity_alarm_label)}<br>
-        <span style="font-weight:800;color:#047857;">
-            Mail adayı: {esc(opportunity_mail_candidate)} • WhatsApp/app adayı: {esc(opportunity_whatsapp_candidate)}
-        </span>
-        <br>
-        <span style="font-weight:700;color:#334155;">
-            {esc(opportunity_alarm_reason)}
-        </span>
-    </div>
-    """
-else:
-    opportunity_alarm_html = f"""
-    <div style="
-        background:#f8fafc;
-        border:1px solid #e2e8f0;
-        border-left:6px solid #94a3b8;
-        border-radius:14px;
-        padding:12px;
-        margin:10px 0;
-        color:#334155;
-        font-size:14px;
-        font-weight:800;
-        line-height:1.45;
-    ">
-        {esc(opportunity_alarm_label)}<br>
-        <span style="font-weight:700;color:#64748b;">
-            Mail adayı: {esc(opportunity_mail_candidate)} • WhatsApp/app adayı: {esc(opportunity_whatsapp_candidate)}
-        </span>
-        <br>
-        <span style="font-weight:700;color:#64748b;">
-            {esc(opportunity_alarm_reason)}
-        </span>
-    </div>
-    """
+    if opportunity_alarm:
+        opportunity_alarm_html = f"""
+        <div style="
+            background:#ecfdf5;
+            border:1px solid #86efac;
+            border-left:6px solid #16a34a;
+            border-radius:14px;
+            padding:12px;
+            margin:10px 0;
+            color:#065f46;
+            font-size:14px;
+            font-weight:900;
+            line-height:1.45;
+        ">
+            🚀 {esc(opportunity_alarm_label)}<br>
+            <span style="font-weight:800;color:#047857;">
+                Mail adayı: {esc(opportunity_mail_candidate)} • WhatsApp/app adayı: {esc(opportunity_whatsapp_candidate)}
+            </span>
+            <br>
+            <span style="font-weight:700;color:#334155;">
+                {esc(opportunity_alarm_reason)}
+            </span>
+        </div>
+        """
+    else:
+        opportunity_alarm_html = f"""
+        <div style="
+            background:#f8fafc;
+            border:1px solid #e2e8f0;
+            border-left:6px solid #94a3b8;
+            border-radius:14px;
+            padding:12px;
+            margin:10px 0;
+            color:#334155;
+            font-size:14px;
+            font-weight:800;
+            line-height:1.45;
+        ">
+            {esc(opportunity_alarm_label)}<br>
+            <span style="font-weight:700;color:#64748b;">
+                Mail adayı: {esc(opportunity_mail_candidate)} • WhatsApp/app adayı: {esc(opportunity_whatsapp_candidate)}
+            </span>
+            <br>
+            <span style="font-weight:700;color:#64748b;">
+                {esc(opportunity_alarm_reason)}
+            </span>
+        </div>
+        """
 
     opportunity_card_html = f"""
     <div id="baskan-firsat" style="

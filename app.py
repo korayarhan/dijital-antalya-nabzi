@@ -3819,7 +3819,7 @@ def president_dashboard_panel(today, report_time, news, social, president_posts,
             </div>
 
             <div style="font-size:14px;font-weight:800;color:#334155;margin-top:8px;line-height:1.45;">
-                Karar: TAKİPTE KAL / HAZIR BEKLE ""))}
+                Karar: TAKİPTE KAL / HAZIR BEKLE
                 <br>
                 Bu başlık ekip tarafından izlenmeli. Konu büyürse kriz paneli açılmalı.
             </div>

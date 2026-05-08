@@ -6754,7 +6754,7 @@ def build_team_report(news, social, early_warning, crisis_plan, crisis_status, r
         subtitle=learning_subtitle,
 
     )
-    <div id="detay-youtube"></div>
+    
     youtube_section = accordion_section(
         "📺 YouTube Kanal Takibi",
         "#334155",
@@ -6944,6 +6944,7 @@ th {{
 
 {crisis_alarm_section}
 {learning_section}
+<div id="detay-youtube"></div>
 {youtube_section}
 {weekly_section}
 {x_social_section}

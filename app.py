@@ -7057,7 +7057,7 @@ def build_team_report(news, social, early_warning, crisis_plan, crisis_status, r
     )
 
     data_flow_section = accordion_section(
-        " Veri Akışı / Filtre Kalite Kontrolü"
+        " Veri Akışı / Filtre Kalite Kontrolü",
         "#0f766e",
         "#ecfdf5",
         data_flow_quality,
@@ -7066,10 +7066,10 @@ def build_team_report(news, social, early_warning, crisis_plan, crisis_status, r
     )
 
     learning_section = accordion_section(
-       " Günlük Sistem Öğrenme Notu",
-       "#334155",
-       "#f8fafc",
-       f"""
+        " Günlük Sistem Öğrenme Notu",
+        "#334155",
+        "#f8fafc",
+        f"""
 
 Operatör kontrol durumu: {esc(learning_note.get("operator_status", ""))}
 Veri sağlık notu: {esc(learning_note.get("data_health", ""))}

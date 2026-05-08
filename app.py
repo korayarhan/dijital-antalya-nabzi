@@ -7056,35 +7056,41 @@ def build_team_report(news, social, early_warning, crisis_plan, crisis_status, r
 
     )
 
-    learning_section = accordion_section(
-        "🧠 Günlük Sistem Öğrenme Notu",
-        "#334155",
-        "#f8fafc",
-        f"""
-        <div class="card">
-             
-            <p><b>Operatör kontrol durumu:</b> {esc(learning_note.get("operator_status", ""))}</p>
-            <p><b>Veri sağlık notu:</b> {esc(learning_note.get("data_health", ""))}</p>
-            <p><b>Operatör aksiyon önerisi:</b> {esc(learning_note.get("operator_action", ""))}</p>
-            <p><b>Ana risk değerlendirmesi:</b> {esc(learning_note.get("main_risk", ""))}</p>
-            <p><b>Tekrarlayan / öne çıkan konu:</b> {esc(learning_note.get("repeated_topic", ""))}</p>
-            <p><b>Filtre notu:</b> {esc(learning_note.get("filter_note", ""))}</p>
-            <p><b>Ekip aksiyon notu:</b> {esc(learning_note.get("action_note", ""))}</p>
-            <p><b>Arşiv notu:</b> {esc(learning_note.get("archive_note", ""))}</p>
-            <p><b>Bir sonraki küçük gelişim:</b> {esc(learning_note.get("next_improvement", ""))}</p>
-        </div>
-        """,
-        data_flow_section = accordion_section(
-            " Veri Akışı / Filtre Kalite Kontrolü",
-            "#0f766e",
-            "#ecfdf5",
-            data_flow_quality,
-            opened=True,
-            subtitle=data_flow_subtitle,
-            opened=True,
-            subtitle=learning_subtitle,
+    data_flow_section = accordion_section(
+        " Veri Akışı / Filtre Kalite Kontrolü"
+        "#0f766e",
+        "#ecfdf5",
+        data_flow_quality,
+        opened=True,
+        subtitle=data_flow_subtitle,
+    )
 
-         )
+    learning_section = accordion_section(
+       " Günlük Sistem Öğrenme Notu",
+       "#334155",
+       "#f8fafc",
+       f"""
+
+Operatör kontrol durumu: {esc(learning_note.get("operator_status", ""))}
+Veri sağlık notu: {esc(learning_note.get("data_health", ""))}
+
+Operatör aksiyon önerisi: {esc(learning_note.get("operator_action", ""))}
+
+Ana risk değerlendirmesi: {esc(learning_note.get("main_risk", ""))}
+
+Tekrarlayan / öne çıkan konu: {esc(learning_note.get("repeated_topic", ""))}
+
+Filtre notu: {esc(learning_note.get("filter_note", ""))}
+
+Ekip aksiyon notu: {esc(learning_note.get("action_note", ""))}
+
+Arşiv notu: {esc(learning_note.get("archive_note", ""))}
+Bir sonraki küçük gelişim: {esc(learning_note.get("next_improvement", ""))}
+
+""",
+    opened=True,
+    subtitle=learning_subtitle,
+)
     
     youtube_section = accordion_section(
         "📺 YouTube Kanal Takibi",
@@ -7274,8 +7280,8 @@ th {{
 <div class="container">
 
 {crisis_alarm_section}
-{learning_section}
 {data_flow_section}
+{learning_section}
 <div id="detay-youtube"></div>
 {youtube_section}
 {weekly_section}

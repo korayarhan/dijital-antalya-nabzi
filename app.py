@@ -3370,6 +3370,11 @@ def build_news_pool_summary_html(news):
 def president_dashboard_panel(today, report_time, news, social, president_posts, crisis_plan, early_warning, opportunity_sum=None, all_news=None):
     opportunity_sum = opportunity_sum or {}
     all_news = all_news if all_news is not None else news
+    try:
+        display_day = dt.datetime.strptime(str(today), "%Y-%m-%d").strftime("%d-%m-%Y")
+    except Exception:
+        display_day = str(today)
+    
     today_news = [
         item for item in news
         if same_day(item.get("parsed_date", item.get("date", "")), today)
@@ -4014,6 +4019,21 @@ def president_dashboard_panel(today, report_time, news, social, president_posts,
             <div>
                 
                 {decision_card_html}
+                
+                <div style="
+                    background:#f8fafc;
+                    border:1px solid #e2e8f0;
+                    border-left:5px solid #2563eb;
+                    border-radius:14px;
+                    padding:10px 12px;
+                    margin:0 0 12px 0;
+                    font-size:13px;
+                    font-weight:800;
+                    color:#334155;
+                    line-height:1.4;
+                ">
+                    📌 Bu 4 hızlı kart <b>{esc(display_day)}</b> tarihli özet gününü gösterir. Son 7 gün haber havuzu aşağıda ayrıca verilir.
+                </div>
 
                 <div style="
                     display:grid;

@@ -92,7 +92,7 @@ a { color:#1f2933; font-weight:800; }
 
 <header>
     <h1>Yerel Liderlik AI Günlük Raporu</h1>
-    <p>Takip edilen isim: Mesut Kocagöz • Bölge: Antalya / Kepez • Tarih: 2026-05-08 • Güncelleme saati: 16:39
+    <p>Takip edilen isim: Mesut Kocagöz • Bölge: Antalya / Kepez • Tarih: 2026-05-08 • Güncelleme saati: 16:45
        
 
     <style>
@@ -249,7 +249,7 @@ a { color:#1f2933; font-weight:800; }
             margin-bottom:14px;
         ">
             <div style="font-size:13px;font-weight:900;color:#92400e;line-height:1.4;">
-                Günlük takip uyarısı • Özet günü: 2026-05-07 • Rapor saati: 16:39
+                Günlük takip uyarısı • Özet günü: 2026-05-07 • Rapor saati: 16:45
             </div>
 
             <div style="font-size:20px;font-weight:950;color:#92400e;margin-top:8px;line-height:1.25;">
@@ -283,10 +283,10 @@ a { color:#1f2933; font-weight:800; }
             Özet günü haberleri
         </div>
         <div style="font-size:34px;font-weight:900;color:#0f172a;line-height:1;">
-            6
+            5
         </div>
         <div style="font-size:13px;font-weight:700;color:#64748b;margin-top:8px;line-height:1.35;">
-            Son 7 gün tarandı • özet günü 6 haber
+            Son 7 gün tarandı • özet günü 5 haber
         </div>
     </div>
     
@@ -346,58 +346,70 @@ a { color:#1f2933; font-weight:800; }
             6
         </div>
         <div style="font-size:13px;font-weight:700;color:#64748b;margin-top:8px;line-height:1.35;">
-            Etkileşim 374 • Yanıt 0
+            Etkileşim 375 • Yanıt 0
         </div>
     </div>
     
                 </div>
 
                      
-    <div id="son-7-gun-haber-havuzu" style="
+    <details id="son-7-gun-haber-havuzu" style="
         background:#eff6ff;
         border:1px solid #e5e7eb;
         border-left:6px solid #2563eb;
         border-radius:22px;
-        padding:16px;
+        padding:0;
         margin:14px 0 16px 0;
+        overflow:hidden;
     ">
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
-            <div style="font-size:24px;">📰</div>
-            <div>
-                <div style="font-size:20px;font-weight:900;color:#0f172a;">
-                    Son 7 Gün Haber Havuzu / Genel Algı
-                </div>
-                <div style="font-size:13px;font-weight:700;color:#64748b;">
-                    Özet günü ayrı, son 7 günlük haber havuzu ayrı değerlendirilir.
-                </div>
+        <summary style="
+            cursor:pointer;
+            list-style:none;
+            padding:16px;
+            font-size:20px;
+            font-weight:950;
+            color:#0f172a;
+            line-height:1.35;
+        ">
+            📰 Son 7 Gün Haber Havuzu / Genel Algı
+            <div style="
+                font-size:13px;
+                font-weight:750;
+                color:#64748b;
+                margin-top:6px;
+                line-height:1.35;
+            ">
+                Toplam 29 haber • 11 olumlu • 16 nötr • 2 riskli
+            </div>
+        </summary>
+
+        <div style="padding:0 16px 16px 16px;">
+            <div style="
+                display:grid;
+                grid-template-columns:repeat(2,minmax(0,1fr));
+                gap:10px;
+                margin-bottom:12px;
+            ">
+                <div class="kpi"><b>29</b><span>Toplam haber</span></div>
+                <div class="kpi"><b>11</b><span>Olumlu</span></div>
+                <div class="kpi"><b>16</b><span>Nötr</span></div>
+                <div class="kpi"><b>2</b><span>Riskli</span></div>
+            </div>
+
+            <div style="
+                background:white;
+                border:1px solid #e2e8f0;
+                border-radius:16px;
+                padding:12px;
+                font-size:14px;
+                font-weight:800;
+                color:#334155;
+                line-height:1.45;
+            ">
+                <b>Genel yorum:</b> Olumlu görünürlük riskli başlıklardan güçlü. Hizmet ve fırsat başlıkları öne çıkarılabilir.
             </div>
         </div>
-
-        <div style="
-            display:grid;
-            grid-template-columns:repeat(2,minmax(0,1fr));
-            gap:10px;
-            margin-bottom:12px;
-        ">
-            <div class="kpi"><b>30</b><span>Toplam haber</span></div>
-            <div class="kpi"><b>12</b><span>Olumlu</span></div>
-            <div class="kpi"><b>15</b><span>Nötr</span></div>
-            <div class="kpi"><b>3</b><span>Riskli</span></div>
-        </div>
-
-        <div style="
-            background:white;
-            border:1px solid #e2e8f0;
-            border-radius:16px;
-            padding:12px;
-            font-size:14px;
-            font-weight:800;
-            color:#334155;
-            line-height:1.45;
-        ">
-            <b>Genel yorum:</b> Olumlu görünürlük riskli başlıklardan güçlü. Hizmet ve fırsat başlıkları öne çıkarılabilir.
-        </div>
-    </div>
+    </details>
     
 
                       
@@ -415,12 +427,12 @@ a { color:#1f2933; font-weight:800; }
 
             <div style="font-size:13px;font-weight:700;color:#64748b;margin-bottom:12px;line-height:1.35;">
                 Özet gününde 6 Başkan X gönderisi analiz edildi.
-                Toplam etkileşim: 374
+                Toplam etkileşim: 375
             </div>
 
             <div style="margin-bottom:10px;">
                 <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:800;color:#334155;">
-                    <span>Beğeni</span><span>302</span>
+                    <span>Beğeni</span><span>303</span>
                 </div>
                 <div style="height:10px;background:#dcfce7;border-radius:999px;overflow:hidden;margin-top:5px;">
                     <div style="height:10px;width:100%;background:#16a34a;border-radius:999px;"></div>
@@ -1148,7 +1160,7 @@ a { color:#1f2933; font-weight:800; }
     🚨 Acil Eylem Planı / Kriz Panelini Aç
   </a>
   <div style="margin-top:6px; color:#7f1d1d;">
-    Risk seviyesi: Yüksek • Durum: Müdahale ediliyor • Son güncelleme: 16:39
+    Risk seviyesi: Yüksek • Durum: Müdahale ediliyor • Son güncelleme: 16:45
   <div style="margin-top:8px; color:#7f1d1d;">
     Erken uyarı: ACİL ALARM • Bildirim: Sayın Başkan + Basın + Hukuk + ilgili birim
   </div>
@@ -1228,10 +1240,10 @@ a { color:#1f2933; font-weight:800; }
 <div class="card" style="border-left:6px solid #2563eb; background:#eff6ff;">
     <h2>1. Günün Genel Algısı</h2>
     <div class="kpis">
-        <div class="kpi"><b>30</b><span>Toplam haber</span></div>
-        <div class="kpi"><b>12</b><span>Olumlu</span></div>
-        <div class="kpi"><b>15</b><span>Nötr</span></div>
-        <div class="kpi"><b>3</b><span>Riskli</span></div>
+        <div class="kpi"><b>29</b><span>Toplam haber</span></div>
+        <div class="kpi"><b>11</b><span>Olumlu</span></div>
+        <div class="kpi"><b>16</b><span>Nötr</span></div>
+        <div class="kpi"><b>2</b><span>Riskli</span></div>
     </div>
     <p><b>Genel tablo:</b> Olumlu</p>
     <p>Olumlu görünürlük riskli başlıklardan güçlü. Bugün hizmet ve insan hikayesi dili büyütülebilir.</p>
@@ -1256,10 +1268,10 @@ a { color:#1f2933; font-weight:800; }
 <p><b>Anahtar kelime:</b> Antalya Büyükşehir Belediyesi</p>
 <p>
 <span class="pill">Riskli</span>
-<span class="pill">Risk: 8/10</span>
+<span class="pill">Risk: 10/10</span>
 <span class="pill">Fırsat: 0/10</span>
 </p>
-<p>Antalya Büyükşehir Belediyesi soruşturması davasında ara karar açıklandı Anadolu AjansıAntalya Büyükşehir Belediye Başkanı Muhittin Böcek ve ailesinin mal varlığına el kondu! T24Son dakika: Yolsuzluk soruşturmasında Muhittin Böcek&#x27;in m</p>
+<p>Antalya Büyükşehir Belediyesi soruşturması davasında ara karar açıklandı Anadolu AjansıAntalya Büyükşehir Belediye Başkanı Böcek savunma yaptı: Cep telefonumdaki veriler nasıl yayıldı? Gazete OksijenAntalya Büyükşehir Belediyesi Genel Sekre</p>
 <a href="https://news.google.com/rss/articles/CBMirAFBVV95cUxObGhFWDl6TS1ZMTdyX21FSlBNUElPa0VXUXd1VzJCbWhfdXcyVVNtNGtnUGVQa1FNQVpYWThkUnZ6MXphU2t2Rlplb1BsenV4bjludmV5bUdLcFBQZk1Cd3BuZGhGRk01dkphX3MwWnZqOVBpTE9xTWdWUkVxQjk1eFh0d2FUZUdyV2k4VFhuRTU4REozMk01RUgyUzY2NTFmRS1qUXl2YjFzYlJO?oc=5" target="_blank" style="display:inline-block; margin-top:8px; padding:9px 12px; border-radius:10px; background:#2563eb; color:white; text-decoration:none; font-weight:700;">Haberi Aç</a>
 </div>
 
@@ -1344,10 +1356,10 @@ a { color:#1f2933; font-weight:800; }
 <p><b>Anahtar kelime:</b> Antalya Büyükşehir Belediyesi</p>
 <p>
 <span class="pill">Riskli</span>
-<span class="pill">Risk: 8/10</span>
+<span class="pill">Risk: 10/10</span>
 <span class="pill">Fırsat: 0/10</span>
 </p>
-<p>Antalya Büyükşehir Belediyesi soruşturması davasında ara karar açıklandı Anadolu AjansıAntalya Büyükşehir Belediye Başkanı Muhittin Böcek ve ailesinin mal varlığına el kondu! T24Son dakika: Yolsuzluk soruşturmasında Muhittin Böcek&#x27;in m</p>
+<p>Antalya Büyükşehir Belediyesi soruşturması davasında ara karar açıklandı Anadolu AjansıAntalya Büyükşehir Belediye Başkanı Böcek savunma yaptı: Cep telefonumdaki veriler nasıl yayıldı? Gazete OksijenAntalya Büyükşehir Belediyesi Genel Sekre</p>
 <a href="https://news.google.com/rss/articles/CBMirAFBVV95cUxObGhFWDl6TS1ZMTdyX21FSlBNUElPa0VXUXd1VzJCbWhfdXcyVVNtNGtnUGVQa1FNQVpYWThkUnZ6MXphU2t2Rlplb1BsenV4bjludmV5bUdLcFBQZk1Cd3BuZGhGRk01dkphX3MwWnZqOVBpTE9xTWdWUkVxQjk1eFh0d2FUZUdyV2k4VFhuRTU4REozMk01RUgyUzY2NTFmRS1qUXl2YjFzYlJO?oc=5" target="_blank" style="display:inline-block; margin-top:8px; padding:9px 12px; border-radius:10px; background:#2563eb; color:white; text-decoration:none; font-weight:700;">Haberi Aç</a>
 </div>
 
@@ -1361,18 +1373,6 @@ a { color:#1f2933; font-weight:800; }
 </p>
 <p>Antalya Kepez’de okul inşaatında milyonluk hata! Ceza yok, görev devam Antalya Hürses</p>
 <a href="https://news.google.com/rss/articles/CBMipwFBVV95cUxOQkU0NkJwd212RjVWeWUyektfelNiRFNJRndkSnREV1hJREpHeGJrQWcwRldwRHdFWDI5QXl0Y1I2cG1LeG45RkY3Nk5FdXNUNWNEczNTYW9WZXhhRGtSX1dYaTBtM09jN1RXZGhuMTJQWlhwZGYzdWRGSDJQSjF1YXpmTGZQckg1TzBJT25Bek9pMEFWbm41RXJnR3dtRDdNR0lYbUQ0VQ?oc=5" target="_blank" style="display:inline-block; margin-top:8px; padding:9px 12px; border-radius:10px; background:#2563eb; color:white; text-decoration:none; font-weight:700;">Haberi Aç</a>
-</div>
-
-<div class="item" style="border-left:6px solid #2563eb; background:#eff6ff;">
-<h3>Antalya Kepez’de motosiklet kazası: Kurye hayatını kaybetti - 24 Saat Gazetesi Ankara</h3>
-<p><b>Anahtar kelime:</b> Antalya Kepez</p>
-<p>
-<span class="pill">Riskli</span>
-<span class="pill">Risk: 5/10</span>
-<span class="pill">Fırsat: 0/10</span>
-</p>
-<p>Antalya Kepez’de motosiklet kazası: Kurye hayatını kaybetti 24 Saat Gazetesi Ankara</p>
-<a href="https://news.google.com/rss/articles/CBMikgFBVV95cUxPVjl6T3J6Q3BsaEZMVVh5ME9GVko0eDM1ejNZNFZvVVVmY2tfQ1k4UGh0RDdQVWNsaUVTMWhDd2l0MDRfWFhJU21jS1ZKOFJsd1NYdnBTQkJUQXFpQWNWcVEtSFR1ZkRUbjEyVVVuR0NLbkVuaHFjMkNBeXFxa1hpYk1uZHBxOXJySHd0NldNSjdlUQ?oc=5" target="_blank" style="display:inline-block; margin-top:8px; padding:9px 12px; border-radius:10px; background:#2563eb; color:white; text-decoration:none; font-weight:700;">Haberi Aç</a>
 </div>
 </div>
 
@@ -1394,10 +1394,10 @@ a { color:#1f2933; font-weight:800; }
 <div id="sosyal-medya"></div>
  <h2>5. Sosyal Medya Etkileşim Analizi</h2>
     <div class="kpis">
-        <div class="kpi"><b>2599</b><span>Toplam beğeni</span></div>
-        <div class="kpi"><b>370</b><span>Toplam yorum</span></div>
+        <div class="kpi"><b>2602</b><span>Toplam beğeni</span></div>
+        <div class="kpi"><b>371</b><span>Toplam yorum</span></div>
         <div class="kpi"><b>%2.95</b><span>Beğenme oranı</span></div>
-        <div class="kpi"><b>%3.59</b><span>Etkileşim oranı</span></div>
+        <div class="kpi"><b>%3.60</b><span>Etkileşim oranı</span></div>
     </div>
     
        <div class="card" style="border-left:6px solid #7c3aed; background:#f5f3ff;">
@@ -1779,11 +1779,11 @@ a { color:#1f2933; font-weight:800; }
 <h2>11. Stratejik Erken Uyarı ve Günlük Değerlendirme</h2>
 
 <h3>A) Alarm Seviyesi</h3>
-<p><b>Yüksek dikkat</b></p>
-<p>Bugün riskli haberler veya olumsuz yorum oranı belirgin seviyede. Savunmacı polemik yerine sakin, belgeye dayalı ve hizmet odaklı iletişim tercih edilmelidir.</p>
+<p><b>Kontrollü takip</b></p>
+<p>Bugün risk tamamen yüksek değil ancak takip edilmesi gereken başlıklar var. Olumsuz yorumların büyüyüp büyümediği gün içinde izlenmelidir.</p>
 
 <h3>B) Sayısal Durum</h3>
-<p>Bugün sistemde <b>30</b> haber tarandı. Bunların <b>12</b> tanesi olumlu, <b>15</b> tanesi nötr, <b>3</b> tanesi riskli görünüyor.</p>
+<p>Bugün sistemde <b>29</b> haber tarandı. Bunların <b>11</b> tanesi olumlu, <b>16</b> tanesi nötr, <b>2</b> tanesi riskli görünüyor.</p>
 
 <p>Sosyal medyada kötü yorum oranı <b>%27.8</b>, iyi yorum oranı <b>%22.2</b>, nötr yorum oranı <b>%50.0</b> seviyesinde.</p>
 
@@ -1804,7 +1804,7 @@ a { color:#1f2933; font-weight:800; }
 <h2>12. Stratejik Yorum</h2>
 
 <h3>A) Bugünün Ana Stratejisi</h3>
-<p>Riskleri büyütmeden kontrol etmek, olumlu hizmet başlıklarını görünür tutmak ve Sayın Başkanın profilini güven veren bir çizgide korumak.</p>
+<p>Olumlu gündemi canlı tutarken riskli başlıklara karşı hazırlıklı olmak.</p>
 
 <p>Bugün iletişimde amaç sadece haber paylaşmak değil; Mesut Kocagöz algısını “sahada çalışan, gündemi takip eden, hizmeti önceleyen ve krizleri büyütmeden yöneten Sayın Başkan” çizgisinde güçlendirmek olmalıdır.</p>
 
@@ -1819,7 +1819,7 @@ a { color:#1f2933; font-weight:800; }
 <p>Konu büyürse cevap dili belgeye dayalı, kısa, sakin ve kurumsal olmalıdır. Kişisel tartışmaya girilmemelidir.</p>
 
 <h3>D) Önerilen İletişim Dili</h3>
-<p>Sakin, net, polemikten uzak ve vatandaşın gündelik hayatına dokunan bir dil kullanılmalıdır.</p>
+<p>Hizmet, mahalle teması ve vatandaş memnuniyeti öne çıkarılmalı; tartışmalı başlıklarda ölçülü kalınmalıdır.</p>
 
 <p>Bugün kullanılabilecek ana mesaj şudur:</p>
 <p><b>“Kepez’de önceliğimiz, vatandaşın günlük hayatına dokunan işleri sahada ve sürdürülebilir biçimde büyütmek. Hizmeti mahalle mahalle görünür hale getirmeye devam ediyoruz.”</b></p>

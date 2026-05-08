@@ -3357,7 +3357,7 @@ def build_news_pool_summary_html(news):
 
 def president_dashboard_panel(today, report_time, news, social, president_posts, crisis_plan, early_warning, opportunity_sum=None, all_news=None):
     opportunity_sum = opportunity_sum or {}
-       all_news = all_news if all_news is not None else news
+    all_news = all_news if all_news is not None else news
     today_news = [
         item for item in news
         if same_day(item.get("parsed_date", item.get("date", "")), today)

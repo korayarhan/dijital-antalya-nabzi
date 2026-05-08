@@ -3745,6 +3745,81 @@ def president_dashboard_panel(today, report_time, news, social, president_posts,
     </div>
     """
 
+    decision_raw = str(early_warning.get("decision", "") or "")
+    decision_upper = decision_raw.upper()
+
+    risk_is_real = (
+        "ACİL" in decision_upper
+        or "ACIL" in decision_upper
+        or "yuksek" in risk_norm
+        or "yüksek" in risk_norm
+        or "orta" in risk_norm
+    )
+
+    strong_opportunity = (
+        opportunity_alarm
+        or opportunity_score >= 6
+        or "yuksek" in opportunity_norm
+        or "yüksek" in opportunity_norm
+    )
+
+    if risk_is_real:
+        decision_card_html = f"""
+        <div class="{crisis_pulse}" style="
+            background:#fff;
+            border:2px solid #b91c1c;
+            border-radius:22px;
+            padding:18px;
+            margin-bottom:16px;
+        ">
+            <div style="font-size:14px;font-weight:900;color:#64748b;line-height:1.45;">
+                Günlük Başkan Özeti • Özet günü: {esc(today)} • Rapor saati: {esc(report_time)}
+            </div>
+
+            <div style="font-size:26px;font-weight:950;color:#991b1b;margin-top:10px;line-height:1.25;">
+                Risk seviyesi: {esc(risk_level)}
+            </div>
+
+            <div style="font-size:15px;font-weight:850;color:#334155;margin-top:10px;line-height:1.45;">
+                Karar: {esc(early_warning.get("decision", ""))} • Başkan'a gösterilsin mi: {esc(early_warning.get("show_to_president", ""))}
+                <br>
+                Başkan konuşmalı mı: {esc(crisis_plan.get("speaker_decision", crisis_plan.get("speaker", "")))}
+            </div>
+        </div>
+        """
+    elif strong_opportunity:
+        decision_card_html = f"""
+        <div style="
+            background:#ecfdf5;
+            border:2px solid #16a34a;
+            border-radius:22px;
+            padding:18px;
+            margin-bottom:16px;
+        ">
+            <div style="font-size:14px;font-weight:900;color:#047857;line-height:1.45;">
+                Günlük Başkan Özeti • Özet günü: {esc(today)} • Rapor saati: {esc(report_time)}
+            </div>
+
+            <div style="font-size:26px;font-weight:950;color:#166534;margin-top:10px;line-height:1.25;">
+                Güçlü fırsat tespit edildi
+            </div>
+
+            <div style="font-size:16px;font-weight:900;color:#0f172a;margin-top:10px;line-height:1.4;">
+                {esc(opportunity_title)}
+            </div>
+
+            <div style="font-size:14px;font-weight:800;color:#334155;margin-top:10px;line-height:1.45;">
+                Fırsat türü: {esc(opportunity_type)}
+                <br>
+                Kim hareket etmeli? {esc(opportunity_owner)}
+                <br>
+                Önerilen aksiyon: {esc(opportunity_action)}
+            </div>
+        </div>
+        """
+    else:
+        decision_card_html = ""
+
     if today_x:
         x_kpi_note = f"Lehte {x_positive} • Aleyhte {x_negative} • Nötr {x_neutral}"
     else:
@@ -3899,25 +3974,8 @@ def president_dashboard_panel(today, report_time, news, social, president_posts,
             </div>
 
             <div>
-                <div id="baskan-ozet" class="{crisis_pulse}" style="
-                    background:#fff;
-                    border:2px solid #b91c1c;
-                    border-radius:22px;
-                    padding:18px;
-                    margin-bottom:16px;
-                ">
-                    <div style="font-size:14px;font-weight:900;color:#64748b;margin-bottom:8px;">
-                        Günlük Başkan Özeti • Özet günü: {esc(today)} • Rapor saati: {esc(report_time)}
-                    </div>
-                    <div style="font-size:26px;font-weight:950;color:#991b1b;line-height:1.15;">
-                        Risk seviyesi: {esc(risk_level)}
-                    </div>
-                    <div style="font-size:15px;font-weight:800;color:#334155;margin-top:10px;line-height:1.45;">
-                        Karar: {esc(early_warning.get("decision", ""))} • Başkan'a gösterilsin mi: {esc(early_warning.get("show_to_president", ""))}
-                         <br>
-                         Başkan konuşmalı mı: {esc(crisis_plan.get("speaker_decision", crisis_plan.get("speaker", "")))}
-                    </div>
-                </div>
+                
+                {decision_card_html}
 
                 <div style="
                     display:grid;

@@ -4041,27 +4041,28 @@ def president_dashboard_panel(today, report_time, news, social, president_posts,
                     gap:12px;
                     margin-bottom:16px;
                 ">
-                <a href="#haberler" style="text-decoration:none;color:inherit;display:block;">
+                <a href="#detay-haberler" style="text-decoration:none;color:inherit;display:block;">
                     {dashboard_kpi("Özet günü haberleri", len(today_news), f"Son 7 gün tarandı • özet günü {len(today_news)} haber", "#2563eb", "#eff6ff")}
                 </a>
                 
-                <a href="#social" style="text-decoration:none;color:inherit;display:block;">
+                <a href="#detay-social" style="text-decoration:none;color:inherit;display:block;">
                     {dashboard_kpi("Özet günü X nabzı", len(today_x), x_kpi_note, "#7c3aed", "#f5f3ff")}
                 </a>
                 
-                <a href="#youtube" style="text-decoration:none;color:inherit;display:block;">
+                <a href="#detay-youtube" style="text-decoration:none;color:inherit;display:block;">
                     {dashboard_kpi("Özet günü YouTube", len(today_youtube), youtube_kpi_note, "#dc2626", "#fff7ed")}
                 </a>
                     
-                <a href="#baskan-x" style="text-decoration:none;color:inherit;display:block;">
+                <a href="#detay-baskan-x" style="text-decoration:none;color:inherit;display:block;">
                     {dashboard_kpi("Başkan X performansı", len(today_president_posts), f"Etkileşim {int(president_engagement)} • Yanıt {int(president_replies)}", "#059669", "#ecfdf5")}
                  </a>
                 
                 </div>
 
                      {news_pool_summary_html}
-
-                      {president_x_graph_html}
+                    
+                     <div id="detay-baskan-x"></div>
+                     {president_x_graph_html}
                       
                      {opportunity_card_html}
                     
@@ -6753,7 +6754,7 @@ def build_team_report(news, social, early_warning, crisis_plan, crisis_status, r
         subtitle=learning_subtitle,
 
     )
-
+    <div id="detay-youtube"></div>
     youtube_section = accordion_section(
         "📺 YouTube Kanal Takibi",
         "#334155",
@@ -7321,6 +7322,7 @@ a {{ color:#1f2933; font-weight:800; }}
 {report_main_menu()}
 
 <div id="haberler"></div>
+<div id="detay-haberler"></div>
 {section_label("📰 Haberler ve Günlük Genel Özet", "#2563eb", "#eff6ff")}
 
 <div class="card" style="border-left:6px solid #2563eb; background:#eff6ff;">
@@ -7348,6 +7350,7 @@ a {{ color:#1f2933; font-weight:800; }}
  {undated_html}
 </div>
 
+<div id="detay-social"></div>
 {section_label("📱 Sosyal Medya Nabzı", "#7c3aed", "#f5f3ff")}
 
 <div class="card">

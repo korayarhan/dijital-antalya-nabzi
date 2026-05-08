@@ -3748,13 +3748,14 @@ def president_dashboard_panel(today, report_time, news, social, president_posts,
     decision_raw = str(early_warning.get("decision", "") or "")
     decision_upper = decision_raw.upper()
 
-    risk_is_real = (
-        "ACİL" in decision_upper
-        or "ACIL" in decision_upper
-        or "yuksek" in risk_norm
+    high_risk = (
+        "yuksek" in risk_norm
         or "yüksek" in risk_norm
-        or "orta" in risk_norm
+        or "cok yuksek" in risk_norm
+        or "çok yüksek" in risk_norm
     )
+
+    medium_risk = "orta" in risk_norm
 
     strong_opportunity = (
         opportunity_alarm
@@ -3763,7 +3764,7 @@ def president_dashboard_panel(today, report_time, news, social, president_posts,
         or "yüksek" in opportunity_norm
     )
 
-    if risk_is_real:
+    if high_risk:
         decision_card_html = f"""
         <div class="{crisis_pulse}" style="
             background:#fff;
@@ -3784,6 +3785,31 @@ def president_dashboard_panel(today, report_time, news, social, president_posts,
                 Karar: {esc(early_warning.get("decision", ""))} • Başkan'a gösterilsin mi: {esc(early_warning.get("show_to_president", ""))}
                 <br>
                 Başkan konuşmalı mı: {esc(crisis_plan.get("speaker_decision", crisis_plan.get("speaker", "")))}
+            </div>
+        </div>
+        """
+    elif medium_risk:
+        decision_card_html = f"""
+        <div style="
+            background:#fffbeb;
+            border:1.5px solid #f59e0b;
+            border-left:6px solid #f59e0b;
+            border-radius:18px;
+            padding:14px;
+            margin-bottom:14px;
+        ">
+            <div style="font-size:13px;font-weight:900;color:#92400e;line-height:1.4;">
+                Günlük takip uyarısı • Özet günü: {esc(today)} • Rapor saati: {esc(report_time)}
+            </div>
+
+            <div style="font-size:20px;font-weight:950;color:#92400e;margin-top:8px;line-height:1.25;">
+                Risk seviyesi: {esc(risk_level)}
+            </div>
+
+            <div style="font-size:14px;font-weight:800;color:#334155;margin-top:8px;line-height:1.45;">
+                Karar: {esc(early_warning.get("decision", ""))}
+                <br>
+                Bu başlık ekip tarafından izlenmeli. Konu büyürse kriz paneli açılmalı.
             </div>
         </div>
         """

@@ -3367,6 +3367,213 @@ def build_news_pool_summary_html(news):
     </details>
     """
 
+def build_president_visual_summary_html(summary_day, social, all_news):
+    try:
+        display_day = dt.datetime.strptime(str(summary_day), "%Y-%m-%d").strftime("%d-%m-%Y")
+        end_day = dt.datetime.strptime(str(summary_day), "%Y-%m-%d").date()
+    except Exception:
+        display_day = str(summary_day)
+        end_day = dt.date.today()
+
+    # Sosyal duygu dağılımı
+    social_items = [
+        item for item in social
+        if same_day(item.get("date", ""), summary_day)
+    ]
+
+    positive_count = len([x for x in social_items if social_tone_group(x) == "positive"])
+    negative_count = len([x for x in social_items if social_tone_group(x) == "negative"])
+    neutral_count = max(0, len(social_items) - positive_count - negative_count)
+    social_total = len(social_items)
+
+    if social_total > 0:
+        positive_pct = (positive_count / social_total) * 100
+        neutral_pct = (neutral_count / social_total) * 100
+        negative_pct = (negative_count / social_total) * 100
+        positive_end = positive_pct
+        neutral_end = positive_pct + neutral_pct
+
+        donut_bg = (
+            f"conic-gradient("
+            f"#16a34a 0 {positive_end:.1f}%, "
+            f"#64748b {positive_end:.1f}% {neutral_end:.1f}%, "
+            f"#dc2626 {neutral_end:.1f}% 100%"
+            f")"
+        )
+        social_note = f"{positive_count} lehte • {neutral_count} nötr • {negative_count} aleyhte"
+    else:
+        donut_bg = "#e5e7eb"
+        social_note = "Özet gününde sosyal medya kaydı yok"
+
+    # Son 7 gün haber trendi
+    trend_days = []
+    for i in range(6, -1, -1):
+        day = end_day - dt.timedelta(days=i)
+        day_iso = day.isoformat()
+        day_label = day.strftime("%d-%m")
+
+        count = len([
+            item for item in all_news
+            if same_day(item.get("parsed_date", item.get("date", "")), day_iso)
+        ])
+
+        trend_days.append({
+            "iso": day_iso,
+            "label": day_label,
+            "count": count,
+        })
+
+    max_count = max([x["count"] for x in trend_days] + [1])
+
+    bars_html = ""
+    for day in trend_days:
+        height = max(8, int((day["count"] / max_count) * 70)) if max_count else 8
+        is_summary_day = day["iso"] == str(summary_day)
+        bar_color = "#2563eb" if is_summary_day else "#94a3b8"
+
+        bars_html += f"""
+        <div style="
+            flex:1;
+            display:flex;
+            flex-direction:column;
+            align-items:center;
+            justify-content:flex-end;
+            min-width:28px;
+        ">
+            <div style="
+                height:{height}px;
+                width:16px;
+                border-radius:999px 999px 4px 4px;
+                background:{bar_color};
+            "></div>
+            <div style="
+                margin-top:6px;
+                font-size:10px;
+                font-weight:800;
+                color:#64748b;
+                white-space:nowrap;
+            ">
+                {esc(day["label"])}
+            </div>
+            <div style="
+                font-size:11px;
+                font-weight:900;
+                color:#0f172a;
+            ">
+                {day["count"]}
+            </div>
+        </div>
+        """
+
+    return f"""
+    <div id="baskan-app-gorsel-ozet" style="
+        background:white;
+        border:1px solid #e5e7eb;
+        border-radius:22px;
+        padding:16px;
+        margin:14px 0 16px 0;
+        box-shadow:0 8px 22px rgba(15,23,42,0.04);
+    ">
+        <div style="
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            gap:10px;
+            margin-bottom:14px;
+        ">
+            <div>
+                <div style="font-size:20px;font-weight:950;color:#0f172a;">
+                    Başkan App Görsel Özeti
+                </div>
+                <div style="font-size:13px;font-weight:750;color:#64748b;margin-top:4px;">
+                    {esc(display_day)} özet günü için hızlı grafik görünümü
+                </div>
+            </div>
+            <div style="font-size:26px;">📱</div>
+        </div>
+
+        <div style="
+            display:grid;
+            grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+            gap:12px;
+        ">
+            <div style="
+                background:#f8fafc;
+                border:1px solid #e2e8f0;
+                border-radius:18px;
+                padding:14px;
+            ">
+                <div style="font-size:15px;font-weight:900;color:#0f172a;margin-bottom:10px;">
+                    Sosyal Duygu Dağılımı
+                </div>
+
+                <div style="
+                    display:flex;
+                    align-items:center;
+                    gap:14px;
+                ">
+                    <div style="
+                        width:92px;
+                        height:92px;
+                        border-radius:50%;
+                        background:{donut_bg};
+                        position:relative;
+                        flex:0 0 auto;
+                    ">
+                        <div style="
+                            position:absolute;
+                            inset:20px;
+                            background:#f8fafc;
+                            border-radius:50%;
+                            display:flex;
+                            align-items:center;
+                            justify-content:center;
+                            font-size:18px;
+                            font-weight:950;
+                            color:#0f172a;
+                        ">
+                            {social_total}
+                        </div>
+                    </div>
+
+                    <div style="
+                        font-size:13px;
+                        font-weight:800;
+                        color:#334155;
+                        line-height:1.55;
+                    ">
+                        <div><span style="color:#16a34a;">●</span> Lehte: {positive_count}</div>
+                        <div><span style="color:#64748b;">●</span> Nötr: {neutral_count}</div>
+                        <div><span style="color:#dc2626;">●</span> Aleyhte: {negative_count}</div>
+                        <div style="margin-top:6px;color:#64748b;">{esc(social_note)}</div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="
+                background:#f8fafc;
+                border:1px solid #e2e8f0;
+                border-radius:18px;
+                padding:14px;
+            ">
+                <div style="font-size:15px;font-weight:900;color:#0f172a;margin-bottom:10px;">
+                    Son 7 Gün Haber Trendi
+                </div>
+
+                <div style="
+                    height:112px;
+                    display:flex;
+                    align-items:flex-end;
+                    gap:7px;
+                    padding:4px 0 0 0;
+                ">
+                    {bars_html}
+                </div>
+            </div>
+        </div>
+    </div>
+    """
+
 def president_dashboard_panel(today, report_time, news, social, president_posts, crisis_plan, early_warning, opportunity_sum=None, all_news=None):
     opportunity_sum = opportunity_sum or {}
     all_news = all_news if all_news is not None else news
@@ -3548,6 +3755,7 @@ def president_dashboard_panel(today, report_time, news, social, president_posts,
         """
         
     news_pool_summary_html = build_news_pool_summary_html(all_news)
+    president_visual_summary_html = build_president_visual_summary_html(today, social, all_news)
     platform_social_pulse_html = build_platform_social_pulse_html(social, today)
 
     if today_x:
@@ -4058,6 +4266,8 @@ def president_dashboard_panel(today, report_time, news, social, president_posts,
                  </a>
                 
                 </div>
+
+                      {president_visual_summary_html}
 
                      {news_pool_summary_html}
                     

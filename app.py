@@ -5119,6 +5119,109 @@ def build_system_learning_note(news, social, alert_logs, team_actions, president
         "operator_action": operator_action,
     }
 
+def build_data_flow_quality_html(news, social, president_posts, president_replies, youtube_summary, undated_news=None):
+    undated_news = undated_news or []
+
+    def to_int_local(value, default=0):
+        try:
+            return int(float(str(value or "0").replace(",", ".").strip()))
+        except:
+            return default
+
+    x_items = [item for item in social if is_x_platform(item)]
+    youtube_items = [item for item in social if is_youtube_platform(item)]
+
+    manual_items = [
+        item for item in social
+        if "manuel" in normalize_text(item.get("source_type", ""))
+    ]
+
+    auto_items = [
+        item for item in social
+        if "otomatik" in normalize_text(item.get("source_type", ""))
+        or is_x_platform(item)
+        or is_youtube_platform(item)
+    ]
+
+    checked_videos = sum(to_int_local(row.get("checked_videos", 0)) for row in youtube_summary)
+    relevant_comments = sum(to_int_local(row.get("relevant_comments", 0)) for row in youtube_summary)
+    saved_comments = sum(to_int_local(row.get("saved_comments", 0)) for row in youtube_summary)
+    skipped_videos = sum(to_int_local(row.get("skipped_videos", 0)) for row in youtube_summary)
+
+    warnings = []
+    notes = []
+
+    if len(news) == 0:
+        warnings.append("Haber verisi boş geldi. RSS, anahtar kelime veya filtre kontrol edilmeli.")
+
+    if len(social) == 0:
+        warnings.append("Sosyal medya verisi boş geldi. Manuel + otomatik sosyal kayıtlar kontrol edilmeli.")
+
+    if len(x_items) == 0:
+        warnings.append("X verisi boş görünüyor. X token, otomatik tarama ve filtre kontrol edilmeli.")
+
+    if len(youtube_summary) == 0 and len(youtube_items) == 0:
+        warnings.append("YouTube kanal özeti ve YouTube sosyal kayıtları boş görünüyor.")
+
+    if len(youtube_summary) > 0 and checked_videos == 0:
+        warnings.append("YouTube takip listesi var ama kontrol edilen video sayısı 0 görünüyor.")
+
+    if len(president_posts) == 0:
+        notes.append("Başkan X gönderisi okunamadı veya son kayıt yok. X token / kullanıcı adı kontrol edilebilir.")
+
+    if len(president_replies) == 0:
+        notes.append("Başkan X yanıt verisi yok. Bu her zaman hata değildir; yorum yoksa normal olabilir.")
+
+    if len(undated_news) > 0:
+        notes.append(f"{len(undated_news)} haberin tarihi okunamadı. Eski haber kaçmasını önlemek için ana rapor verisine alınmadı.")
+
+    if not warnings:
+        status = "Veri akışı normal"
+        status_note = "Temel veri kanalları çalışıyor görünüyor. Yine de örnek kayıtlar gözle kontrol edilmeli."
+    else:
+        status = "Kontrol gerekiyor"
+        status_note = "Bir veya daha fazla veri kanalında boşluk var. Operatör kaynakları ve filtreleri kontrol etmeli."
+
+    warning_html = "\n".join([f"- {esc(item)}" for item in warnings]) if warnings else "- Kritik veri uyarısı yok."
+    notes_html = "\n".join([f"- {esc(item)}" for item in notes]) if notes else "- Ek not yok."
+
+    return f"""
+Veri akışı genel durumu: {esc(status)}
+
+{esc(status_note)}
+
+Haber akışı:
+- Raporlanan haber: {len(news)}
+- Tarihi okunamayan haber: {len(undated_news)}
+
+Sosyal medya akışı:
+- Toplam sosyal kayıt: {len(social)}
+- X kayıtları: {len(x_items)}
+- YouTube sosyal kayıtları: {len(youtube_items)}
+- Otomatik sosyal kayıtlar: {len(auto_items)}
+- Manuel sosyal kayıtlar: {len(manual_items)}
+
+Başkan X akışı:
+- Başkan X gönderisi: {len(president_posts)}
+- Başkan X yanıtı: {len(president_replies)}
+
+YouTube kanal kontrolü:
+- Takip edilen YouTube kaynak/kanal satırı: {len(youtube_summary)}
+- Kontrol edilen video: {checked_videos}
+- Alakalı yorum: {relevant_comments}
+- Kaydedilen yorum: {saved_comments}
+- Atlanan video: {skipped_videos}
+
+Kontrol uyarıları:
+{warning_html}
+
+Ek notlar:
+{notes_html}
+
+Operatör yorumu:
+Bu bölüm verinin gerçekten akıp akmadığını görmek içindir. Burada boşluk varsa önce kaynak, token, CSV ve filtre kontrol edilmeli; sonra dashboard yorumlarına güvenilmeli.
+"""
+
 def team_action_status_badge(status):
     raw_status = str(status or "").strip()
     status_norm = normalize_text(raw_status)
@@ -6439,7 +6542,7 @@ def weekly_x_summary_html():
     except:
         return "<div class='card'><p class='small'>Haftalık veri okunamadı.</p></div>"
 
-def build_team_report(news, social, early_warning, crisis_plan, crisis_status, report_time):
+def build_team_report(news, social, early_warning, crisis_plan, crisis_status, report_time, undated_news=None):
     now_tr = dt.datetime.utcnow() + dt.timedelta(hours=3)
     today = now_tr.date().isoformat()
 
@@ -6466,6 +6569,14 @@ def build_team_report(news, social, early_warning, crisis_plan, crisis_status, r
     )
     
     youtube_summary = read_youtube_summary()
+    data_flow_quality = build_data_flow_quality_html(
+        news,
+        social,
+        president_posts,
+        president_replies,
+        youtube_summary,
+        undated_news,
+    )
     x_summary_html = x_social_summary_html(social, president_replies)
     service_complaint_followup = x_service_complaint_followup_html(social)
     weekly_summary = weekly_x_summary_html()
@@ -6911,6 +7022,9 @@ def build_team_report(news, social, early_warning, crisis_plan, crisis_status, r
     crisis_subtitle = f"{early_warning.get('decision', '')} • Risk: {crisis_plan.get('level', '')}"
     learning_subtitle = f"{learning_note.get('operator_status', '')} • {learning_note.get('repeated_topic', '')}"
     youtube_subtitle = f"{len(youtube_summary)} kaynak / kanal takipte"
+    x_count_for_data_flow = len([x for x in social if is_x_platform(x)])
+    youtube_count_for_data_flow = len([x for x in social if is_youtube_platform(x)])
+    data_flow_subtitle = f"Haber {len(news)} • X {x_count_for_data_flow} • YouTube {youtube_count_for_data_flow} • YouTube kaynak {len(youtube_summary)}"
     weekly_subtitle = f"{len(x_items_for_summary)} X kaydı • {len(risky_x_for_summary)} riskli"
     x_social_subtitle = f"{len(x_items_for_summary)} kayıt • {len(risky_x_for_summary)} riskli/takip gerektiren kayıt"
     service_subtitle = "Vatandaş şikayeti, kurumsal cevap ve hizmet duyurusu ayrımı"
@@ -6960,10 +7074,17 @@ def build_team_report(news, social, early_warning, crisis_plan, crisis_status, r
             <p><b>Bir sonraki küçük gelişim:</b> {esc(learning_note.get("next_improvement", ""))}</p>
         </div>
         """,
-        opened=True,
-        subtitle=learning_subtitle,
+        data_flow_section = accordion_section(
+            " Veri Akışı / Filtre Kalite Kontrolü",
+            "#0f766e",
+            "#ecfdf5",
+            data_flow_quality,
+            opened=True,
+            subtitle=data_flow_subtitle,
+            opened=True,
+            subtitle=learning_subtitle,
 
-    )
+         )
     
     youtube_section = accordion_section(
         "📺 YouTube Kanal Takibi",
@@ -7154,6 +7275,7 @@ th {{
 
 {crisis_alarm_section}
 {learning_section}
+{data_flow_section}
 <div id="detay-youtube"></div>
 {youtube_section}
 {weekly_section}
@@ -8051,7 +8173,7 @@ a {{ color:#1f2933; font-weight:800; }}
     out.write_text(html_doc, encoding="utf-8")
     print(f"Rapor hazır: {out}")
     
-    build_team_report(news, social, early_warning, crisis_plan, crisis_status, report_time)
+    build_team_report(news, social, early_warning, crisis_plan, crisis_status, report_time, undated_news)
     
     send_early_warning_email(early_warning, crisis_plan, crisis_status, report_time)
 

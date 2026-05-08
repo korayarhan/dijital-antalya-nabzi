@@ -55,7 +55,7 @@ th {
 
 <header>
 <h1>Yerel Lider AI - Ekip Operasyon Raporu</h1>
-<p>Tarih: 2026-05-09 • Güncelleme saati: 00:07</p>
+<p>Tarih: 2026-05-09 • Güncelleme saati: 01:14</p>
 </header>
 
 <div class="container">
@@ -136,6 +136,98 @@ th {
             outline: none;
         ">
             <div style="
+                border: 1.5px solid #0f766e;
+                background: #ecfdf5;
+                color: #0f766e;
+                border-radius: 16px;
+                padding: 13px 15px;
+                font-size: 19px;
+                font-weight: 750;
+                line-height: 1.25;
+                letter-spacing: 0.1px;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 10px;
+                box-shadow: 0 5px 14px rgba(15, 23, 42, 0.04);
+            ">
+                <span>
+                    <span> Veri Akışı / Filtre Kalite Kontrolü</span>
+                    
+                <div style="
+                    font-size: 13px;
+                    font-weight: 600;
+                    opacity: 0.78;
+                    margin-top: 6px;
+                    line-height: 1.35;
+                ">
+                    Haber 28 • X 10 • YouTube 1 • YouTube kaynak 2
+                </div>
+        
+                </span>
+                <span style="
+                    font-size: 16px;
+                    font-weight: 800;
+                    opacity: 0.68;
+                    flex-shrink: 0;
+                ">⌄</span>
+            </div>
+        </summary>
+
+        <div class="accordion-content" style="
+            margin-top: 12px;
+            padding: 2px 0 4px 0;
+        ">
+            
+Veri akışı genel durumu: Veri akışı normal
+
+Temel veri kanalları çalışıyor görünüyor. Yine de örnek kayıtlar gözle kontrol edilmeli.
+
+Haber akışı:
+- Raporlanan haber: 28
+- Tarihi okunamayan haber: 0
+
+Sosyal medya akışı:
+- Toplam sosyal kayıt: 19
+- X kayıtları: 10
+- YouTube sosyal kayıtları: 1
+- Otomatik sosyal kayıtlar: 11
+- Manuel sosyal kayıtlar: 10
+
+Başkan X akışı:
+- Başkan X gönderisi: 10
+- Başkan X yanıtı: 0
+
+YouTube kanal kontrolü:
+- Takip edilen YouTube kaynak/kanal satırı: 2
+- Kontrol edilen video: 100
+- Alakalı yorum: 0
+- Kaydedilen yorum: 0
+- Atlanan video: 89
+
+Kontrol uyarıları:
+- Kritik veri uyarısı yok.
+
+Ek notlar:
+- Başkan X yanıt verisi yok. Bu her zaman hata değildir; yorum yoksa normal olabilir.
+
+Operatör yorumu:
+Bu bölüm verinin gerçekten akıp akmadığını görmek içindir. Burada boşluk varsa önce kaynak, token, CSV ve filtre kontrol edilmeli; sonra dashboard yorumlarına güvenilmeli.
+
+        </div>
+    </details>
+    
+
+    <details class="accordion-section" open style="
+        margin: 14px 0;
+        border-radius: 16px;
+    ">
+        <summary style="
+            cursor: pointer;
+            list-style: none;
+            outline: none;
+        ">
+            <div style="
                 border: 1.5px solid #334155;
                 background: #f8fafc;
                 color: #334155;
@@ -152,7 +244,7 @@ th {
                 box-shadow: 0 5px 14px rgba(15, 23, 42, 0.04);
             ">
                 <span>
-                    <span>🧠 Günlük Sistem Öğrenme Notu</span>
+                    <span> Günlük Sistem Öğrenme Notu</span>
                     
                 <div style="
                     font-size: 13px;
@@ -179,19 +271,24 @@ th {
             padding: 2px 0 4px 0;
         ">
             
-        <div class="card">
-             
-            <p><b>Operatör kontrol durumu:</b> Sistem sağlıklı</p>
-            <p><b>Veri sağlık notu:</b> Haber, sosyal medya ve ekip raporu temel kontrolleri normal görünüyor.</p>
-            <p><b>Operatör aksiyon önerisi:</b> Standart takip yeterli. Kritik alarm yoksa manuel müdahale gerekmiyor.</p>
-            <p><b>Ana risk değerlendirmesi:</b> Bugün sistem yüksek riskli bir başlık yakaladı. Kriz paneli ve ekip aksiyonları yakından takip edilmeli.</p>
-            <p><b>Tekrarlayan / öne çıkan konu:</b> Öne çıkan takip konusu: Okul inşaatı eleştirisi</p>
-            <p><b>Filtre notu:</b> Filtreler çalışıyor; ancak alakasız kayıt olup olmadığı ekip tarafından gözle kontrol edilmeli.</p>
-            <p><b>Ekip aksiyon notu:</b> Ekip aksiyon kayıtları girilmeye başlanmış. Bildirimden sonra alınan aksiyonların düzenli yazılması önemli.</p>
-            <p><b>Arşiv notu:</b> Bildirim geçmişi oluşuyor. Bu kayıtlar ileride arşiv ve geçmiş kriz analizi için kullanılacak.</p>
-            <p><b>Bir sonraki küçük gelişim:</b> Ekip raporunda aksiyonların durumuna göre &#x27;Beklemede / Tamamlandı / Başkan bilgilendirilmeli&#x27; ayrımı güçlendirilebilir.</p>
-        </div>
-        
+
+Operatör kontrol durumu: Sistem sağlıklı
+Veri sağlık notu: Haber, sosyal medya ve ekip raporu temel kontrolleri normal görünüyor.
+
+Operatör aksiyon önerisi: Standart takip yeterli. Kritik alarm yoksa manuel müdahale gerekmiyor.
+
+Ana risk değerlendirmesi: Bugün sistem yüksek riskli bir başlık yakaladı. Kriz paneli ve ekip aksiyonları yakından takip edilmeli.
+
+Tekrarlayan / öne çıkan konu: Öne çıkan takip konusu: Okul inşaatı eleştirisi
+
+Filtre notu: Filtreler çalışıyor; ancak alakasız kayıt olup olmadığı ekip tarafından gözle kontrol edilmeli.
+
+Ekip aksiyon notu: Ekip aksiyon kayıtları girilmeye başlanmış. Bildirimden sonra alınan aksiyonların düzenli yazılması önemli.
+
+Arşiv notu: Bildirim geçmişi oluşuyor. Bu kayıtlar ileride arşiv ve geçmiş kriz analizi için kullanılacak.
+Bir sonraki küçük gelişim: Ekip raporunda aksiyonların durumuna göre &#x27;Beklemede / Tamamlandı / Başkan bilgilendirilmeli&#x27; ayrımı güçlendirilebilir.
+
+
         </div>
     </details>
     
@@ -346,7 +443,7 @@ th {
                     margin-top: 6px;
                     line-height: 1.35;
                 ">
-                    9 X kaydı • 3 riskli
+                    10 X kaydı • 3 riskli
                 </div>
         
                 </span>
@@ -365,7 +462,7 @@ th {
         ">
             
 <div class="card">
-<p><b>Toplam X:</b> 9 • 
+<p><b>Toplam X:</b> 10 • 
 <b>Riskli X:</b> 2 • 
 <b>Başkan Yanıt:</b> 0 • 
 <b>Riskli Yanıt:</b> 0</p>
@@ -412,7 +509,7 @@ th {
                     margin-top: 6px;
                     line-height: 1.35;
                 ">
-                    9 kayıt • 3 riskli/takip gerektiren kayıt
+                    10 kayıt • 3 riskli/takip gerektiren kayıt
                 </div>
         
                 </span>
@@ -431,7 +528,7 @@ th {
         ">
             
     <div class="card">
-        <b>Toplam X kaydı:</b> 9 •
+        <b>Toplam X kaydı:</b> 10 •
         <b>Riskli X kaydı:</b> 3 •
         <b>Başkan X yanıtı:</b> 0 •
         <b>Riskli Başkan X yanıtı:</b> 0
@@ -1318,7 +1415,7 @@ th {
                     font-size:12px;
                     font-weight:700;
                 ">
-                    Etkileşim: 85
+                    Etkileşim: 86
                 </span>
 
                 <span style="
@@ -1330,7 +1427,7 @@ th {
                     font-size:12px;
                     font-weight:700;
                 ">
-                    Beğeni: 69
+                    Beğeni: 70
                 </span>
 
                 <span style="
@@ -1372,6 +1469,113 @@ th {
 
             <div style="margin-top:10px;">
                 <p><a href="https://x.com/mesutkocagoztr/status/2052434909155721437" target="_blank">Gönderiyi aç</a></p>
+            </div>
+        </div>
+        
+        <div class="card" style="
+            border-left: 5px solid #0f766e;
+            margin: 14px 0;
+        ">
+            <div style="
+                display:flex;
+                justify-content:space-between;
+                gap:10px;
+                align-items:flex-start;
+                flex-wrap:wrap;
+                margin-bottom:8px;
+            ">
+                <div>
+                    <b>Yerel kültür / toplum etkinliği</b>
+                    <br><small>2026-05-07 • @mesutkocagoztr</small>
+                </div>
+
+                <div style="
+                    background:#ecfdf5;
+                    color:#0f766e;
+                    border:1px solid #0f766e;
+                    border-radius:999px;
+                    padding:5px 9px;
+                    font-size:12px;
+                    font-weight:700;
+                    white-space:normal;
+                ">
+                    Yerel kültür / toplum etkinliği
+                </div>
+            </div>
+
+            <p style="margin:8px 0;">
+                60+ Tazelenme Üniversitesi 10. Yıl Kutlaması ve Mezuniyet Töreni Mimar Sinan Kongre Merkezi&#x27;mizde gerçekleşti.  Yaşlı Dostu Kepez Projemizin Koordinatörü Prof. Dr. İsmail Tufan Hocamızın Akdeniz Üniversitesi bünyesinde başlattığı, 60+ Tazelenme Üniversitesi, b...
+            </p>
+
+            <div style="
+                display:flex;
+                gap:8px;
+                flex-wrap:wrap;
+                margin:10px 0;
+            ">
+                <span style="
+                    background:#f8fafc;
+                    border:1px solid #cbd5e1;
+                    color:#334155;
+                    border-radius:999px;
+                    padding:5px 9px;
+                    font-size:12px;
+                    font-weight:700;
+                ">
+                    Etkileşim: 81
+                </span>
+
+                <span style="
+                    background:#f8fafc;
+                    border:1px solid #cbd5e1;
+                    color:#334155;
+                    border-radius:999px;
+                    padding:5px 9px;
+                    font-size:12px;
+                    font-weight:700;
+                ">
+                    Beğeni: 66
+                </span>
+
+                <span style="
+                    background:#f8fafc;
+                    border:1px solid #cbd5e1;
+                    color:#334155;
+                    border-radius:999px;
+                    padding:5px 9px;
+                    font-size:12px;
+                    font-weight:700;
+                ">
+                    Yanıt: 0
+                </span>
+
+                <span style="
+                    background:#f8fafc;
+                    border:1px solid #475569;
+                    color:#475569;
+                    border-radius:999px;
+                    padding:5px 9px;
+                    font-size:12px;
+                    font-weight:700;
+                ">
+                    Düşük performans
+                </span>
+            </div>
+
+            <p style="margin:8px 0;">
+                <b>İletişim yorumu:</b> Yerel kültür, mahalle aidiyeti ve sıcak toplum ilişkisi açısından değerli içerik. Gelenek, mahalle adı, katılım ve insan hikayesi vurgusu güçlendirilebilir.
+            </p>
+
+            <p style="margin:8px 0;">
+                <b>Performans notu:</b> Etkileşim düşük. Daha güçlü görsel, daha kısa metin veya daha net hizmet sonucu denenebilir.
+            </p>
+
+            <p style="margin:8px 0;">
+                <b>Aksiyon:</b> Benzer içerik tekrar paylaşılacaksa anlatım dili ve görsel güçlendirilmeli.
+            </p>
+
+            <div style="margin-top:10px;">
+                <p><a href="https://x.com/mesutkocagoztr/status/2052410647879598515" target="_blank">Gönderiyi aç</a></p>
             </div>
         </div>
         
@@ -1483,113 +1687,6 @@ th {
         </div>
         
         <div class="card" style="
-            border-left: 5px solid #0f766e;
-            margin: 14px 0;
-        ">
-            <div style="
-                display:flex;
-                justify-content:space-between;
-                gap:10px;
-                align-items:flex-start;
-                flex-wrap:wrap;
-                margin-bottom:8px;
-            ">
-                <div>
-                    <b>Yerel kültür / toplum etkinliği</b>
-                    <br><small>2026-05-07 • @mesutkocagoztr</small>
-                </div>
-
-                <div style="
-                    background:#ecfdf5;
-                    color:#0f766e;
-                    border:1px solid #0f766e;
-                    border-radius:999px;
-                    padding:5px 9px;
-                    font-size:12px;
-                    font-weight:700;
-                    white-space:normal;
-                ">
-                    Yerel kültür / toplum etkinliği
-                </div>
-            </div>
-
-            <p style="margin:8px 0;">
-                60+ Tazelenme Üniversitesi 10. Yıl Kutlaması ve Mezuniyet Töreni Mimar Sinan Kongre Merkezi&#x27;mizde gerçekleşti.  Yaşlı Dostu Kepez Projemizin Koordinatörü Prof. Dr. İsmail Tufan Hocamızın Akdeniz Üniversitesi bünyesinde başlattığı, 60+ Tazelenme Üniversitesi, b...
-            </p>
-
-            <div style="
-                display:flex;
-                gap:8px;
-                flex-wrap:wrap;
-                margin:10px 0;
-            ">
-                <span style="
-                    background:#f8fafc;
-                    border:1px solid #cbd5e1;
-                    color:#334155;
-                    border-radius:999px;
-                    padding:5px 9px;
-                    font-size:12px;
-                    font-weight:700;
-                ">
-                    Etkileşim: 80
-                </span>
-
-                <span style="
-                    background:#f8fafc;
-                    border:1px solid #cbd5e1;
-                    color:#334155;
-                    border-radius:999px;
-                    padding:5px 9px;
-                    font-size:12px;
-                    font-weight:700;
-                ">
-                    Beğeni: 65
-                </span>
-
-                <span style="
-                    background:#f8fafc;
-                    border:1px solid #cbd5e1;
-                    color:#334155;
-                    border-radius:999px;
-                    padding:5px 9px;
-                    font-size:12px;
-                    font-weight:700;
-                ">
-                    Yanıt: 0
-                </span>
-
-                <span style="
-                    background:#f8fafc;
-                    border:1px solid #475569;
-                    color:#475569;
-                    border-radius:999px;
-                    padding:5px 9px;
-                    font-size:12px;
-                    font-weight:700;
-                ">
-                    Düşük performans
-                </span>
-            </div>
-
-            <p style="margin:8px 0;">
-                <b>İletişim yorumu:</b> Yerel kültür, mahalle aidiyeti ve sıcak toplum ilişkisi açısından değerli içerik. Gelenek, mahalle adı, katılım ve insan hikayesi vurgusu güçlendirilebilir.
-            </p>
-
-            <p style="margin:8px 0;">
-                <b>Performans notu:</b> Etkileşim düşük. Daha güçlü görsel, daha kısa metin veya daha net hizmet sonucu denenebilir.
-            </p>
-
-            <p style="margin:8px 0;">
-                <b>Aksiyon:</b> Benzer içerik tekrar paylaşılacaksa anlatım dili ve görsel güçlendirilmeli.
-            </p>
-
-            <div style="margin-top:10px;">
-                <p><a href="https://x.com/mesutkocagoztr/status/2052410647879598515" target="_blank">Gönderiyi aç</a></p>
-            </div>
-        </div>
-        
-        <div class="card" style="
             border-left: 5px solid #475569;
             margin: 14px 0;
         ">
@@ -1697,113 +1794,6 @@ th {
         </div>
         
         <div class="card" style="
-            border-left: 5px solid #475569;
-            margin: 14px 0;
-        ">
-            <div style="
-                display:flex;
-                justify-content:space-between;
-                gap:10px;
-                align-items:flex-start;
-                flex-wrap:wrap;
-                margin-bottom:8px;
-            ">
-                <div>
-                    <b>Kurumsal duyuru / meclis bilgilendirmesi</b>
-                    <br><small>2026-05-07 • @mesutkocagoztr</small>
-                </div>
-
-                <div style="
-                    background:#f8fafc;
-                    color:#475569;
-                    border:1px solid #475569;
-                    border-radius:999px;
-                    padding:5px 9px;
-                    font-size:12px;
-                    font-weight:700;
-                    white-space:normal;
-                ">
-                    Kurumsal duyuru / meclis bilgilendirmesi
-                </div>
-            </div>
-
-            <p style="margin:8px 0;">
-                Kepez Belediyesi Meclis Üyemiz ve MHP Grup Sözcüsü Ali Baki Sarıca&#x27;nın aramızdan ayrılan damadı Zafer Durmuş için taziye ziyaretinde bulunduk.   Merhum kardeşimize Allah&#x27;tan rahmet, ailesine ve sevdiklerine başsağlığı diliyorum. https://t.co/jeabxpviWe
-            </p>
-
-            <div style="
-                display:flex;
-                gap:8px;
-                flex-wrap:wrap;
-                margin:10px 0;
-            ">
-                <span style="
-                    background:#f8fafc;
-                    border:1px solid #cbd5e1;
-                    color:#334155;
-                    border-radius:999px;
-                    padding:5px 9px;
-                    font-size:12px;
-                    font-weight:700;
-                ">
-                    Etkileşim: 64
-                </span>
-
-                <span style="
-                    background:#f8fafc;
-                    border:1px solid #cbd5e1;
-                    color:#334155;
-                    border-radius:999px;
-                    padding:5px 9px;
-                    font-size:12px;
-                    font-weight:700;
-                ">
-                    Beğeni: 58
-                </span>
-
-                <span style="
-                    background:#f8fafc;
-                    border:1px solid #cbd5e1;
-                    color:#334155;
-                    border-radius:999px;
-                    padding:5px 9px;
-                    font-size:12px;
-                    font-weight:700;
-                ">
-                    Yanıt: 0
-                </span>
-
-                <span style="
-                    background:#f8fafc;
-                    border:1px solid #475569;
-                    color:#475569;
-                    border-radius:999px;
-                    padding:5px 9px;
-                    font-size:12px;
-                    font-weight:700;
-                ">
-                    Düşük performans
-                </span>
-            </div>
-
-            <p style="margin:8px 0;">
-                <b>İletişim yorumu:</b> Kurumsal bilgilendirme içeriği. Sade, resmi ve anlaşılır dil korunmalı; vatandaşın anlayacağı kısa gündem özeti eklenirse erişim artabilir.
-            </p>
-
-            <p style="margin:8px 0;">
-                <b>Performans notu:</b> Etkileşim düşük. Daha güçlü görsel, daha kısa metin veya daha net hizmet sonucu denenebilir.
-            </p>
-
-            <p style="margin:8px 0;">
-                <b>Aksiyon:</b> Benzer içerik tekrar paylaşılacaksa anlatım dili ve görsel güçlendirilmeli.
-            </p>
-
-            <div style="margin-top:10px;">
-                <p><a href="https://x.com/mesutkocagoztr/status/2052462192981667846" target="_blank">Gönderiyi aç</a></p>
-            </div>
-        </div>
-        
-        <div class="card" style="
             border-left: 5px solid #0f766e;
             margin: 14px 0;
         ">
@@ -1853,7 +1843,7 @@ th {
                     font-size:12px;
                     font-weight:700;
                 ">
-                    Etkileşim: 60
+                    Etkileşim: 63
                 </span>
 
                 <span style="
@@ -1865,7 +1855,7 @@ th {
                     font-size:12px;
                     font-weight:700;
                 ">
-                    Beğeni: 49
+                    Beğeni: 51
                 </span>
 
                 <span style="
@@ -1907,6 +1897,113 @@ th {
 
             <div style="margin-top:10px;">
                 <p><a href="https://x.com/mesutkocagoztr/status/2052727365281669142" target="_blank">Gönderiyi aç</a></p>
+            </div>
+        </div>
+        
+        <div class="card" style="
+            border-left: 5px solid #475569;
+            margin: 14px 0;
+        ">
+            <div style="
+                display:flex;
+                justify-content:space-between;
+                gap:10px;
+                align-items:flex-start;
+                flex-wrap:wrap;
+                margin-bottom:8px;
+            ">
+                <div>
+                    <b>Kurumsal duyuru / meclis bilgilendirmesi</b>
+                    <br><small>2026-05-07 • @mesutkocagoztr</small>
+                </div>
+
+                <div style="
+                    background:#f8fafc;
+                    color:#475569;
+                    border:1px solid #475569;
+                    border-radius:999px;
+                    padding:5px 9px;
+                    font-size:12px;
+                    font-weight:700;
+                    white-space:normal;
+                ">
+                    Kurumsal duyuru / meclis bilgilendirmesi
+                </div>
+            </div>
+
+            <p style="margin:8px 0;">
+                Kepez Belediyesi Meclis Üyemiz ve MHP Grup Sözcüsü Ali Baki Sarıca&#x27;nın aramızdan ayrılan damadı Zafer Durmuş için taziye ziyaretinde bulunduk.   Merhum kardeşimize Allah&#x27;tan rahmet, ailesine ve sevdiklerine başsağlığı diliyorum. https://t.co/jeabxpviWe
+            </p>
+
+            <div style="
+                display:flex;
+                gap:8px;
+                flex-wrap:wrap;
+                margin:10px 0;
+            ">
+                <span style="
+                    background:#f8fafc;
+                    border:1px solid #cbd5e1;
+                    color:#334155;
+                    border-radius:999px;
+                    padding:5px 9px;
+                    font-size:12px;
+                    font-weight:700;
+                ">
+                    Etkileşim: 63
+                </span>
+
+                <span style="
+                    background:#f8fafc;
+                    border:1px solid #cbd5e1;
+                    color:#334155;
+                    border-radius:999px;
+                    padding:5px 9px;
+                    font-size:12px;
+                    font-weight:700;
+                ">
+                    Beğeni: 57
+                </span>
+
+                <span style="
+                    background:#f8fafc;
+                    border:1px solid #cbd5e1;
+                    color:#334155;
+                    border-radius:999px;
+                    padding:5px 9px;
+                    font-size:12px;
+                    font-weight:700;
+                ">
+                    Yanıt: 0
+                </span>
+
+                <span style="
+                    background:#f8fafc;
+                    border:1px solid #475569;
+                    color:#475569;
+                    border-radius:999px;
+                    padding:5px 9px;
+                    font-size:12px;
+                    font-weight:700;
+                ">
+                    Düşük performans
+                </span>
+            </div>
+
+            <p style="margin:8px 0;">
+                <b>İletişim yorumu:</b> Kurumsal bilgilendirme içeriği. Sade, resmi ve anlaşılır dil korunmalı; vatandaşın anlayacağı kısa gündem özeti eklenirse erişim artabilir.
+            </p>
+
+            <p style="margin:8px 0;">
+                <b>Performans notu:</b> Etkileşim düşük. Daha güçlü görsel, daha kısa metin veya daha net hizmet sonucu denenebilir.
+            </p>
+
+            <p style="margin:8px 0;">
+                <b>Aksiyon:</b> Benzer içerik tekrar paylaşılacaksa anlatım dili ve görsel güçlendirilmeli.
+            </p>
+
+            <div style="margin-top:10px;">
+                <p><a href="https://x.com/mesutkocagoztr/status/2052462192981667846" target="_blank">Gönderiyi aç</a></p>
             </div>
         </div>
         
@@ -2067,7 +2164,7 @@ th {
                     font-size:12px;
                     font-weight:700;
                 ">
-                    Etkileşim: 35
+                    Etkileşim: 39
                 </span>
 
                 <span style="
@@ -2079,7 +2176,7 @@ th {
                     font-size:12px;
                     font-weight:700;
                 ">
-                    Beğeni: 33
+                    Beğeni: 36
                 </span>
 
                 <span style="
@@ -2174,7 +2271,7 @@ th {
                     font-size:12px;
                     font-weight:700;
                 ">
-                    Etkileşim: 34
+                    Etkileşim: 37
                 </span>
 
                 <span style="
@@ -2186,7 +2283,7 @@ th {
                     font-size:12px;
                     font-weight:700;
                 ">
-                    Beğeni: 31
+                    Beğeni: 33
                 </span>
 
                 <span style="
@@ -2437,6 +2534,15 @@ Ekip bu hesapları kontrol edip <b>accounts_map.csv</b> dosyasına ekleyebilir.
 <td><p><a href="https://x.com/HO_17gs_/status/2052789149107736647" target="_blank">Gönderiyi aç</a></p></td>
 </tr>
 
+<tr>
+<td>@newsfromworld06</td>
+<td>1</td>
+<td>4.0/10</td>
+<td>Kepez Belediyesi + soruşturma</td>
+<td>Engin Yılmaz / “Sıra Kepez Belediyesinde mi?” Sorusu Neyi İfade Ediyor? https://t.co/evkTqeZBxJ #kepezbelediyesi #mesutkocagöz #antalyabelediye #belediye #tutuklamalar #soruşturma ...</td>
+<td><p><a href="https://x.com/newsfromworld06/status/2052861595928203648" target="_blank">Gönderiyi aç</a></p></td>
+</tr>
+
 </table>
 
 <p class="small">
@@ -2501,53 +2607,6 @@ Ekip bu hesapları kontrol edip <b>accounts_map.csv</b> dosyasına ekleyebilir.
             padding: 2px 0 4px 0;
         ">
             
-        <div class="card" style="
-            border-left: 5px solid #b91c1c;
-            margin: 14px 0;
-        ">
-            <div style="
-                display:flex;
-                justify-content:space-between;
-                gap:10px;
-                align-items:flex-start;
-                flex-wrap:wrap;
-                margin-bottom:8px;
-            ">
-                <div>
-                    <b>Antalya Büyükşehir Belediye Başkanı Muhittin Böcek ve ailesinin mal varlığına el kondu! - T24</b>
-                    <br><small>2026-05-08 • Saat: 08:16</small>
-                </div>
-
-                <div style="
-                    background:#fef2f2;
-                    color:#b91c1c;
-                    border:1px solid #b91c1c;
-                    border-radius:999px;
-                    padding:5px 9px;
-                    font-size:12px;
-                    font-weight:700;
-                ">
-                    Yüksek risk alarmı
-                </div>
-            </div>
-
-            <p style="margin:8px 0;">
-                <b>Risk:</b> Yüksek
-            </p>
-
-            <p style="margin:8px 0;">
-                <b>Karar:</b> ACİL ALARM
-            </p>
-
-            <p style="margin:8px 0;">
-                <b>Mail gönderildi mi?</b> Evet
-            </p>
-
-            <p style="margin:8px 0;">
-                <b>Not:</b> E-posta gönderildi
-            </p>
-        </div>
-        
         <div class="card" style="
             border-left: 5px solid #b91c1c;
             margin: 14px 0;
@@ -3441,6 +3500,53 @@ Ekip bu hesapları kontrol edip <b>accounts_map.csv</b> dosyasına ekleyebilir.
             </p>
         </div>
         
+        <div class="card" style="
+            border-left: 5px solid #b91c1c;
+            margin: 14px 0;
+        ">
+            <div style="
+                display:flex;
+                justify-content:space-between;
+                gap:10px;
+                align-items:flex-start;
+                flex-wrap:wrap;
+                margin-bottom:8px;
+            ">
+                <div>
+                    <b>Antalya Büyükşehir Belediyesi soruşturması davasında ara karar açıklandı - Anadolu Ajansı</b>
+                    <br><small>2026-05-08 • Saat: 00:07</small>
+                </div>
+
+                <div style="
+                    background:#fef2f2;
+                    color:#b91c1c;
+                    border:1px solid #b91c1c;
+                    border-radius:999px;
+                    padding:5px 9px;
+                    font-size:12px;
+                    font-weight:700;
+                ">
+                    Yüksek risk alarmı
+                </div>
+            </div>
+
+            <p style="margin:8px 0;">
+                <b>Risk:</b> Yüksek
+            </p>
+
+            <p style="margin:8px 0;">
+                <b>Karar:</b> ACİL ALARM
+            </p>
+
+            <p style="margin:8px 0;">
+                <b>Mail gönderildi mi?</b> Evet
+            </p>
+
+            <p style="margin:8px 0;">
+                <b>Not:</b> E-posta gönderildi
+            </p>
+        </div>
+        
         </div>
     </details>
     
@@ -3756,6 +3862,36 @@ Ekip bu hesapları kontrol edip <b>accounts_map.csv</b> dosyasına ekleyebilir.
             </div>
         </div>
         
+        <div class="card" style="border-left: 5px solid #475569; margin: 14px 0;">
+            <div style="display:flex; justify-content:space-between; gap:10px; align-items:flex-start; flex-wrap:wrap; margin-bottom:8px;">
+                <div>
+                    <b>Teleferik davası / hukuki süreç hassasiyeti</b>
+                    <br><small>2026-05-08 • X / Twitter • @newsfromworld06</small>
+                </div>
+
+                <div style="background:#f8fafc; color:#475569; border:1px solid #475569; border-radius:999px; padding:5px 9px; font-size:12px; font-weight:700;">
+                    Standart takip
+                </div>
+            </div>
+
+            <p style="margin:8px 0;">Engin Yılmaz / “Sıra Kepez Belediyesinde mi?” Sorusu Neyi İfade Ediyor? https://t.co/evkTqeZBxJ #kepezbelediyesi #mesutkocagöz #antalyabelediye #belediye #tutuklamalar #soruşturma #yargı #antalyabüyükşehirbelediyesi #rüşvet #siyaset #gündem...</p>
+
+            <div style="display:flex; gap:8px; flex-wrap:wrap; margin:10px 0;">
+                <span style="background:#f8fafc; border:1px solid #cbd5e1; color:#334155; border-radius:999px; padding:5px 9px; font-size:12px; font-weight:700;">
+                    Risk: 4.0/10
+                </span>
+                <span style="background:#f8fafc; border:1px solid #cbd5e1; color:#334155; border-radius:999px; padding:5px 9px; font-size:12px; font-weight:700;">
+                    Ton: Nötr
+                </span>
+            </div>
+
+            <p style="margin:8px 0;"><b>Aksiyon notu:</b> İçerik izlemeye alınmalı. Şu aşamada acil aksiyon gerekmiyor.</p>
+
+            <div style="margin-top:10px;">
+                <p><a href="https://x.com/newsfromworld06/status/2052861595928203648" target="_blank">Gönderiyi aç</a></p>
+            </div>
+        </div>
+        
         <div class="card" style="border-left: 5px solid #b45309; margin: 14px 0;">
             <div style="display:flex; justify-content:space-between; gap:10px; align-items:flex-start; flex-wrap:wrap; margin-bottom:8px;">
                 <div>
@@ -3873,36 +4009,6 @@ Ekip bu hesapları kontrol edip <b>accounts_map.csv</b> dosyasına ekleyebilir.
 
             <div style="margin-top:10px;">
                 <p class="muted"><b>Link:</b> Manuel sosyal medya verisi</p>
-            </div>
-        </div>
-        
-        <div class="card" style="border-left: 5px solid #475569; margin: 14px 0;">
-            <div style="display:flex; justify-content:space-between; gap:10px; align-items:flex-start; flex-wrap:wrap; margin-bottom:8px;">
-                <div>
-                    <b>Mahalle hizmetleri / vatandaş şikayetleri</b>
-                    <br><small>2026-05-07 • Facebook • @antalya_gundem</small>
-                </div>
-
-                <div style="background:#f8fafc; color:#475569; border:1px solid #475569; border-radius:999px; padding:5px 9px; font-size:12px; font-weight:700;">
-                    Standart takip
-                </div>
-            </div>
-
-            <p style="margin:8px 0;">Başkanın mahalle ziyareti ve vatandaşlarla görüşmesi sosyal medyada paylaşıldı.</p>
-
-            <div style="display:flex; gap:8px; flex-wrap:wrap; margin:10px 0;">
-                <span style="background:#f8fafc; border:1px solid #cbd5e1; color:#334155; border-radius:999px; padding:5px 9px; font-size:12px; font-weight:700;">
-                    Risk: 3.0/10
-                </span>
-                <span style="background:#f8fafc; border:1px solid #cbd5e1; color:#334155; border-radius:999px; padding:5px 9px; font-size:12px; font-weight:700;">
-                    Ton: Nötr
-                </span>
-            </div>
-
-            <p style="margin:8px 0;"><b>Aksiyon notu:</b> Başkanın sahada dinleyen profilini destekleyen içerik olabilir.</p>
-
-            <div style="margin-top:10px;">
-                <p><a href="https://facebook.com/test-mahalle" target="_blank">Gönderiyi aç</a></p>
             </div>
         </div>
         

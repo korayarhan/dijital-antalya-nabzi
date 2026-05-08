@@ -3308,51 +3308,63 @@ def build_news_pool_summary_html(news):
         bg_color = "#f8fafc"
 
     return f"""
-    <div id="son-7-gun-haber-havuzu" style="
+    <details id="son-7-gun-haber-havuzu" style="
         background:{bg_color};
         border:1px solid #e5e7eb;
         border-left:6px solid {border_color};
         border-radius:22px;
-        padding:16px;
+        padding:0;
         margin:14px 0 16px 0;
+        overflow:hidden;
     ">
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
-            <div style="font-size:24px;">📰</div>
-            <div>
-                <div style="font-size:20px;font-weight:900;color:#0f172a;">
-                    Son 7 Gün Haber Havuzu / Genel Algı
-                </div>
-                <div style="font-size:13px;font-weight:700;color:#64748b;">
-                    Özet günü ayrı, son 7 günlük haber havuzu ayrı değerlendirilir.
-                </div>
+        <summary style="
+            cursor:pointer;
+            list-style:none;
+            padding:16px;
+            font-size:20px;
+            font-weight:950;
+            color:#0f172a;
+            line-height:1.35;
+        ">
+            📰 Son 7 Gün Haber Havuzu / Genel Algı
+            <div style="
+                font-size:13px;
+                font-weight:750;
+                color:#64748b;
+                margin-top:6px;
+                line-height:1.35;
+            ">
+                Toplam {total_news} haber • {positive_count} olumlu • {neutral_count} nötr • {risk_count} riskli
+            </div>
+        </summary>
+
+        <div style="padding:0 16px 16px 16px;">
+            <div style="
+                display:grid;
+                grid-template-columns:repeat(2,minmax(0,1fr));
+                gap:10px;
+                margin-bottom:12px;
+            ">
+                <div class="kpi"><b>{total_news}</b><span>Toplam haber</span></div>
+                <div class="kpi"><b>{positive_count}</b><span>Olumlu</span></div>
+                <div class="kpi"><b>{neutral_count}</b><span>Nötr</span></div>
+                <div class="kpi"><b>{risk_count}</b><span>Riskli</span></div>
+            </div>
+
+            <div style="
+                background:white;
+                border:1px solid #e2e8f0;
+                border-radius:16px;
+                padding:12px;
+                font-size:14px;
+                font-weight:800;
+                color:#334155;
+                line-height:1.45;
+            ">
+                <b>Genel yorum:</b> {esc(general_note)}
             </div>
         </div>
-
-        <div style="
-            display:grid;
-            grid-template-columns:repeat(2,minmax(0,1fr));
-            gap:10px;
-            margin-bottom:12px;
-        ">
-            <div class="kpi"><b>{total_news}</b><span>Toplam haber</span></div>
-            <div class="kpi"><b>{positive_count}</b><span>Olumlu</span></div>
-            <div class="kpi"><b>{neutral_count}</b><span>Nötr</span></div>
-            <div class="kpi"><b>{risk_count}</b><span>Riskli</span></div>
-        </div>
-
-        <div style="
-            background:white;
-            border:1px solid #e2e8f0;
-            border-radius:16px;
-            padding:12px;
-            font-size:14px;
-            font-weight:800;
-            color:#334155;
-            line-height:1.45;
-        ">
-            <b>Genel yorum:</b> {esc(general_note)}
-        </div>
-    </div>
+    </details>
     """
 
 def president_dashboard_panel(today, report_time, news, social, president_posts, crisis_plan, early_warning, opportunity_sum=None, all_news=None):

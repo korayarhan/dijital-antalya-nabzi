@@ -4041,10 +4041,22 @@ def president_dashboard_panel(today, report_time, news, social, president_posts,
                     gap:12px;
                     margin-bottom:16px;
                 ">
+                <a href="#haberler" style="text-decoration:none;color:inherit;display:block;">
                     {dashboard_kpi("Özet günü haberleri", len(today_news), f"Son 7 gün tarandı • özet günü {len(today_news)} haber", "#2563eb", "#eff6ff")}
+                </a>
+                
+                <a href="#social" style="text-decoration:none;color:inherit;display:block;">
                     {dashboard_kpi("Özet günü X nabzı", len(today_x), x_kpi_note, "#7c3aed", "#f5f3ff")}
+                </a>
+                
+                <a href="#youtube" style="text-decoration:none;color:inherit;display:block;">
                     {dashboard_kpi("Özet günü YouTube", len(today_youtube), youtube_kpi_note, "#dc2626", "#fff7ed")}
+                </a>
+                    
+                <a href="#baskan-x" style="text-decoration:none;color:inherit;display:block;">
                     {dashboard_kpi("Başkan X performansı", len(today_president_posts), f"Etkileşim {int(president_engagement)} • Yanıt {int(president_replies)}", "#059669", "#ecfdf5")}
+                 </a>
+                
                 </div>
 
                      {news_pool_summary_html}

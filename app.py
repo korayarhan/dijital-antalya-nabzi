@@ -3272,8 +3272,92 @@ def build_platform_social_pulse_html(social, summary_day):
     </div>
     """
 
-def president_dashboard_panel(today, report_time, news, social, president_posts, crisis_plan, early_warning, opportunity_sum=None):
+def build_news_pool_summary_html(news):
+    total_news = len(news)
+
+    positive_count = 0
+    neutral_count = 0
+    risk_count = 0
+
+    for item in news:
+        tone_text = normalize_text(f"{item.get('tone', '')} {item.get('sentiment', '')}")
+        risk_score = safe_score_value(item.get("risk", item.get("risk_score", 0)))
+
+        if risk_score >= 6 or "risk" in tone_text or "kotu" in tone_text or "kötü" in tone_text:
+            risk_count += 1
+        elif "olumlu" in tone_text or "positive" in tone_text or "iyi" in tone_text:
+            positive_count += 1
+        else:
+            neutral_count += 1
+
+    if total_news == 0:
+        general_note = "Son 7 günlük haber havuzunda kayıt bulunamadı."
+        border_color = "#64748b"
+        bg_color = "#f8fafc"
+    elif risk_count > positive_count:
+        general_note = "Riskli başlıklar olumlu görünürlükten daha baskın. Haber dili yakından takip edilmeli."
+        border_color = "#dc2626"
+        bg_color = "#fef2f2"
+    elif positive_count >= risk_count:
+        general_note = "Olumlu görünürlük riskli başlıklardan güçlü. Hizmet ve fırsat başlıkları öne çıkarılabilir."
+        border_color = "#2563eb"
+        bg_color = "#eff6ff"
+    else:
+        general_note = "Genel haber görünümü dengeli. Kritik başlıklar ayrıca takip edilmeli."
+        border_color = "#64748b"
+        bg_color = "#f8fafc"
+
+    return f"""
+    <div id="son-7-gun-haber-havuzu" style="
+        background:{bg_color};
+        border:1px solid #e5e7eb;
+        border-left:6px solid {border_color};
+        border-radius:22px;
+        padding:16px;
+        margin:14px 0 16px 0;
+    ">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+            <div style="font-size:24px;">📰</div>
+            <div>
+                <div style="font-size:20px;font-weight:900;color:#0f172a;">
+                    Son 7 Gün Haber Havuzu / Genel Algı
+                </div>
+                <div style="font-size:13px;font-weight:700;color:#64748b;">
+                    Özet günü ayrı, son 7 günlük haber havuzu ayrı değerlendirilir.
+                </div>
+            </div>
+        </div>
+
+        <div style="
+            display:grid;
+            grid-template-columns:repeat(2,minmax(0,1fr));
+            gap:10px;
+            margin-bottom:12px;
+        ">
+            <div class="kpi"><b>{total_news}</b><span>Toplam haber</span></div>
+            <div class="kpi"><b>{positive_count}</b><span>Olumlu</span></div>
+            <div class="kpi"><b>{neutral_count}</b><span>Nötr</span></div>
+            <div class="kpi"><b>{risk_count}</b><span>Riskli</span></div>
+        </div>
+
+        <div style="
+            background:white;
+            border:1px solid #e2e8f0;
+            border-radius:16px;
+            padding:12px;
+            font-size:14px;
+            font-weight:800;
+            color:#334155;
+            line-height:1.45;
+        ">
+            <b>Genel yorum:</b> {esc(general_note)}
+        </div>
+    </div>
+    """
+
+def president_dashboard_panel(today, report_time, news, social, president_posts, crisis_plan, early_warning, opportunity_sum=None, all_news=None):
     opportunity_sum = opportunity_sum or {}
+       all_news = all_news if all_news is not None else news
     today_news = [
         item for item in news
         if same_day(item.get("parsed_date", item.get("date", "")), today)
@@ -3446,6 +3530,7 @@ def president_dashboard_panel(today, report_time, news, social, president_posts,
         </div>
         """
         
+    news_pool_summary_html = build_news_pool_summary_html(all_news)
     platform_social_pulse_html = build_platform_social_pulse_html(social, today)
 
     if today_x:
@@ -3846,7 +3931,9 @@ def president_dashboard_panel(today, report_time, news, social, president_posts,
                     {dashboard_kpi("Başkan X performansı", len(today_president_posts), f"Etkileşim {int(president_engagement)} • Yanıt {int(president_replies)}", "#059669", "#ecfdf5")}
                 </div>
 
-                     {president_x_graph_html}
+                     {news_pool_summary_html}
+
+                      {president_x_graph_html}
                       
                      {opportunity_card_html}
                     
@@ -6928,7 +7015,8 @@ def build_report(news, social, undated_news=None):
         dashboard_crisis_plan,
         dashboard_early_warning,
         opportunity_sum,
-   )
+        news,
+    )
 
     html_doc = f"""
 <html lang="tr">

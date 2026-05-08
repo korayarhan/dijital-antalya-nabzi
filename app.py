@@ -6846,8 +6846,6 @@ def build_report(news, social, undated_news=None):
     # Günlük başkan raporu "dün ne oldu?" sorusuna cevap verir.
     # Bu yüzden özet günü her zaman bir önceki gündür.
     dashboard_day = (now_tr.date() - dt.timedelta(days=1)).isoformat()
-    dashboard_day = today
-    if now_tr.hour < 6:
         dashboard_day = (now_tr.date() - dt.timedelta(days=1)).isoformat()
     important, positive_news, risky_news = top_items(news)
     social_sum = social_summary(social)

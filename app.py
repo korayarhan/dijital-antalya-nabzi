@@ -3359,6 +3359,7 @@ def president_dashboard_panel(today, report_time, news, social, president_posts,
         crisis_pulse = "president-pulse"
 
     top_risk_news = ""
+    # Buraya artık sadece özet günü haberleri gönderiliyor.
     risky_news = sorted(news, key=lambda x: safe_score_value(x.get("risk", 0)), reverse=True)
     if risky_news:
         top_risk_news = risky_news[0].get("title", "")
@@ -6767,6 +6768,25 @@ def build_report(news, social, undated_news=None):
     active_raw = str(crisis_status.get("active", "")).strip().lower()
     active_label = "Aktif" if active_raw in ["yes", "evet", "true", "1", "aktif"] else "Pasif"
     early_warning = early_warning_decision(crisis_plan, crisis_status, crisis_sum)
+    
+    dashboard_news = [
+        item for item in news
+        if same_day(item.get("parsed_date", item.get("date", "")), dashboard_day)
+    ]
+
+    dashboard_social = [
+        item for item in social
+        if same_day(item.get("date", ""), dashboard_day)
+    ]
+
+    dashboard_social_sum = social_summary(dashboard_social)
+    dashboard_crisis_sum = build_auto_crisis_summary(dashboard_news, dashboard_social_sum)
+    dashboard_crisis_plan = crisis_action_plan(dashboard_crisis_sum)
+    dashboard_early_warning = early_warning_decision(
+        dashboard_crisis_plan,
+        crisis_status,
+        dashboard_crisis_sum
+    )
     risk_level_raw = normalize_text(str(crisis_plan.get("level", "")))
     risk_alarm_html = ""
 
@@ -6878,22 +6898,22 @@ def build_report(news, social, undated_news=None):
     archive_president_replies = read_president_x_replies()
 
     archive_learning_note = build_system_learning_note(
-        news,
-        social,
+        dashboard_news,
+        dashboard_social,
         archive_alert_logs,
         archive_team_actions,
         archive_president_replies,
-        crisis_plan,
-        early_warning
+        dashboard_crisis_plan,
+        dashboard_early_warning
     )
 
     append_daily_decision_log(
         dashboard_day,
         report_time,
-        news,
-        social,
-        crisis_plan,
-        early_warning,
+        dashboard_news,
+        dashboard_social,
+        dashboard_crisis_plan,
+        dashboard_early_warning,
         opportunity_sum,
         archive_learning_note,
         archive_team_actions
@@ -6902,11 +6922,11 @@ def build_report(news, social, undated_news=None):
     dashboard_html = president_dashboard_panel(
         dashboard_day,
         report_time,
-        news,
-        social,
+        dashboard_news,
+        dashboard_social,
         president_posts,
-        crisis_plan,
-        early_warning,
+        dashboard_crisis_plan,
+        dashboard_early_warning,
         opportunity_sum,
    )
 

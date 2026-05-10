@@ -5128,6 +5128,43 @@ def build_data_flow_quality_html(news, social, president_posts, president_replie
         except:
             return default
 
+    def metric_card(label, value, note="", color="#334155", bg="#f8fafc"):
+        return f"""
+        <div style="
+            background:{bg};
+            border:1px solid {color};
+            border-radius:14px;
+            padding:12px;
+            min-height:82px;
+        ">
+            <div style="font-size:12px;font-weight:700;color:{color};margin-bottom:6px;">
+                {esc(label)}
+            </div>
+            <div style="font-size:24px;font-weight:800;color:#0f172a;line-height:1;">
+                {esc(value)}
+            </div>
+            <div style="font-size:12px;color:#64748b;margin-top:6px;line-height:1.35;">
+                {esc(note)}
+            </div>
+        </div>
+        """
+
+    def note_box(text, color="#475569", bg="#f8fafc"):
+        return f"""
+        <div style="
+            background:{bg};
+            border-left:4px solid {color};
+            border-radius:12px;
+            padding:10px 12px;
+            margin:8px 0;
+            color:#334155;
+            line-height:1.45;
+            font-size:14px;
+        ">
+            {esc(text)}
+        </div>
+        """
+
     x_items = [item for item in social if is_x_platform(item)]
     youtube_items = [item for item in social if is_youtube_platform(item)]
 
@@ -5175,52 +5212,108 @@ def build_data_flow_quality_html(news, social, president_posts, president_replie
     if len(undated_news) > 0:
         notes.append(f"{len(undated_news)} haberin tarihi okunamadı. Eski haber kaçmasını önlemek için ana rapor verisine alınmadı.")
 
+    if len(youtube_summary) > 0 and checked_videos > 0 and relevant_comments == 0:
+        notes.append("YouTube tarafında video kontrolü var ama alakalı yorum 0. Bu normal olabilir; yine de YouTube filtre örnekleri gözle kontrol edilmeli.")
+
     if not warnings:
         status = "Veri akışı normal"
         status_note = "Temel veri kanalları çalışıyor görünüyor. Yine de örnek kayıtlar gözle kontrol edilmeli."
+        status_color = "#0f766e"
+        status_bg = "#ecfdf5"
     else:
         status = "Kontrol gerekiyor"
         status_note = "Bir veya daha fazla veri kanalında boşluk var. Operatör kaynakları ve filtreleri kontrol etmeli."
+        status_color = "#b45309"
+        status_bg = "#fff7ed"
 
-    warning_html = "\n".join([f"- {esc(item)}" for item in warnings]) if warnings else "- Kritik veri uyarısı yok."
-    notes_html = "\n".join([f"- {esc(item)}" for item in notes]) if notes else "- Ek not yok."
+    warning_html = "".join([note_box(item, "#b91c1c", "#fef2f2") for item in warnings])
+    if not warning_html:
+        warning_html = note_box("Kritik veri uyarısı yok.", "#0f766e", "#ecfdf5")
+
+    notes_html = "".join([note_box(item, "#0369a1", "#f0f9ff") for item in notes])
+    if not notes_html:
+        notes_html = note_box("Ek not yok.", "#64748b", "#f8fafc")
 
     return f"""
-Veri akışı genel durumu: {esc(status)}
+    <div style="display:flex;flex-direction:column;gap:14px;">
 
-{esc(status_note)}
+        <div style="
+            background:{status_bg};
+            border:1px solid {status_color};
+            border-radius:16px;
+            padding:14px;
+        ">
+            <div style="font-size:14px;font-weight:800;color:{status_color};margin-bottom:6px;">
+                Veri akışı genel durumu: {esc(status)}
+            </div>
+            <div style="font-size:13px;color:#475569;line-height:1.45;">
+                {esc(status_note)}
+            </div>
+        </div>
 
-Haber akışı:
-- Raporlanan haber: {len(news)}
-- Tarihi okunamayan haber: {len(undated_news)}
+        <div>
+            <div style="font-size:15px;font-weight:800;color:#0f172a;margin-bottom:8px;">Haber Akışı</div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;">
+                {metric_card("Raporlanan haber", len(news), "Ana rapora giren haber")}
+                {metric_card("Tarihi okunamayan", len(undated_news), "Eski haber kaçmasın diye ayrıldı")}
+            </div>
+        </div>
 
-Sosyal medya akışı:
-- Toplam sosyal kayıt: {len(social)}
-- X kayıtları: {len(x_items)}
-- YouTube sosyal kayıtları: {len(youtube_items)}
-- Otomatik sosyal kayıtlar: {len(auto_items)}
-- Manuel sosyal kayıtlar: {len(manual_items)}
+        <div>
+            <div style="font-size:15px;font-weight:800;color:#0f172a;margin-bottom:8px;">Sosyal Medya Akışı</div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;">
+                {metric_card("Toplam sosyal", len(social), "Manuel + otomatik kayıt")}
+                {metric_card("X kayıtları", len(x_items), "X / Twitter kaynaklı kayıt")}
+                {metric_card("YouTube sosyal", len(youtube_items), "Yorum / video kaynaklı kayıt")}
+                {metric_card("Otomatik", len(auto_items), "Sistem tarafından çekilen")}
+                {metric_card("Manuel", len(manual_items), "Ekip tarafından girilen")}
+            </div>
+        </div>
 
-Başkan X akışı:
-- Başkan X gönderisi: {len(president_posts)}
-- Başkan X yanıtı: {len(president_replies)}
+        <div>
+            <div style="font-size:15px;font-weight:800;color:#0f172a;margin-bottom:8px;">Başkan X Akışı</div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;">
+                {metric_card("Başkan X gönderisi", len(president_posts), "Son çekilen başkan paylaşımları")}
+                {metric_card("Başkan X yanıtı", len(president_replies), "Gönderilere gelen yanıtlar")}
+            </div>
+        </div>
 
-YouTube kanal kontrolü:
-- Takip edilen YouTube kaynak/kanal satırı: {len(youtube_summary)}
-- Kontrol edilen video: {checked_videos}
-- Alakalı yorum: {relevant_comments}
-- Kaydedilen yorum: {saved_comments}
-- Atlanan video: {skipped_videos}
+        <div>
+            <div style="font-size:15px;font-weight:800;color:#0f172a;margin-bottom:8px;">YouTube Kanal Kontrolü</div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;">
+                {metric_card("YouTube kaynak", len(youtube_summary), "Takip edilen kanal/kaynak")}
+                {metric_card("Kontrol edilen video", checked_videos, "Taranan video sayısı")}
+                {metric_card("Alakalı yorum", relevant_comments, "Filtreye takılan yorum")}
+                {metric_card("Kaydedilen yorum", saved_comments, "Rapora/veriye yazılan yorum")}
+                {metric_card("Atlanan video", skipped_videos, "Yorum/uygunluk nedeniyle atlanan")}
+            </div>
+        </div>
 
-Kontrol uyarıları:
-{warning_html}
+        <div>
+            <div style="font-size:15px;font-weight:800;color:#0f172a;margin-bottom:8px;">Kontrol Uyarıları</div>
+            {warning_html}
+        </div>
 
-Ek notlar:
-{notes_html}
+        <div>
+            <div style="font-size:15px;font-weight:800;color:#0f172a;margin-bottom:8px;">Ek Notlar</div>
+            {notes_html}
+        </div>
 
-Operatör yorumu:
-Bu bölüm verinin gerçekten akıp akmadığını görmek içindir. Burada boşluk varsa önce kaynak, token, CSV ve filtre kontrol edilmeli; sonra dashboard yorumlarına güvenilmeli.
-"""
+        <div style="
+            background:#f8fafc;
+            border:1px solid #cbd5e1;
+            border-radius:14px;
+            padding:12px;
+            font-size:13px;
+            color:#475569;
+            line-height:1.5;
+        ">
+            <strong>Operatör yorumu:</strong>
+            Bu bölüm verinin gerçekten akıp akmadığını görmek içindir. Burada boşluk varsa önce kaynak, token, CSV ve filtre kontrol edilmeli; sonra dashboard yorumlarına güvenilmeli.
+        </div>
+
+    </div>
+    """
 
 def team_action_status_badge(status):
     raw_status = str(status or "").strip()

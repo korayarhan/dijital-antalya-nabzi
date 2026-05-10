@@ -1815,6 +1815,7 @@ def read_social_data():
     ]
 
     rows = []
+    seen_social_keys = set()
 
     def to_float_local(value, default=0):
         try:
@@ -1993,6 +1994,20 @@ def read_social_data():
                         continue
 
                 if any(str(v).strip() for v in item.values()):
+                    unique_platform = normalize_text(item.get("platform", ""))
+                    unique_account = normalize_text(item.get("account", ""))
+                    unique_url = normalize_text(item.get("url", "") or item.get("link", ""))
+                    unique_content = normalize_text(item.get("content", ""))[:160]
+
+                    if unique_url:
+                        dedup_key = f"url|{unique_platform}|{unique_url}"
+                    else:
+                        dedup_key = f"text|{unique_platform}|{unique_account}|{unique_content}"
+
+                    if dedup_key in seen_social_keys:
+                        continue
+
+                    seen_social_keys.add(dedup_key)
                     rows.append(item)
 
         except Exception as e:

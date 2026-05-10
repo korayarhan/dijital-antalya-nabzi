@@ -927,6 +927,51 @@ def youtube_channel_video_candidates(channel_value, api_key, max_results=5):
 
     return candidates
 
+def read_youtube_watch_list():
+    default_items = [
+        {
+            "type": "query",
+            "value": "Mesut Kocagöz",
+            "topic": "Mesut Kocagöz",
+            "note": "Varsayılan YouTube araması",
+        },
+        {
+            "type": "query",
+            "value": "Kepez Belediyesi",
+            "topic": "Kepez Belediyesi",
+            "note": "Varsayılan YouTube araması",
+        },
+    ]
+
+    if not YOUTUBE_WATCH_CSV.exists():
+        return default_items
+
+    rows = []
+
+    try:
+        with YOUTUBE_WATCH_CSV.open("r", encoding="utf-8-sig", newline="") as f:
+            reader = csv.DictReader(f)
+
+            for row in reader:
+                item_type = str(row.get("type", "") or "").strip().lower()
+                value = str(row.get("value", "") or "").strip()
+                topic = str(row.get("topic", "") or "").strip()
+                note = str(row.get("note", "") or "").strip()
+
+                if item_type and value:
+                    rows.append({
+                        "type": item_type,
+                        "value": value,
+                        "topic": topic or value,
+                        "note": note,
+                    })
+
+    except Exception as e:
+        print(f"YouTube takip listesi okunamadı: {e}")
+        return default_items
+
+    return rows or default_items
+
 def fetch_youtube_social_comments():
     api_key = os.getenv("YOUTUBE_API_KEY", "").strip()
 

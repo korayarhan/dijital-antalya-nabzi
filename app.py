@@ -1921,8 +1921,79 @@ def read_social_data():
                          "source_type": get_value(row, "source_type", default=default_source_type),
                     }
 
-                    if any(str(v).strip() for v in item.values()):
-                        rows.append(item)
+                # YouTube için ikinci güvenlik filtresi:
+                # CSV'de eski/alakasız kayıt kalmışsa rapora alma.
+                if csv_path == YOUTUBE_SOCIAL_CSV:
+                    youtube_check_text = normalize_text(
+                        f"{item.get('content', '')} {item.get('topic', '')} {item.get('account', '')}"
+                    )
+
+                    youtube_content_core = re.sub(
+                        r"\s+",
+                        "",
+                        normalize_text(item.get("content", ""))
+                    )
+
+                    strong_youtube_terms = [
+                        "kepez",
+                        "kepez belediyesi",
+                        "mesut",
+                        "mesut kocagoz",
+                        "mesut kocagöz",
+                        "kocagoz",
+                        "kocagöz",
+                        "antalya kepez",
+                        "duaci",
+                        "duacı",
+                        "varsak",
+                        "sutculer",
+                        "sütçüler",
+                        "teleferik",
+                    ]
+
+                    youtube_service_terms = [
+                        "sikayet",
+                        "şikayet",
+                        "tepki",
+                        "elestiri",
+                        "eleştiri",
+                        "dava",
+                        "kriz",
+                        "asfalt",
+                        "yol",
+                        "park",
+                        "temizlik",
+                        "ulasim",
+                        "ulaşım",
+                        "mahalle",
+                        "okul",
+                        "insaat",
+                        "inşaat",
+                    ]
+
+                    strong_youtube_hit = any(
+                        normalize_text(term) in youtube_check_text
+                        for term in strong_youtube_terms
+                    )
+
+                    antalya_service_hit = (
+                        "antalya" in youtube_check_text
+                        and any(
+                            normalize_text(term) in youtube_check_text
+                            for term in youtube_service_terms
+                        )
+                    )
+
+                    # Sadece emoji, kalp veya çok kısa yorumları alma.
+                    if len(youtube_content_core) < 3:
+                        continue
+
+                    # Güçlü Kepez/Mesut/yerel bağlam yoksa rapora alma.
+                    if not strong_youtube_hit and not antalya_service_hit:
+                        continue
+
+                if any(str(v).strip() for v in item.values()):
+                    rows.append(item)
 
         except Exception as e:
             print(f"Sosyal medya verisi okunamadı: {csv_path} - {e}")

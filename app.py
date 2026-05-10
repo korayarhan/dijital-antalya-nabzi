@@ -5211,6 +5211,7 @@ def build_data_flow_quality_html(news, social, president_posts, president_replie
             return default
 
     def metric_card(label, value, note="", color="#334155", bg="#f8fafc"):
+        value_text = str(value)
         return f"""
         <div style="
             background:{bg};
@@ -5223,7 +5224,7 @@ def build_data_flow_quality_html(news, social, president_posts, president_replie
                 {esc(label)}
             </div>
             <div style="font-size:24px;font-weight:800;color:#0f172a;line-height:1;">
-                {esc(value)}
+                {esc(value_text)}
             </div>
             <div style="font-size:12px;color:#64748b;margin-top:6px;line-height:1.35;">
                 {esc(note)}

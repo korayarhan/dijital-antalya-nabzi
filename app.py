@@ -6804,9 +6804,216 @@ def weekly_x_summary_html():
     except:
         return "<div class='card'><p class='small'>Haftalık veri okunamadı.</p></div>"
 
+def build_news_quality_html(news, undated_news=None, dashboard_day=None):
+    undated_news = undated_news or []
+
+    def to_float_local(value, default=0):
+        try:
+            return float(str(value or "0").replace(",", ".").strip())
+        except:
+            return default
+
+    if dashboard_day is None:
+        now_tr = dt.datetime.utcnow() + dt.timedelta(hours=3)
+        dashboard_day = (now_tr.date() - dt.timedelta(days=1)).isoformat()
+
+    today_news = [
+        item for item in news
+        if same_day(item.get("parsed_date", item.get("date", "")), dashboard_day)
+    ]
+
+    risky_news = [
+        item for item in news
+        if to_float_local(item.get("risk", 0)) >= 6
+    ]
+
+    positive_news = [
+        item for item in news
+        if normalize_text(item.get("tone", "")) == "olumlu"
+    ]
+
+    neutral_news = [
+        item for item in news
+        if normalize_text(item.get("tone", "")) in ["notr", "nötr"]
+    ]
+
+    def metric_card(label, value, note="", color="#334155", bg="#f8fafc"):
+        return f"""
+        <div style="
+            background:{bg};
+            border:1px solid {color};
+            border-radius:14px;
+            padding:12px;
+            min-height:82px;
+        ">
+            <div style="font-size:12px;font-weight:700;color:{color};margin-bottom:6px;">
+                {esc(label)}
+            </div>
+            <div style="font-size:24px;font-weight:800;color:#0f172a;line-height:1;">
+                {esc(str(value))}
+            </div>
+            <div style="font-size:12px;color:#64748b;margin-top:6px;line-height:1.35;">
+                {esc(note)}
+            </div>
+        </div>
+        """
+
+    def news_detail_card(item):
+        title = item.get("title", "")
+        summary = item.get("summary", "")
+        if len(summary) > 260:
+            summary = summary[:260] + "..."
+
+        risk = to_float_local(item.get("risk", 0))
+        opportunity = to_float_local(item.get("opportunity", 0))
+        tone = item.get("tone", "")
+        topic = clean_topic_title(item.get("topic", ""))
+        keyword = item.get("keyword", "")
+        parsed_date = item.get("parsed_date", "")
+        date_text = parsed_date or item.get("date", "")
+        link = str(item.get("link", "") or "").strip()
+
+        if risk >= 7:
+            badge_text = "Yüksek risk"
+            badge_color = "#b91c1c"
+            badge_bg = "#fef2f2"
+        elif risk >= 4:
+            badge_text = "Takip edilecek"
+            badge_color = "#b45309"
+            badge_bg = "#fff7ed"
+        else:
+            badge_text = "Standart takip"
+            badge_color = "#2563eb"
+            badge_bg = "#eff6ff"
+
+        link_html = ""
+        if link:
+            link_html = f"""
+            <a href="{esc(link)}" target="_blank" style="
+                display:inline-block;
+                margin-top:8px;
+                padding:7px 10px;
+                border-radius:10px;
+                background:#0f172a;
+                color:white;
+                text-decoration:none;
+                font-size:12px;
+                font-weight:700;
+            ">Haberi Aç</a>
+            """
+
+        return f"""
+        <div style="
+            background:#ffffff;
+            border:1px solid #cbd5e1;
+            border-radius:14px;
+            padding:12px;
+            margin:10px 0;
+        ">
+            <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start;">
+                <div style="font-size:15px;font-weight:800;color:#0f172a;line-height:1.35;">
+                    {esc(title)}
+                </div>
+                <div style="
+                    white-space:nowrap;
+                    background:{badge_bg};
+                    color:{badge_color};
+                    border:1px solid {badge_color};
+                    border-radius:999px;
+                    padding:4px 8px;
+                    font-size:11px;
+                    font-weight:800;
+                ">
+                    {esc(badge_text)}
+                </div>
+            </div>
+
+            <div style="font-size:12px;color:#64748b;margin-top:6px;line-height:1.45;">
+                Tarih: {esc(date_text)} • Ton: {esc(tone)} • Risk: {esc(str(risk))}/10 • Fırsat: {esc(str(opportunity))}/10
+            </div>
+
+            <div style="font-size:12px;color:#64748b;margin-top:4px;line-height:1.45;">
+                Konu: {esc(topic)} • Anahtar kelime: {esc(keyword)}
+            </div>
+
+            <div style="font-size:13px;color:#334155;margin-top:8px;line-height:1.45;">
+                {esc(summary)}
+            </div>
+
+            {link_html}
+        </div>
+        """
+
+    sample_news = sorted(
+        news,
+        key=lambda item: to_float_local(item.get("risk", 0)),
+        reverse=True
+    )[:8]
+
+    sample_news_html = "".join([news_detail_card(item) for item in sample_news])
+    if not sample_news_html:
+        sample_news_html = """
+        <div style="background:#f8fafc;border:1px solid #cbd5e1;border-radius:14px;padding:12px;color:#475569;">
+            Haber kaydı bulunamadı. Haber kaynakları, RSS veya filtreler kontrol edilmeli.
+        </div>
+        """
+
+    return f"""
+    <div style="display:flex;flex-direction:column;gap:14px;">
+
+        <div style="
+            background:#eff6ff;
+            border:1px solid #2563eb;
+            border-radius:16px;
+            padding:14px;
+        ">
+            <div style="font-size:14px;font-weight:800;color:#1d4ed8;margin-bottom:6px;">
+                Haber filtre kalite kontrolü
+            </div>
+            <div style="font-size:13px;color:#475569;line-height:1.45;">
+                Bu bölüm başkan raporunu uzatmadan, ekip/operatör tarafında haberlerin gerçekten Kepez / Mesut Kocagöz / Antalya bağlamında olup olmadığını kontrol etmek için eklenmiştir.
+            </div>
+        </div>
+
+        <div>
+            <div style="font-size:15px;font-weight:800;color:#0f172a;margin-bottom:8px;">Haber Sayıları</div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;">
+                {metric_card("Raporlanan haber", len(news), "Son 7 gün filtresinden geçen haber")}
+                {metric_card("Özet günü haber", len(today_news), f"{dashboard_day} tarihli haber")}
+                {metric_card("Riskli haber", len(risky_news), "Risk skoru 6 ve üzeri")}
+                {metric_card("Olumlu haber", len(positive_news), "Olumlu tonlu haber")}
+                {metric_card("Nötr haber", len(neutral_news), "Nötr tonlu haber")}
+                {metric_card("Tarihi okunamayan", len(undated_news), "Ana rapora alınmayan haber")}
+            </div>
+        </div>
+
+        <div>
+            <div style="font-size:15px;font-weight:800;color:#0f172a;margin-bottom:8px;">
+                En Riskli / Örnek Haberler
+            </div>
+            {sample_news_html}
+        </div>
+
+        <div style="
+            background:#f8fafc;
+            border:1px solid #cbd5e1;
+            border-radius:14px;
+            padding:12px;
+            font-size:13px;
+            color:#475569;
+            line-height:1.5;
+        ">
+            <strong>Operatör kontrol notu:</strong>
+            Bu listede alakasız il, eski haber, tekrar eden haber veya Kepez/Mesut bağlamı zayıf haber görülürse haber filtresi sıkılaştırılmalı. Başkan raporunda sadece özet ve karar göstergesi kalmalı; detay kontrol ekip raporunda yapılmalı.
+        </div>
+
+    </div>
+    """
+
 def build_team_report(news, social, early_warning, crisis_plan, crisis_status, report_time, undated_news=None):
     now_tr = dt.datetime.utcnow() + dt.timedelta(hours=3)
     today = now_tr.date().isoformat()
+        dashboard_day = (now_tr.date() - dt.timedelta(days=1)).isoformat()
 
     def safe_float(value, default=0):
         try:
@@ -6838,6 +7045,11 @@ def build_team_report(news, social, early_warning, crisis_plan, crisis_status, r
         president_replies,
         youtube_summary,
         undated_news,
+    )
+        news_quality_html = build_news_quality_html(
+        news,
+        undated_news,
+        dashboard_day,
     )
     x_summary_html = x_social_summary_html(social, president_replies)
     service_complaint_followup = x_service_complaint_followup_html(social)
@@ -7287,6 +7499,17 @@ def build_team_report(news, social, early_warning, crisis_plan, crisis_status, r
     x_count_for_data_flow = len([x for x in social if is_x_platform(x)])
     youtube_count_for_data_flow = len([x for x in social if is_youtube_platform(x)])
     data_flow_subtitle = f"Haber {len(news)} • X {x_count_for_data_flow} • YouTube {youtube_count_for_data_flow} • YouTube kaynak {len(youtube_summary)}"
+        today_news_for_quality = [
+        item for item in news
+        if same_day(item.get("parsed_date", item.get("date", "")), dashboard_day)
+    ]
+
+    risky_news_for_quality = [
+        item for item in news
+        if safe_float(item.get("risk", 0)) >= 6
+    ]
+
+    news_quality_subtitle = f"{len(news)} haber • Özet günü {len(today_news_for_quality)} • Riskli {len(risky_news_for_quality)} • Tarihi okunamayan {len(undated_news or [])}"
     weekly_subtitle = f"{len(x_items_for_summary)} X kaydı • {len(risky_x_for_summary)} riskli"
     x_social_subtitle = f"{len(x_items_for_summary)} kayıt • {len(risky_x_for_summary)} riskli/takip gerektiren kayıt"
     service_subtitle = "Vatandaş şikayeti, kurumsal cevap ve hizmet duyurusu ayrımı"
@@ -7325,6 +7548,14 @@ def build_team_report(news, social, early_warning, crisis_plan, crisis_status, r
         data_flow_quality,
         opened=True,
         subtitle=data_flow_subtitle,
+    )
+    
+        news_quality_section = accordion_section(
+        " Haber Filtre Kalite Kontrolü / Haber Detayları",
+        "#2563eb",
+        "#eff6ff",
+        news_quality_html,
+        subtitle=news_quality_subtitle,
     )
 
     learning_section = accordion_section(
@@ -7543,6 +7774,7 @@ th {{
 
 {crisis_alarm_section}
 {data_flow_section}
+{news_quality_section}
 {learning_section}
 <div id="detay-youtube"></div>
 {youtube_section}

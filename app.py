@@ -7046,11 +7046,13 @@ def build_team_report(news, social, early_warning, crisis_plan, crisis_status, r
         youtube_summary,
         undated_news,
     )
-        news_quality_html = build_news_quality_html(
+    
+    news_quality_html = build_news_quality_html(
         news,
         undated_news,
         dashboard_day,
     )
+    
     x_summary_html = x_social_summary_html(social, president_replies)
     service_complaint_followup = x_service_complaint_followup_html(social)
     weekly_summary = weekly_x_summary_html()

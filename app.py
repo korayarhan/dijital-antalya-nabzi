@@ -1922,17 +1922,17 @@ def read_social_data():
                          "source_type": get_value(row, "source_type", default=default_source_type),
                     }
 
-                # YouTube için ikinci güvenlik filtresi:
-                # CSV'de eski/alakasız kayıt kalmışsa rapora alma.
-                if csv_path == YOUTUBE_SOCIAL_CSV:
-                    youtube_check_text = normalize_text(
-                        f"{item.get('content', '')} {item.get('topic', '')} {item.get('account', '')}"
+                    # YouTube için ikinci güvenlik filtresi:
+                    # CSV'de eski/alakasız kayıt kalmışsa rapora alma.
+                    if csv_path == YOUTUBE_SOCIAL_CSV:
+                        youtube_check_text = normalize_text(
+                            f"{item.get('content', '')} {item.get('topic', '')} {item.get('account', '')}"
                     )
 
-                    youtube_content_core = re.sub(
-                        r"\s+",
-                        "",
-                        normalize_text(item.get("content", ""))
+                        youtube_content_core = re.sub(
+                            r"\s+",
+                            "",
+                            normalize_text(item.get("content", ""))
                     )
 
                     strong_youtube_terms = [

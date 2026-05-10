@@ -7553,7 +7553,7 @@ def build_team_report(news, social, early_warning, crisis_plan, crisis_status, r
         subtitle=data_flow_subtitle,
     )
     
-        news_quality_section = accordion_section(
+    news_quality_section = accordion_section(
         " Haber Filtre Kalite Kontrolü / Haber Detayları",
         "#2563eb",
         "#eff6ff",

@@ -7013,7 +7013,7 @@ def build_news_quality_html(news, undated_news=None, dashboard_day=None):
 def build_team_report(news, social, early_warning, crisis_plan, crisis_status, report_time, undated_news=None):
     now_tr = dt.datetime.utcnow() + dt.timedelta(hours=3)
     today = now_tr.date().isoformat()
-        dashboard_day = (now_tr.date() - dt.timedelta(days=1)).isoformat()
+    dashboard_day = (now_tr.date() - dt.timedelta(days=1)).isoformat()
 
     def safe_float(value, default=0):
         try:

@@ -8435,6 +8435,7 @@ def main():
     os.makedirs("data", exist_ok=True)
 
     news, undated_news = fetch_news()
+    print(f"Haber tarama tamamlandı. Raporlanan haber: {len(news)}, Tarihi okunamayan: {len(undated_news)}")
     fetch_x_social_posts()
     fetch_youtube_social_comments()
     fetch_president_x_posts()

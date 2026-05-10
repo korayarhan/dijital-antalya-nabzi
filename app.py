@@ -689,80 +689,117 @@ def fetch_president_x_replies():
         print(f"Başkan X yanıtları alınamadı: {e}")
 
 def is_relevant_youtube_comment(video_title, comment_text, watch_topic):
+    title_norm = normalize_text(video_title)
+    comment_norm = normalize_text(comment_text)
+    topic_norm = normalize_text(watch_topic)
     combined = normalize_text(f"{video_title} {comment_text} {watch_topic}")
 
-    relevance_terms = [
+    # 1) Sadece emoji, kalp, boş veya çok kısa yorumları alma.
+    comment_core = re.sub(r"\s+", "", comment_norm)
+    if len(comment_core) < 3:
+        return False
+
+    # 2) Güçlü yerel bağlam olmadan genel "başkan / belediye" kelimesine güvenme.
+    strong_local_terms = [
         "kepez",
-        "mesut",
-        "kocagoz",
-        "kocagöz",
         "kepez belediyesi",
+        "kepez belediye",
+        "kepez belediye başkanı",
+        "kepez belediye baskani",
+        "mesut",
+        "mesut kocagöz",
+        "mesut kocagoz",
+        "kocagöz",
+        "kocagoz",
         "antalya kepez",
+        "duacı",
+        "duaci",
+        "varsak",
+        "sütçüler",
+        "sutculer",
+        "güneş mahallesi",
+        "gunes mahallesi",
+        "habibler",
+        "teomanpaşa",
+        "teomanpasa",
+        "fabrikalar mahallesi",
+        "şafak mahallesi",
+        "safak mahallesi",
+    ]
+
+    # Antalya genelinde ama proje için kritik olabilecek güçlü bağlamlar.
+    strategic_local_terms = [
+        "antalya büyükşehir",
+        "antalya buyuksehir",
+        "antalya büyükşehir belediyesi",
+        "antalya buyuksehir belediyesi",
         "teleferik",
-        "dava",
-        "sikayet",
+    ]
+
+    service_or_risk_terms = [
         "şikayet",
+        "sikayet",
+        "tepki",
+        "eleştiri",
+        "elestiri",
+        "kriz",
+        "dava",
+        "soruşturma",
+        "sorusturma",
+        "ihmal",
+        "mağdur",
+        "magdur",
         "asfalt",
+        "yol",
         "temizlik",
         "park",
-        "ulasim",
-        "ulaşim",
         "ulaşım",
+        "ulasim",
         "mahalle",
-        "varsak",
-        "duaci",
-        "duacı",
-        "belediye",
-        "baskan",
-        "başkan",
+        "zabıta",
+        "zabita",
+        "okul",
+        "inşaat",
+        "insaat",
+        "sosyal yardım",
+        "sosyal yardim",
     ]
 
-    return any(normalize_text(term) in combined for term in relevance_terms)
-
-def read_youtube_watch_list():
-    default_items = [
-        {
-            "type": "query",
-            "value": "Mesut Kocagöz",
-            "topic": "Mesut Kocagöz",
-            "note": "Varsayılan YouTube araması",
-        },
-        {
-            "type": "query",
-            "value": "Kepez Belediyesi",
-            "topic": "Kepez Belediyesi",
-            "note": "Varsayılan YouTube araması",
-        },
+    # Başka il/siyasi genel içerikleri elemek için zayıf bağlam kontrolü.
+    out_of_scope_terms = [
+        "adana",
+        "mersin",
+        "istanbul",
+        "ankara",
+        "izmir",
+        "bursa",
+        "konya",
+        "il başkanlığı",
+        "il baskanligi",
+        "chp adana",
+        "ak parti adana",
     ]
 
-    if not YOUTUBE_WATCH_CSV.exists():
-        return default_items
+    strong_local_hit = any(normalize_text(term) in combined for term in strong_local_terms)
+    strategic_hit = any(normalize_text(term) in combined for term in strategic_local_terms)
+    service_or_risk_hit = any(normalize_text(term) in combined for term in service_or_risk_terms)
+    out_of_scope_hit = any(normalize_text(term) in combined for term in out_of_scope_terms)
 
-    rows = []
+    # Güçlü Kepez / Mesut / Antalya Büyükşehir / teleferik bağlantısı varsa al.
+    if strong_local_hit or strategic_hit:
+        return True
 
-    try:
-        with YOUTUBE_WATCH_CSV.open("r", encoding="utf-8-sig", newline="") as f:
-            reader = csv.DictReader(f)
+    # Başka il veya genel siyasi içerikse, güçlü yerel bağlam yoksa alma.
+    if out_of_scope_hit:
+        return False
 
-            for row in reader:
-                item_type = str(row.get("type", "") or "").strip().lower()
-                value = str(row.get("value", "") or "").strip()
-                topic = str(row.get("topic", "") or "").strip()
-                note = str(row.get("note", "") or "").strip()
+    # Sadece "başkan" veya "belediye" geçti diye alma.
+    # Ancak Antalya + hizmet/risk birlikte varsa takipte tut.
+    antalya_hit = "antalya" in combined
+    if antalya_hit and service_or_risk_hit:
+        return True
 
-                if item_type and value:
-                    rows.append({
-                        "type": item_type,
-                        "value": value,
-                        "topic": topic or value,
-                        "note": note,
-                    })
-
-    except Exception as e:
-        print(f"YouTube takip listesi okunamadı: {e}")
-        return default_items
-
-    return rows or default_items
+    return False
 
 
 def youtube_video_id_from_value(value):

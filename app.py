@@ -7501,7 +7501,8 @@ def build_team_report(news, social, early_warning, crisis_plan, crisis_status, r
     x_count_for_data_flow = len([x for x in social if is_x_platform(x)])
     youtube_count_for_data_flow = len([x for x in social if is_youtube_platform(x)])
     data_flow_subtitle = f"Haber {len(news)} • X {x_count_for_data_flow} • YouTube {youtube_count_for_data_flow} • YouTube kaynak {len(youtube_summary)}"
-        today_news_for_quality = [
+       
+    today_news_for_quality = [
         item for item in news
         if same_day(item.get("parsed_date", item.get("date", "")), dashboard_day)
     ]

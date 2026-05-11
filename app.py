@@ -4304,9 +4304,6 @@ def president_dashboard_panel(today, report_time, news, social, president_posts,
             padding:16px;
             margin-bottom:16px;
         ">
-            <div style="font-size:14px;font-weight:900;color:#047857;line-height:1.45;">
-                Kepez — {esc(display_day)} — 🌟 Fırsat
-            </div>
 
             <div style="font-size:24px;font-weight:950;color:#166534;margin-top:10px;line-height:1.25;">
                 Güçlü fırsat tespit edildi

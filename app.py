@@ -3087,12 +3087,12 @@ def dashboard_kpi(title, value, note, color="#334155", bg="#f8fafc"):
         value_size = "34px"
     return f"""
     <div style="
-        background:{bg};
-        border:1px solid #d6d3d1;
+        background:linear-gradient(180deg,rgba(255,255,255,0.10),rgba(255,255,255,0.045));
+        border:1px solid rgba(255,255,255,0.12);
         border-left:5px solid {color};
         border-radius:18px;
         padding:16px;
-        box-shadow:0 8px 22px rgba(15,23,42,0.05);
+        box-shadow:0 10px 24px rgba(0,0,0,0.28);
         min-height:175px;
         display:flex;
         flex-direction:column;
@@ -3100,13 +3100,13 @@ def dashboard_kpi(title, value, note, color="#334155", bg="#f8fafc"):
         gap:14px;
         box-sizing:border-box;
     ">
-        <div style="font-size:13px;font-weight:800;color:#64748b;margin-bottom:8px;">
+        <div style="font-size:13px;font-weight:850;color:#cbd5e1;line-height:1.35;">
             {esc(title)}
         </div>
-        <div style="font-size:{value_size};font-weight:900;color:#0f172a;line-height:1.05;">
+        <div style="font-size:{value_size};font-weight:950;color:#f8fafc;line-height:1.05;">
             {esc(value_text)}
         </div>
-        <div style="font-size:13px;font-weight:700;color:#64748b;margin-top:8px;line-height:1.35;">
+        <div style="font-size:13px;font-weight:750;color:#94a3b8;line-height:1.4;">
             {esc(note)}
         </div>
     </div>

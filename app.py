@@ -4713,11 +4713,12 @@ def president_dashboard_panel(today, report_time, news, social, president_posts,
                      {platform_social_pulse_html}
 
                 <div id="baskan-haber" style="
-                    background:white;
-                    border:1px solid #e5e7eb;
-                    border-radius:22px;
-                    padding:16px;
-                    margin:14px 0;
+                    background:linear-gradient(180deg,rgba(255,255,255,0.09),rgba(255,255,255,0.045));
+                     border:1px solid rgba(255,255,255,0.12);
+                     border-radius:22px;
+                     padding:16px;
+                     margin:14px 0 16px 0;
+                     box-shadow:0 14px 34px rgba(0,0,0,0.28);
                 ">
                     <div style="
                         display:flex;
@@ -4727,10 +4728,10 @@ def president_dashboard_panel(today, report_time, news, social, president_posts,
                     ">
                         <div style="font-size:24px;">📊</div>
                         <div>
-                            <div style="font-size:20px;font-weight:900;color:#0f172a;">
+                            <div style="font-size:20px;font-weight:950;color:#f8fafc;">
                                 Günlük Haber ve Sosyal Nabız
                             </div>
-                            <div style="font-size:13px;font-weight:700;color:#64748b;">
+                            <div style="font-size:13px;font-weight:750;color:#94a3b8;">
                                 Özet günü için risk, fırsat ve sosyal hareket özeti
                             </div>
                         </div>

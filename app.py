@@ -3576,15 +3576,100 @@ def build_president_visual_summary_html(summary_day, social, all_news):
 
         donut_bg = (
             f"conic-gradient("
-            f"#16a34a 0 {positive_end:.1f}%, "
+            f"#22c55e 0 {positive_end:.1f}%, "
             f"#64748b {positive_end:.1f}% {neutral_end:.1f}%, "
-            f"#dc2626 {neutral_end:.1f}% 100%"
+            f"#ef4444 {neutral_end:.1f}% 100%"
             f")"
         )
         social_note = f"{positive_count} lehte • {neutral_count} nötr • {negative_count} aleyhte"
+
+        social_visual_html = f"""
+            <div style="
+                background:linear-gradient(180deg,rgba(255,255,255,0.09),rgba(255,255,255,0.045));
+                border:1px solid rgba(255,255,255,0.12);
+                border-radius:18px;
+                padding:14px;
+                box-shadow:0 10px 24px rgba(0,0,0,0.20);
+            ">
+                <div style="font-size:15px;font-weight:900;color:#f8fafc;margin-bottom:10px;">
+                    Sosyal Duygu Dağılımı
+                </div>
+
+                <div style="
+                    display:flex;
+                    align-items:center;
+                    gap:14px;
+                ">
+                    <div style="
+                        width:92px;
+                        height:92px;
+                        border-radius:50%;
+                        background:{donut_bg};
+                        position:relative;
+                        flex:0 0 auto;
+                    ">
+                        <div style="
+                            position:absolute;
+                            inset:20px;
+                            background:#111827;
+                            border-radius:50%;
+                            display:flex;
+                            align-items:center;
+                            justify-content:center;
+                            font-size:18px;
+                            font-weight:950;
+                            color:#f8fafc;
+                        ">
+                            {social_total}
+                        </div>
+                    </div>
+
+                    <div style="
+                        font-size:13px;
+                        font-weight:800;
+                        color:#cbd5e1;
+                        line-height:1.55;
+                    ">
+                        <div><span style="color:#22c55e;">●</span> Lehte: {positive_count}</div>
+                        <div><span style="color:#94a3b8;">●</span> Nötr: {neutral_count}</div>
+                        <div><span style="color:#ef4444;">●</span> Aleyhte: {negative_count}</div>
+                        <div style="margin-top:6px;color:#94a3b8;">{esc(social_note)}</div>
+                    </div>
+                </div>
+            </div>
+        """
     else:
-        donut_bg = "#e5e7eb"
-        social_note = "Özet gününde sosyal medya kaydı yok"
+        social_visual_html = f"""
+            <div style="
+                background:linear-gradient(180deg,rgba(255,255,255,0.09),rgba(255,255,255,0.045));
+                border:1px solid rgba(255,255,255,0.12);
+                border-left:5px solid #7c3aed;
+                border-radius:18px;
+                padding:14px;
+                box-shadow:0 10px 24px rgba(0,0,0,0.20);
+            ">
+                <div style="font-size:15px;font-weight:900;color:#f8fafc;margin-bottom:10px;">
+                    Sosyal Duygu Dağılımı
+                </div>
+
+                <div style="
+                    background:rgba(15,23,42,0.78);
+                    border:1px solid rgba(255,255,255,0.08);
+                    border-radius:14px;
+                    padding:14px;
+                    color:#cbd5e1;
+                    font-size:14px;
+                    font-weight:800;
+                    line-height:1.45;
+                ">
+                    Bugün sosyal medya kaydı yok.
+                    <br>
+                    <span style="color:#94a3b8;font-weight:750;">
+                        Sistem X ve YouTube takip havuzunu izlemeye devam ediyor.
+                    </span>
+                </div>
+            </div>
+        """
 
     # Son 7 gün haber trendi
     trend_days = []
@@ -3610,7 +3695,7 @@ def build_president_visual_summary_html(summary_day, social, all_news):
     for day in trend_days:
         height = max(8, int((day["count"] / max_count) * 70)) if max_count else 8
         is_summary_day = day["iso"] == str(summary_day)
-        bar_color = "#2563eb" if is_summary_day else "#94a3b8"
+        bar_color = "#3b82f6" if is_summary_day else "#475569"
 
         bars_html += f"""
         <div style="
@@ -3626,12 +3711,13 @@ def build_president_visual_summary_html(summary_day, social, all_news):
                 width:16px;
                 border-radius:999px 999px 4px 4px;
                 background:{bar_color};
+                box-shadow:0 8px 16px rgba(0,0,0,0.25);
             "></div>
             <div style="
                 margin-top:6px;
                 font-size:10px;
                 font-weight:800;
-                color:#64748b;
+                color:#94a3b8;
                 white-space:nowrap;
             ">
                 {esc(day["label"])}
@@ -3639,7 +3725,7 @@ def build_president_visual_summary_html(summary_day, social, all_news):
             <div style="
                 font-size:11px;
                 font-weight:900;
-                color:#0f172a;
+                color:#f8fafc;
             ">
                 {day["count"]}
             </div>
@@ -3648,12 +3734,12 @@ def build_president_visual_summary_html(summary_day, social, all_news):
 
     return f"""
     <div id="baskan-app-gorsel-ozet" style="
-        background:white;
-        border:1px solid #e5e7eb;
+        background:linear-gradient(180deg,rgba(255,255,255,0.10),rgba(255,255,255,0.045));
+        border:1px solid rgba(255,255,255,0.12);
         border-radius:22px;
         padding:16px;
         margin:14px 0 16px 0;
-        box-shadow:0 8px 22px rgba(15,23,42,0.04);
+        box-shadow:0 14px 34px rgba(0,0,0,0.30);
     ">
         <div style="
             display:flex;
@@ -3663,10 +3749,10 @@ def build_president_visual_summary_html(summary_day, social, all_news):
             margin-bottom:14px;
         ">
             <div>
-                <div style="font-size:20px;font-weight:950;color:#0f172a;">
+                <div style="font-size:20px;font-weight:950;color:#f8fafc;">
                     Bugünün Görsel Özeti
                 </div>
-                <div style="font-size:13px;font-weight:750;color:#64748b;margin-top:4px;">
+                <div style="font-size:13px;font-weight:750;color:#94a3b8;margin-top:4px;">
                     Haber, sosyal medya ve Başkan X performansı kısa görünüm
                 </div>
             </div>
@@ -3678,66 +3764,16 @@ def build_president_visual_summary_html(summary_day, social, all_news):
             grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
             gap:12px;
         ">
-            <div style="
-                background:#f8fafc;
-                border:1px solid #e2e8f0;
-                border-radius:18px;
-                padding:14px;
-            ">
-                <div style="font-size:15px;font-weight:900;color:#0f172a;margin-bottom:10px;">
-                    Sosyal Duygu Dağılımı
-                </div>
-
-                <div style="
-                    display:flex;
-                    align-items:center;
-                    gap:14px;
-                ">
-                    <div style="
-                        width:92px;
-                        height:92px;
-                        border-radius:50%;
-                        background:{donut_bg};
-                        position:relative;
-                        flex:0 0 auto;
-                    ">
-                        <div style="
-                            position:absolute;
-                            inset:20px;
-                            background:#f8fafc;
-                            border-radius:50%;
-                            display:flex;
-                            align-items:center;
-                            justify-content:center;
-                            font-size:18px;
-                            font-weight:950;
-                            color:#0f172a;
-                        ">
-                            {social_total}
-                        </div>
-                    </div>
-
-                    <div style="
-                        font-size:13px;
-                        font-weight:800;
-                        color:#334155;
-                        line-height:1.55;
-                    ">
-                        <div><span style="color:#16a34a;">●</span> Lehte: {positive_count}</div>
-                        <div><span style="color:#64748b;">●</span> Nötr: {neutral_count}</div>
-                        <div><span style="color:#dc2626;">●</span> Aleyhte: {negative_count}</div>
-                        <div style="margin-top:6px;color:#64748b;">{esc(social_note)}</div>
-                    </div>
-                </div>
-            </div>
+            {social_visual_html}
 
             <div style="
-                background:#f8fafc;
-                border:1px solid #e2e8f0;
+                background:linear-gradient(180deg,rgba(255,255,255,0.09),rgba(255,255,255,0.045));
+                border:1px solid rgba(255,255,255,0.12);
                 border-radius:18px;
                 padding:14px;
+                box-shadow:0 10px 24px rgba(0,0,0,0.20);
             ">
-                <div style="font-size:15px;font-weight:900;color:#0f172a;margin-bottom:10px;">
+                <div style="font-size:15px;font-weight:900;color:#f8fafc;margin-bottom:10px;">
                     Son 7 Gün Haber Trendi
                 </div>
 

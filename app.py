@@ -4319,6 +4319,9 @@ def president_dashboard_panel(today, report_time, news, social, president_posts,
             ">
                 Ekip uygun formatı hazırlasın. Detay fırsat kartında.
             </div>
+            
+            {opportunity_source_details_html}
+            
         </div>
         """
 

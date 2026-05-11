@@ -3865,7 +3865,7 @@ def president_dashboard_panel(today, report_time, news, social, president_posts,
             </div>
 
             <div style="font-size:13px;font-weight:700;color:#64748b;margin-bottom:12px;line-height:1.35;">
-                Özet gününde {len(today_president_posts)} Başkan X gönderisi analiz edildi.
+                Bugün {len(today_president_posts)} Başkan X gönderisi analiz edildi.
                 Toplam etkileşim: {int(president_engagement)}
             </div>
 
@@ -3919,7 +3919,7 @@ def president_dashboard_panel(today, report_time, news, social, president_posts,
             font-weight:800;
             line-height:1.45;
         ">
-            👤 Özet gününde Başkan X gönderisi bulunamadı.
+            👤 Bugün Başkan X gönderisi bulunamadı.
             <br>
             <span style="color:#64748b;font-weight:700;">
                 Gönderi geldiğinde performans grafiği burada görünecek.
@@ -3954,7 +3954,7 @@ def president_dashboard_panel(today, report_time, news, social, president_posts,
             font-weight:800;
             line-height:1.45;
         ">
-            Özet gününde X kaydı yok.
+            Bugün X kaydı yok.
             <br>
             <span style="color:#64748b;font-weight:700;">
                 Takip havuzunda {len(all_x_dashboard)} X kaydı var. Sistem izlemeye devam ediyor.
@@ -3985,7 +3985,7 @@ def president_dashboard_panel(today, report_time, news, social, president_posts,
             font-weight:800;
             line-height:1.45;
         ">
-            Özet gününde YouTube kaydı yok.
+            Bugün YouTube kaydı yok.
             <br>
             <span style="color:#64748b;font-weight:700;">
                 Takip havuzunda {len(all_youtube_dashboard)} YouTube kaydı var. Sistem izlemeye devam ediyor.
@@ -4094,7 +4094,7 @@ def president_dashboard_panel(today, report_time, news, social, president_posts,
         margin:14px 0 16px 0;
     ">
         <div style="font-size:18px;font-weight:900;color:{opportunity_color};margin-bottom:6px;">
-            🌟 Özet Gününün Fırsatı
+            🌟 Bugünün Fırsatı
         </div>
 
         <div style="font-size:13px;font-weight:800;color:#64748b;margin-bottom:10px;line-height:1.35;">
@@ -4317,16 +4317,32 @@ def president_dashboard_panel(today, report_time, news, social, president_posts,
     if not high_risk and not medium_risk and not strong_opportunity:
         decision_card_html = ""
 
-    if today_x:
-        x_kpi_note = f"Lehte {x_positive} • Aleyhte {x_negative} • Nötr {x_neutral}"
-    else:
-        x_kpi_note = f"Özet günü kayıt yok • Takip havuzu {len(all_x_dashboard)}"
+        today_social_total = len(today_x) + len(today_youtube)
 
-    if today_youtube:
-        youtube_kpi_note = f"Lehte {yt_positive} • Aleyhte {yt_negative} • Nötr {yt_neutral}"
+    if today_social_total:
+        social_kpi_note = f"X {len(today_x)} • YouTube {len(today_youtube)}"
     else:
-        youtube_kpi_note = f"Özet günü kayıt yok • Takip havuzu {len(all_youtube_dashboard)}"
+        social_kpi_note = f"Bugün kayıt yok • Takip havuzu {len(all_x_dashboard) + len(all_youtube_dashboard)}"
 
+    alarm_decision = str(early_warning.get("decision", "") or "NORMAL TAKİP")
+    alarm_decision_upper = alarm_decision.upper()
+
+    if "ACİL" in alarm_decision_upper or "ACIL" in alarm_decision_upper:
+        alarm_value = "Alarm"
+        alarm_note = f"Risk {risk_level} • Başkan konuşmasın"
+        alarm_color = "#b91c1c"
+        alarm_bg = "#fef2f2"
+    elif "TAKİPTE" in alarm_decision_upper:
+        alarm_value = "Takipte"
+        alarm_note = f"Risk {risk_level} • Ekip izliyor"
+        alarm_color = "#d97706"
+        alarm_bg = "#fffbeb"
+    else:
+        alarm_value = "Normal"
+        alarm_note = "Kritik alarm yok"
+        alarm_color = "#64748b"
+        alarm_bg = "#f8fafc"
+        
     return f"""
     <style>
         html, body {{
@@ -4486,7 +4502,7 @@ def president_dashboard_panel(today, report_time, news, social, president_posts,
                     color:#334155;
                     line-height:1.4;
                 ">
-                    📌 Bu 4 hızlı kart <b>{esc(display_day)}</b> tarihli özet gününü gösterir. Son 7 gün haber havuzu aşağıda ayrıca verilir.
+                    📌 Bu 4 hızlı kart <b>{esc(display_day)}</b> için bugünün hızlı karar özetini gösterir. Son 7 gün haber havuzu aşağıda ayrıca verilir.
                 </div>
 
                 <div style="
@@ -4496,19 +4512,20 @@ def president_dashboard_panel(today, report_time, news, social, president_posts,
                     margin-bottom:16px;
                 ">
                 <a href="#detay-haberler" style="text-decoration:none;color:inherit;display:block;">
-                    {dashboard_kpi("Özet günü haberleri", len(today_news), f"Son 7 gün tarandı • özet günü {len(today_news)} haber", "#2563eb", "#eff6ff")}
+                    {dashboard_kpi("Bugünün Haberleri", len(today_news), f"Son 7 gün tarandı • bugün {len(today_news)} haber", "#2563eb", "#eff6ff")}
                 </a>
                 
                 <a href="#detay-social" style="text-decoration:none;color:inherit;display:block;">
-                    {dashboard_kpi("Özet günü X nabzı", len(today_x), x_kpi_note, "#7c3aed", "#f5f3ff")}
+                    {dashboard_kpi("Bugünün Sosyal Nabzı", today_social_total, social_kpi_note, "#7c3aed", "#f5f3ff")}
                 </a>
                 
-                <a href="#detay-youtube" style="text-decoration:none;color:inherit;display:block;">
-                    {dashboard_kpi("Özet günü YouTube", len(today_youtube), youtube_kpi_note, "#dc2626", "#fff7ed")}
+                <a href="#baskan-kriz" style="text-decoration:none;color:inherit;display:block;">
+                     {dashboard_kpi("Kriz / Alarm", alarm_value, alarm_note, alarm_color, alarm_bg)}
+            
                 </a>
                     
                 <a href="#detay-baskan-x" style="text-decoration:none;color:inherit;display:block;">
-                    {dashboard_kpi("Başkan X performansı", len(today_president_posts), f"Etkileşim {int(president_engagement)} • Yanıt {int(president_replies)}", "#059669", "#ecfdf5")}
+                    {dashboard_kpi("Başkan X Performansı", len(today_president_posts), f"Etkileşim {int(president_engagement)} • Yanıt {int(president_replies)}", "#059669", "#ecfdf5")}
                  </a>
                 
                 </div>

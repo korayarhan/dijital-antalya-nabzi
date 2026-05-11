@@ -4303,7 +4303,7 @@ def president_dashboard_panel(today, report_time, news, social, president_posts,
             </div>
         </div>
         """
-    else:
+    if not high_risk and not medium_risk and not strong_opportunity:
         decision_card_html = ""
 
     if today_x:

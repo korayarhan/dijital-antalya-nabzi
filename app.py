@@ -4084,6 +4084,16 @@ def president_dashboard_panel(today, report_time, news, social, president_posts,
         </div>
         """
 
+    opportunity_source_details_html = ""
+    try:
+        opportunity_source_details_html = decision_source_details_html(
+            "fırsat",
+            opportunity_sum,
+            opportunity_color
+        )
+    except Exception:
+        opportunity_source_details_html = ""
+
     opportunity_card_html = f"""
     <div id="baskan-firsat" style="
         background:{opportunity_bg};

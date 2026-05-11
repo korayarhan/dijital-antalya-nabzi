@@ -4162,7 +4162,7 @@ def president_dashboard_panel(today, report_time, news, social, president_posts,
         or "yüksek" in opportunity_norm
     )
 
-        if high_risk:
+    if high_risk:
         decision_card_html = f"""
         <div id="baskan-ozet" class="{crisis_pulse}" style="
             background:#fff;

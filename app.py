@@ -3082,7 +3082,7 @@ def dashboard_kpi(title, value, note, color="#334155", bg="#f8fafc"):
 
     if title == "Kriz / Alarm" and value_text.lower() == "takipte":
         value_text = "TAKİPTE"
-        value_size = "28px"
+        value_size = "24px"
     else:
         value_size = "34px"
     return f"""
@@ -3093,10 +3093,12 @@ def dashboard_kpi(title, value, note, color="#334155", bg="#f8fafc"):
         border-radius:18px;
         padding:16px;
         box-shadow:0 8px 22px rgba(15,23,42,0.05);
-        min-height:190px;
+        min-height:175px;
         display:flex;
         flex-direction:column;
-        justify-content:space-between;
+        justify-content:flex-start;
+        gap:14px;
+        box-sizing:border-box;
     ">
         <div style="font-size:13px;font-weight:800;color:#64748b;margin-bottom:8px;">
             {esc(title)}

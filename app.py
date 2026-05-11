@@ -3231,13 +3231,19 @@ def build_platform_social_pulse_html(social, summary_day):
 
     if total_count == 0:
         return """
-        <div class="card" style="
+        <div id="platform-sosyal-nabiz" style="
+            background:linear-gradient(180deg,rgba(255,255,255,0.09),rgba(255,255,255,0.045));
+            border:1px solid rgba(255,255,255,0.12);
             border-left:6px solid #64748b;
-            background:#f8fafc;
+            border-radius:22px;
+            padding:16px;
             margin:14px 0 16px 0;
+            box-shadow:0 14px 34px rgba(0,0,0,0.28);
         ">
-            <h2 style="margin-top:0;color:#334155;">📱 Platform Bazlı Sosyal Nabız</h2>
-            <p style="font-weight:700;color:#64748b;">
+            <h2 style="margin-top:0;color:#f8fafc;font-size:20px;font-weight:950;">
+                📱 Platform Bazlı Sosyal Nabız
+            </h2>
+            <p style="font-weight:800;color:#94a3b8;line-height:1.45;">
                 Özet gününde sosyal medya kaydı bulunamadı. Takip havuzu çalışmaya devam ediyor.
             </p>
         </div>
@@ -3292,18 +3298,15 @@ def build_platform_social_pulse_html(social, summary_day):
         )
 
         if risky_count > 0:
-            color = "#dc2626"
-            bg = "#fef2f2"
+            color = "#ef4444"
             label = f"{risky_count} riskli kayıt"
         elif opportunity_count > 0:
-            color = "#16a34a"
-            bg = "#ecfdf5"
+            color = "#22c55e"
             label = f"{opportunity_count} fırsat kaydı"
         else:
-            color = "#334155"
-            bg = "#f8fafc"
+            color = "#94a3b8"
             label = "Standart takip"
-            
+
         platform_comment = platform_pulse_comment(
             platform,
             risky_count,
@@ -3314,14 +3317,14 @@ def build_platform_social_pulse_html(social, summary_day):
             views,
             featured_topic
         )
-            
+
         if featured_url.startswith("http"):
             featured_link_html = f"""
             <div style="margin-top:10px;">
                 <div style="
                     font-size:12px;
                     font-weight:800;
-                    color:#64748b;
+                    color:#94a3b8;
                     margin-bottom:6px;
                     line-height:1.35;
                 ">
@@ -3347,7 +3350,7 @@ def build_platform_social_pulse_html(social, summary_day):
                 margin-top:10px;
                 font-size:12px;
                 font-weight:800;
-                color:#64748b;
+                color:#94a3b8;
                 line-height:1.35;
             ">
                 Öne çıkan içerik için bağlantı yok.
@@ -3356,31 +3359,31 @@ def build_platform_social_pulse_html(social, summary_day):
 
         cards_html += f"""
         <div style="
-            background:{bg};
-            border:1px solid #e5e7eb;
+            background:linear-gradient(180deg,rgba(255,255,255,0.09),rgba(255,255,255,0.045));
+            border:1px solid rgba(255,255,255,0.12);
             border-left:5px solid {color};
             border-radius:18px;
             padding:14px;
-            box-shadow:0 6px 18px rgba(15,23,42,0.04);
+            box-shadow:0 10px 24px rgba(0,0,0,0.22);
         ">
             <div style="display:flex;justify-content:space-between;gap:8px;align-items:flex-start;">
                 <div>
-                    <div style="font-size:17px;font-weight:900;color:#0f172a;">
+                    <div style="font-size:17px;font-weight:950;color:#f8fafc;">
                         {esc(platform)}
                     </div>
-                    <div style="font-size:12px;font-weight:800;color:{color};margin-top:4px;">
+                    <div style="font-size:12px;font-weight:850;color:{color};margin-top:4px;">
                         {esc(label)}
                     </div>
                 </div>
 
                 <div style="
-                    background:white;
-                    border:1px solid #e2e8f0;
+                    background:rgba(15,23,42,0.78);
+                    border:1px solid rgba(255,255,255,0.10);
                     border-radius:999px;
                     padding:5px 9px;
                     font-size:13px;
-                    font-weight:900;
-                    color:#0f172a;
+                    font-weight:950;
+                    color:#f8fafc;
                 ">
                     {count}
                 </div>
@@ -3390,7 +3393,7 @@ def build_platform_social_pulse_html(social, summary_day):
                 margin-top:10px;
                 font-size:13px;
                 font-weight:800;
-                color:#475569;
+                color:#cbd5e1;
                 line-height:1.45;
             ">
                 Lehte: {positive_count} • Aleyhte: {negative_count} • Nötr: {neutral_count}
@@ -3402,16 +3405,16 @@ def build_platform_social_pulse_html(social, summary_day):
 
             <div style="
                 margin-top:10px;
-                background:white;
-                border:1px solid #e2e8f0;
+                background:rgba(15,23,42,0.78);
+                border:1px solid rgba(255,255,255,0.08);
                 border-radius:14px;
                 padding:10px;
                 font-size:12px;
                 font-weight:800;
-                color:#334155;
+                color:#cbd5e1;
                 line-height:1.4;
             ">
-                <b>Kısa yorum:</b> {esc(platform_comment)}
+                <b style="color:#f8fafc;">Kısa yorum:</b> {esc(platform_comment)}
             </div>
 
             {featured_link_html}
@@ -3420,11 +3423,12 @@ def build_platform_social_pulse_html(social, summary_day):
 
     return f"""
     <div id="platform-sosyal-nabiz" style="
-        background:white;
-        border:1px solid #e5e7eb;
+        background:linear-gradient(180deg,rgba(255,255,255,0.09),rgba(255,255,255,0.045));
+        border:1px solid rgba(255,255,255,0.12);
         border-radius:22px;
         padding:16px;
         margin:14px 0 16px 0;
+        box-shadow:0 14px 34px rgba(0,0,0,0.28);
     ">
         <div style="
             display:flex;
@@ -3434,10 +3438,10 @@ def build_platform_social_pulse_html(social, summary_day):
         ">
             <div style="font-size:24px;">📱</div>
             <div>
-                <div style="font-size:20px;font-weight:900;color:#0f172a;">
+                <div style="font-size:20px;font-weight:950;color:#f8fafc;">
                     Platform Bazlı Sosyal Nabız
                 </div>
-                <div style="font-size:13px;font-weight:700;color:#64748b;">
+                <div style="font-size:13px;font-weight:750;color:#94a3b8;">
                     Özet gününde sosyal medya platformlarının kayıt, risk, fırsat ve etkileşim durumu
                 </div>
             </div>

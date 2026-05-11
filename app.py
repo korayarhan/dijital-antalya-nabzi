@@ -4450,7 +4450,7 @@ def president_dashboard_panel(today, report_time, news, social, president_posts,
             animation: presidentPulse 1.4s infinite;
         }}
 
-        .president-mobile-nav {
+        .president-mobile-nav {{
             position: sticky;
             top: 0;
             z-index: 20;
@@ -4462,7 +4462,7 @@ def president_dashboard_panel(today, report_time, news, social, president_posts,
 
         }}
 
-        .president-mobile-nav a {
+        .president-mobile-nav a {{
             white-space:nowrap;
             text-decoration:none;
             background:rgba(255,255,255,0.10);

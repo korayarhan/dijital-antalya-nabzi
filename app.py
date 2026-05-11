@@ -4379,39 +4379,73 @@ def president_dashboard_panel(today, report_time, news, social, president_posts,
         """
 
     elif strong_opportunity:
-        decision_card_html = f"""
+                decision_card_html = f"""
         <div id="baskan-ozet" style="
-            background:#ecfdf5;
-            border:2px solid #16a34a;
-            border-left:7px solid #16a34a;
+            background:linear-gradient(135deg,rgba(22,163,74,0.26),rgba(15,23,42,0.96));
+            border:1.5px solid rgba(34,197,94,0.80);
+            border-left:7px solid #22c55e;
             border-radius:22px;
             padding:16px;
             margin-bottom:16px;
+            box-shadow:0 14px 34px rgba(0,0,0,0.32);
         ">
 
-            <div style="font-size:24px;font-weight:950;color:#166534;margin-top:10px;line-height:1.25;">
+            <div style="font-size:14px;font-weight:900;color:#86efac;line-height:1.4;">
+                Kepez — {esc(display_day)} — 🌟 Fırsat
+            </div>
+
+            <div style="font-size:25px;font-weight:950;color:#dcfce7;margin-top:10px;line-height:1.25;">
                 Güçlü fırsat tespit edildi
             </div>
 
-            <div style="font-size:15px;font-weight:900;color:#0f172a;margin-top:10px;line-height:1.4;">
+            <div style="font-size:15px;font-weight:900;color:#f8fafc;margin-top:10px;line-height:1.45;">
                {esc(opportunity_title_display)}
             </div>
 
             <div style="
-                background:white;
-                border:1px solid #bbf7d0;
-                border-radius:14px;
-                padding:11px;
-                margin-top:10px;
+                background:rgba(255,255,255,0.08);
+                border:1px solid rgba(134,239,172,0.28);
+                border-radius:15px;
+                padding:12px;
+                margin-top:12px;
                 font-size:14px;
                 font-weight:850;
-                color:#334155;
+                color:#e5e7eb;
                 line-height:1.45;
             ">
                 Ekip uygun formatı hazırlasın. Detay fırsat kartında.
             </div>
-            
-            {opportunity_source_details_html}
+
+            <details style="
+                background:rgba(15,23,42,0.72);
+                border:1px solid rgba(134,239,172,0.20);
+                border-radius:14px;
+                padding:10px 12px;
+                margin-top:12px;
+            ">
+                <summary style="
+                    cursor:pointer;
+                    list-style:none;
+                    font-size:13px;
+                    font-weight:900;
+                    color:#86efac;
+                ">
+                    Bu fırsat nereden geldi?
+                </summary>
+
+                <div style="
+                    margin-top:10px;
+                    color:#cbd5e1;
+                    font-size:13px;
+                    font-weight:750;
+                    line-height:1.45;
+                ">
+                    <div><b style="color:#f8fafc;">Kaynak:</b> {esc(opportunity_source)}</div>
+                    <div><b style="color:#f8fafc;">Başlık:</b> {esc(opportunity_title_display)}</div>
+                    <div style="margin-top:8px;"><b style="color:#f8fafc;">Neden fırsat?</b> {esc(opportunity_reason)}</div>
+                    <div style="margin-top:8px;"><b style="color:#f8fafc;">Önerilen aksiyon:</b> {esc(opportunity_action)}</div>
+                </div>
+            </details>
             
         </div>
         """

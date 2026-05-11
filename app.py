@@ -3078,6 +3078,13 @@ def is_youtube_platform(item):
 
 
 def dashboard_kpi(title, value, note, color="#334155", bg="#f8fafc"):
+    value_text = str(value or "")
+
+    if title == "Kriz / Alarm" and value_text.lower() == "takipte":
+        value_text = "TAKİPTE"
+        value_size = "28px"
+    else:
+        value_size = "34px"
     return f"""
     <div style="
         background:{bg};
@@ -3086,12 +3093,16 @@ def dashboard_kpi(title, value, note, color="#334155", bg="#f8fafc"):
         border-radius:18px;
         padding:16px;
         box-shadow:0 8px 22px rgba(15,23,42,0.05);
+        min-height:190px;
+        display:flex;
+        flex-direction:column;
+        justify-content:space-between;
     ">
         <div style="font-size:13px;font-weight:800;color:#64748b;margin-bottom:8px;">
             {esc(title)}
         </div>
-        <div style="font-size:34px;font-weight:900;color:#0f172a;line-height:1;">
-            {esc(value)}
+        <div style="font-size:{value_size};font-weight:900;color:#0f172a;line-height:1.05;">
+            {esc(value_text)}
         </div>
         <div style="font-size:13px;font-weight:700;color:#64748b;margin-top:8px;line-height:1.35;">
             {esc(note)}

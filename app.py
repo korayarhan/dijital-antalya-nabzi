@@ -4713,103 +4713,94 @@ def president_dashboard_panel(today, report_time, news, social, president_posts,
                      {platform_social_pulse_html}
 
                 <details id="baskan-haber" style="
-                         background:linear-gradient(180deg,rgba(255,255,255,0.09),rgba(255,255,255,0.045));
-                         border:1px solid rgba(255,255,255,0.12);
-                         border-radius:22px;
-                         padding:0;
-                         margin:14px 0 16px 0;
-                         box-shadow:0 14px 34px rgba(0,0,0,0.28);
-                         overflow:hidden;
-                ">
-                    <div style="
-                        display:flex;
-                        align-items:center;
-                        gap:10px;
-                        margin:0 0 12px 0;
-                    ">
-                        <summary style="
-                            cursor:pointer;
-                            list-style:none;
-                            padding:16px;
-                            display:flex;
-                            align-items:center;
-                            gap:10px;
-                    ">
-                            <div style="font-size:24px;">📊</div>
-                            <div>
-                               <div style="font-size:20px;font-weight:950;color:#f8fafc;">
-                                   Günlük Haber ve Sosyal Nabız
-                               </div>
-                               <div style="font-size:13px;font-weight:750;color:#94a3b8;margin-top:4px;">
-                                   Risk başlığı, fırsat başlığı, X ve YouTube kısa durumu
-                            </div>
-                        </div>
-                    </summary>
+    background:linear-gradient(180deg,rgba(255,255,255,0.09),rgba(255,255,255,0.045));
+    border:1px solid rgba(255,255,255,0.12);
+    border-radius:22px;
+    padding:0;
+    margin:14px 0 16px 0;
+    box-shadow:0 14px 34px rgba(0,0,0,0.28);
+    overflow:hidden;
+">
+    <summary style="
+        cursor:pointer;
+        list-style:none;
+        padding:16px;
+        display:flex;
+        align-items:center;
+        gap:10px;
+    ">
+        <div style="font-size:24px;">📊</div>
+        <div>
+            <div style="font-size:20px;font-weight:950;color:#f8fafc;">
+                Günlük Haber ve Sosyal Nabız
+            </div>
+            <div style="font-size:13px;font-weight:750;color:#94a3b8;margin-top:4px;">
+                Risk başlığı, fırsat başlığı, X ve YouTube kısa durumu
+            </div>
+        </div>
+    </summary>
 
-                    <div style="padding:0 16px 16px 16px;">
-
-                    </div>
-                 </details>
-
-                    <div style="
-                        display:grid;
-                        grid-template-columns:1fr;
-                        gap:10px;
-                        margin:0 0 10px 0;
-                    ">
-                        <div style="
-                            background:#fef2f2;
-                            border:1px solid #fecaca;
-                            border-left:5px solid #dc2626;
-                            border-radius:16px;
-                            padding:12px;
-                        ">
-                            <div style="font-size:13px;font-weight:900;color:#991b1b;margin-bottom:5px;">
-                                Özet gününün risk başlığı
-                            </div>
-                            <div style="font-size:14px;font-weight:800;color:#334155;line-height:1.35;">
-                                {esc(top_risk_news or "Özet gününde öne çıkan risk haberi yok.")}
-                            </div>
-                        </div>
-
-                        <div style="
-                            background:#ecfdf5;
-                            border:1px solid #bbf7d0;
-                            border-left:5px solid #16a34a;
-                            border-radius:16px;
-                            padding:12px;
-                        ">
-                            <div style="font-size:13px;font-weight:900;color:#166534;margin-bottom:5px;">
-                                Özet gününün fırsat başlığı
-                            </div>
-                            <div style="font-size:14px;font-weight:800;color:#334155;line-height:1.35;">
-                                {esc(top_opportunity_news or "Özet gününde öne çıkan fırsat haberi yok.")}
-                            </div>
-                        </div>
-                    </div>
-
-                    <div id="baskan-x" style="margin-top:8px;">
-                        <h3>X Nabzı</h3>
-                        {x_nabiz_html}
-                    </div>
-
-                   <div id="baskan-youtube" style="margin-top:8px;">
-                        <h3>YouTube Nabzı</h3>
-                        {youtube_nabiz_html}
-                    </div>
-
-                    <div id="baskan-kriz" style="
-                        margin-top:16px;
-                        padding:14px;
-                        border-radius:18px;
-                        background:#fef2f2;
-                        border:1px solid #fecaca;
-                        color:#7f1d1d;
-                        font-weight:800;
-                    ">
-                        Kriz / alarm: {esc(early_warning.get("decision", ""))}. Detay gerekiyorsa kriz paneli veya ekip raporu açılmalı.
-                    </div>
+    <div style="padding:0 16px 16px 16px;">
+        <div style="
+            display:grid;
+            grid-template-columns:1fr;
+            gap:10px;
+            margin:0 0 10px 0;
+        ">
+            <div style="
+                background:#fef2f2;
+                border:1px solid #fecaca;
+                border-left:5px solid #dc2626;
+                border-radius:16px;
+                padding:12px;
+            ">
+                <div style="font-size:13px;font-weight:900;color:#991b1b;margin-bottom:5px;">
+                    Özet gününün risk başlığı
                 </div>
+                <div style="font-size:14px;font-weight:800;color:#334155;line-height:1.35;">
+                    {esc(top_risk_news or "Özet gününde öne çıkan risk haberi yok.")}
+                </div>
+            </div>
+
+            <div style="
+                background:#ecfdf5;
+                border:1px solid #bbf7d0;
+                border-left:5px solid #16a34a;
+                border-radius:16px;
+                padding:12px;
+            ">
+                <div style="font-size:13px;font-weight:900;color:#166534;margin-bottom:5px;">
+                    Özet gününün fırsat başlığı
+                </div>
+                <div style="font-size:14px;font-weight:800;color:#334155;line-height:1.35;">
+                    {esc(top_opportunity_news or "Özet gününde öne çıkan fırsat haberi yok.")}
+                </div>
+            </div>
+        </div>
+
+        <div id="baskan-x" style="margin-top:8px;">
+            <h3 style="color:#f8fafc;">X Nabzı</h3>
+            {x_nabiz_html}
+        </div>
+
+        <div id="baskan-youtube" style="margin-top:8px;">
+            <h3 style="color:#f8fafc;">YouTube Nabzı</h3>
+            {youtube_nabiz_html}
+        </div>
+
+        <div id="baskan-kriz" style="
+            margin-top:16px;
+            padding:14px;
+            border-radius:18px;
+            background:#fef2f2;
+            border:1px solid #fecaca;
+            color:#7f1d1d;
+            font-weight:800;
+        ">
+            Kriz / alarm: {esc(early_warning.get("decision", ""))}. Detay gerekiyorsa kriz paneli veya ekip raporu açılmalı.
+        </div>
+    </div>
+</details>
             </div>
         </div>
     </div>

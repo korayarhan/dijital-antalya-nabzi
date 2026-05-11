@@ -8499,20 +8499,21 @@ a {{ color:#1f2933; font-weight:800; }}
     <summary style="
         cursor:pointer;
         list-style:none;
-        background:#f8fafc;
-        border:1.5px solid #334155;
-        color:#334155;
+        background:linear-gradient(180deg,rgba(255,255,255,0.09),rgba(255,255,255,0.045));
+        border:1px solid rgba(255,255,255,0.12);
+        border-left:6px solid #64748b;
+        color:#f8fafc;
         border-radius:20px;
         padding:16px;
         font-size:18px;
         font-weight:900;
-        box-shadow:0 6px 18px rgba(15,23,42,0.05);
+        box-shadow:0 14px 34px rgba(0,0,0,0.28);
     ">
         📂 Detaylı Rapor Akışını Aç
         <div style="
             font-size:13px;
             font-weight:700;
-            color:#64748b;
+            color:#94a3b8;
             margin-top:6px;
             line-height:1.35;
         ">

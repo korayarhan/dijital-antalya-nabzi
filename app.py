@@ -3934,59 +3934,61 @@ def president_dashboard_panel(today, report_time, news, social, president_posts,
     if today_president_posts:
         president_x_graph_html = f"""
         <div id="baskan-x-performans-grafik" style="
-            background:#f0fdf4;
-            border:1px solid #bbf7d0;
-            border-left:6px solid #059669;
+            background:linear-gradient(135deg,rgba(5,150,105,0.20),rgba(15,23,42,0.96));
+            border:1px solid rgba(16,185,129,0.45);
+            border-left:6px solid #10b981;
             border-radius:20px;
             padding:16px;
             margin:14px 0 16px 0;
+            box-shadow:0 14px 34px rgba(0,0,0,0.30);
         ">
-            <div style="font-size:18px;font-weight:900;color:#064e3b;margin-bottom:6px;">
+            <div style="font-size:18px;font-weight:900;color:#6ee7b7;margin-bottom:6px;">
                 👤 Başkan X Performans Grafiği
             </div>
 
-            <div style="font-size:13px;font-weight:700;color:#64748b;margin-bottom:12px;line-height:1.35;">
+            <div style="font-size:13px;font-weight:750;color:#94a3b8;margin-bottom:12px;line-height:1.35;">
                 Bugün {len(today_president_posts)} Başkan X gönderisi analiz edildi.
                 Toplam etkileşim: {int(president_engagement)}
             </div>
 
             <div style="margin-bottom:10px;">
-                <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:800;color:#334155;">
+                <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:850;color:#e5e7eb;">
                     <span>Beğeni</span><span>{int(president_likes)}</span>
                 </div>
-                <div style="height:10px;background:#dcfce7;border-radius:999px;overflow:hidden;margin-top:5px;">
-                    <div style="height:10px;width:{president_likes_pct}%;background:#16a34a;border-radius:999px;"></div>
+                <div style="height:10px;background:rgba(255,255,255,0.08);border-radius:999px;overflow:hidden;margin-top:5px;">
+                    <div style="height:10px;width:{president_likes_pct}%;background:#22c55e;border-radius:999px;"></div>
                 </div>
             </div>
 
             <div style="margin-bottom:10px;">
-                <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:800;color:#334155;">
+                <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:850;color:#e5e7eb;">
                     <span>Repost</span><span>{int(president_reposts)}</span>
                 </div>
-                <div style="height:10px;background:#dcfce7;border-radius:999px;overflow:hidden;margin-top:5px;">
-                    <div style="height:10px;width:{president_reposts_pct}%;background:#16a34a;border-radius:999px;"></div>
+                <div style="height:10px;background:rgba(255,255,255,0.08);border-radius:999px;overflow:hidden;margin-top:5px;">
+                    <div style="height:10px;width:{president_reposts_pct}%;background:#22c55e;border-radius:999px;"></div>
                 </div>
             </div>
 
             <div style="margin-bottom:10px;">
-                <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:800;color:#334155;">
+                <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:850;color:#e5e7eb;">
                     <span>Yanıt</span><span>{int(president_replies)}</span>
                 </div>
-                <div style="height:10px;background:#dcfce7;border-radius:999px;overflow:hidden;margin-top:5px;">
-                    <div style="height:10px;width:{president_replies_pct}%;background:#16a34a;border-radius:999px;"></div>
+                <div style="height:10px;background:rgba(255,255,255,0.08);border-radius:999px;overflow:hidden;margin-top:5px;">
+                    <div style="height:10px;width:{president_replies_pct}%;background:#22c55e;border-radius:999px;"></div>
                 </div>
             </div>
 
             <div>
-                <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:800;color:#334155;">
+                <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:850;color:#e5e7eb;">
                     <span>Alıntı / Quote</span><span>{int(president_quotes)}</span>
-                </div>
-                <div style="height:10px;background:#dcfce7;border-radius:999px;overflow:hidden;margin-top:5px;">
-                    <div style="height:10px;width:{president_quotes_pct}%;background:#16a34a;border-radius:999px;"></div>
-                </div>
-            </div>
-        </div>
-        """
+               </div>
+               <div style="height:10px;background:rgba(255,255,255,0.08);border-radius:999px;overflow:hidden;margin-top:5px;">
+                   <div style="height:10px;width:{president_quotes_pct}%;background:#22c55e;border-radius:999px;"></div>
+              </div>
+          </div>
+      </div>
+      """
+    
     else:
         president_x_graph_html = f"""
         <div id="baskan-x-performans-grafik" style="

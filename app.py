@@ -3829,6 +3829,11 @@ def president_dashboard_panel(today, report_time, news, social, president_posts,
 
     risk_level = str(crisis_plan.get("level", "") or "")
     risk_norm = normalize_text(risk_level)
+    
+    risk_topic_short = clean_text(crisis_plan.get("risk_topic", "") or "Bugünün ana başlığı belirlenemedi.")
+
+    if len(risk_topic_short) > 95:
+        risk_topic_short = risk_topic_short[:95] + "..."
 
     crisis_pulse = ""
     if "yuksek" in risk_norm or "yüksek" in risk_norm:
@@ -4157,82 +4162,144 @@ def president_dashboard_panel(today, report_time, news, social, president_posts,
         or "yüksek" in opportunity_norm
     )
 
-    if high_risk:
+        if high_risk:
         decision_card_html = f"""
-        <div class="{crisis_pulse}" style="
+        <div id="baskan-ozet" class="{crisis_pulse}" style="
             background:#fff;
             border:2px solid #b91c1c;
+            border-left:7px solid #b91c1c;
             border-radius:22px;
-            padding:18px;
+            padding:16px;
             margin-bottom:16px;
         ">
             <div style="font-size:14px;font-weight:900;color:#64748b;line-height:1.45;">
-                Günlük Başkan Özeti • Özet günü: {esc(today)} • Rapor saati: {esc(report_time)}
+                Kepez — {esc(display_day)} — ⚠️ Yüksek Risk
             </div>
 
-            <div style="font-size:26px;font-weight:950;color:#991b1b;margin-top:10px;line-height:1.25;">
-                Risk seviyesi: {esc(risk_level)}
+            <div style="font-size:26px;font-weight:950;color:#991b1b;margin-top:10px;line-height:1.2;">
+                Risk: {esc(risk_level)}
             </div>
 
-            <div style="font-size:15px;font-weight:850;color:#334155;margin-top:10px;line-height:1.45;">
-                Karar: {esc(early_warning.get("decision", ""))} • Başkan'a gösterilsin mi: {esc(early_warning.get("show_to_president", ""))}
+            <div style="font-size:15px;font-weight:900;color:#0f172a;margin-top:10px;line-height:1.4;">
+                Konu: {esc(risk_topic_short)}
+            </div>
+
+            <div style="
+                background:#fef2f2;
+                border:1px solid #fecaca;
+                border-radius:14px;
+                padding:12px;
+                margin-top:12px;
+                font-size:15px;
+                font-weight:900;
+                color:#7f1d1d;
+                line-height:1.45;
+            ">
+                Şu an konuşma. Ekip takipte.
                 <br>
-                Başkan konuşmalı mı: {esc(crisis_plan.get("speaker_decision", crisis_plan.get("speaker", "")))}
+                <span style="font-size:13px;font-weight:800;color:#991b1b;">
+                    Detay ve aksiyon planı ekip raporu / kriz panelinde.
+                </span>
             </div>
         </div>
         """
+
     elif medium_risk:
         decision_card_html = f"""
-        <div style="
+        <div id="baskan-ozet" style="
             background:#fffbeb;
             border:1.5px solid #f59e0b;
-            border-left:6px solid #f59e0b;
-            border-radius:18px;
-            padding:14px;
+            border-left:7px solid #f59e0b;
+            border-radius:20px;
+            padding:15px;
             margin-bottom:14px;
         ">
-            <div style="font-size:13px;font-weight:900;color:#92400e;line-height:1.4;">
-                Günlük takip uyarısı • Özet günü: {esc(today)} • Rapor saati: {esc(report_time)}
+            <div style="font-size:14px;font-weight:900;color:#92400e;line-height:1.4;">
+                Kepez — {esc(display_day)} — 🟠 Takipte
             </div>
 
-            <div style="font-size:20px;font-weight:950;color:#92400e;margin-top:8px;line-height:1.25;">
-                Risk seviyesi: {esc(risk_level)}
+            <div style="font-size:22px;font-weight:950;color:#92400e;margin-top:8px;line-height:1.25;">
+                Risk: {esc(risk_level)}
             </div>
 
-            <div style="font-size:14px;font-weight:800;color:#334155;margin-top:8px;line-height:1.45;">
-                Karar: TAKİPTE KAL / HAZIR BEKLE
-                <br>
-                Bu başlık ekip tarafından izlenmeli. Konu büyürse kriz paneli açılmalı.
+            <div style="font-size:15px;font-weight:900;color:#0f172a;margin-top:8px;line-height:1.4;">
+                Konu: {esc(risk_topic_short)}
+            </div>
+
+            <div style="
+                background:white;
+                border:1px solid #fed7aa;
+                border-radius:14px;
+                padding:11px;
+                margin-top:10px;
+                font-size:14px;
+                font-weight:850;
+                color:#334155;
+                line-height:1.45;
+            ">
+                Ekip izlesin. Konu büyürse kriz paneli açılmalı.
             </div>
         </div>
         """
+
     elif strong_opportunity:
         decision_card_html = f"""
-        <div style="
+        <div id="baskan-ozet" style="
             background:#ecfdf5;
             border:2px solid #16a34a;
+            border-left:7px solid #16a34a;
             border-radius:22px;
-            padding:18px;
+            padding:16px;
             margin-bottom:16px;
         ">
             <div style="font-size:14px;font-weight:900;color:#047857;line-height:1.45;">
-                Günlük Başkan Özeti • Özet günü: {esc(today)} • Rapor saati: {esc(report_time)}
+                Kepez — {esc(display_day)} — 🌟 Fırsat
             </div>
 
-            <div style="font-size:26px;font-weight:950;color:#166534;margin-top:10px;line-height:1.25;">
+            <div style="font-size:24px;font-weight:950;color:#166534;margin-top:10px;line-height:1.25;">
                 Güçlü fırsat tespit edildi
             </div>
 
-            <div style="font-size:16px;font-weight:900;color:#0f172a;margin-top:10px;line-height:1.4;">
+            <div style="font-size:15px;font-weight:900;color:#0f172a;margin-top:10px;line-height:1.4;">
                 {esc(opportunity_title)}
             </div>
 
-            <div style="font-size:14px;font-weight:800;color:#334155;margin-top:10px;line-height:1.45;">
-                Fırsat türü: {esc(opportunity_type)}
-                <br>
-                Kim hareket etmeli? {esc(opportunity_owner)}
-                <br>
-                Önerilen aksiyon: {esc(opportunity_action)}
+            <div style="
+                background:white;
+                border:1px solid #bbf7d0;
+                border-radius:14px;
+                padding:11px;
+                margin-top:10px;
+                font-size:14px;
+                font-weight:850;
+                color:#334155;
+                line-height:1.45;
+            ">
+                Ekip uygun formatı hazırlasın. Detay fırsat kartında.
+            </div>
+        </div>
+        """
+
+    else:
+        decision_card_html = f"""
+        <div id="baskan-ozet" style="
+            background:#f8fafc;
+            border:1.5px solid #cbd5e1;
+            border-left:7px solid #64748b;
+            border-radius:20px;
+            padding:15px;
+            margin-bottom:14px;
+        ">
+            <div style="font-size:14px;font-weight:900;color:#475569;line-height:1.4;">
+                Kepez — {esc(display_day)} — Normal Takip
+            </div>
+
+            <div style="font-size:22px;font-weight:950;color:#0f172a;margin-top:8px;line-height:1.25;">
+                Kritik durum yok
+            </div>
+
+            <div style="font-size:14px;font-weight:800;color:#64748b;margin-top:8px;line-height:1.4;">
+                Günlük haber, X ve sosyal medya takibi devam ediyor.
             </div>
         </div>
         """

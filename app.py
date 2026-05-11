@@ -4272,34 +4272,35 @@ def president_dashboard_panel(today, report_time, news, social, president_posts,
     elif medium_risk:
         decision_card_html = f"""
         <div id="baskan-ozet" style="
-            background:#fffbeb;
-            border:1.5px solid #f59e0b;
+            background:linear-gradient(135deg,rgba(245,158,11,0.22),rgba(15,23,42,0.96));
+            border:1.5px solid rgba(245,158,11,0.85);
             border-left:7px solid #f59e0b;
-            border-radius:20px;
-            padding:15px;
-            margin-bottom:14px;
+            border-radius:22px;
+            padding:16px;
+            margin-bottom:16px;
+            box-shadow:0 14px 34px rgba(0,0,0,0.32);
         ">
-            <div style="font-size:14px;font-weight:900;color:#92400e;line-height:1.4;">
+            <div style="font-size:14px;font-weight:900;color:#fbbf24;line-height:1.4;">
                 Kepez — {esc(display_day)} — 🟠 Takipte
             </div>
 
-            <div style="font-size:22px;font-weight:950;color:#92400e;margin-top:8px;line-height:1.25;">
+            <div style="font-size:25px;font-weight:950;color:#fef3c7;margin-top:10px;line-height:1.25;">
                 Risk: {esc(risk_level)}
             </div>
 
-            <div style="font-size:15px;font-weight:900;color:#0f172a;margin-top:8px;line-height:1.4;">
+            <div style="font-size:15px;font-weight:900;color:#f8fafc;margin-top:10px;line-height:1.45;">
                 Konu: {esc(risk_topic_short)}
             </div>
 
             <div style="
-                background:white;
-                border:1px solid #fed7aa;
-                border-radius:14px;
-                padding:11px;
-                margin-top:10px;
+                background:rgba(255,255,255,0.08);
+                border:1px solid rgba(251,191,36,0.28);
+                border-radius:15px;
+                padding:12px;
+                margin-top:12px;
                 font-size:14px;
                 font-weight:850;
-                color:#334155;
+                color:#e5e7eb;
                 line-height:1.45;
             ">
                 Ekip izlesin. Konu büyürse kriz paneli açılmalı.

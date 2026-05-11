@@ -4450,7 +4450,7 @@ def president_dashboard_panel(today, report_time, news, social, president_posts,
             animation: presidentPulse 1.4s infinite;
         }}
 
-        .president-mobile-nav {{
+        .president-mobile-nav {
             position: sticky;
             top: 0;
             z-index: 20;
@@ -4458,18 +4458,21 @@ def president_dashboard_panel(today, report_time, news, social, president_posts,
             gap:8px;
             overflow-x:auto;
             padding:10px 0;
-            background:#f8fafc;
+            background:transparent;
+
         }}
 
-        .president-mobile-nav a {{
+        .president-mobile-nav a {
             white-space:nowrap;
             text-decoration:none;
-            background:#0f172a;
-            color:white;
+            background:rgba(255,255,255,0.10);
+            color:#f8fafc;
+            border:1px solid rgba(255,255,255,0.14);
             padding:9px 12px;
             border-radius:999px;
             font-size:13px;
             font-weight:800;
+
         }}
 
         .president-dashboard-layout {{
@@ -4513,13 +4516,15 @@ def president_dashboard_panel(today, report_time, news, social, president_posts,
         }}
     </style>
 
-    <div style="
-        background:#f8fafc;
-        border:1px solid #e5e7eb;
-        border-radius:22px;
-        padding:14px;
-        margin:18px 0 24px 0;
-    ">
+        <div style="
+             background:linear-gradient(180deg,#0b1020 0%,#111827 48%,#0f172a 100%);
+             border:1px solid rgba(255,255,255,0.10);
+             border-radius:24px;
+             padding:14px;
+             margin:18px 0 24px 0;
+             box-shadow:0 22px 55px rgba(0,0,0,0.38);
+             color:#f8fafc;
+        ">
         <div class="president-mobile-nav">
             <a href="#baskan-ozet">Özet</a>
             <a href="#baskan-haber">Haber</a>
@@ -4545,17 +4550,17 @@ def president_dashboard_panel(today, report_time, news, social, president_posts,
                 {decision_card_html}
                 
                 <div style="
-                    background:#f8fafc;
-                    border:1px solid #e2e8f0;
-                    border-left:5px solid #2563eb;
-                    border-radius:14px;
-                    padding:10px 12px;
-                    margin:0 0 12px 0;
-                    font-size:13px;
-                    font-weight:800;
-                    color:#334155;
-                    line-height:1.4;
-                ">
+                     background:rgba(15,23,42,0.72);
+                     border:1px solid rgba(255,255,255,0.08);
+                     border-radius:20px;
+                     padding:12px;
+                     margin:0 0 12px 0;
+                     font-size:13px;
+                     font-weight:800;
+                     color:#f8fafc;
+                     line-height:1.4;
+                     box-shadow:inset 0 1px 0 rgba(255,255,255,0.04);
+                 ">
 
                 <div style="
                     display:grid;

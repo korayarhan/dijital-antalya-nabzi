@@ -8061,6 +8061,24 @@ def build_report(news, social, undated_news=None):
         opportunity_sum,
         news,
     )
+    
+    try:
+        header_display_day = dt.datetime.strptime(str(dashboard_day), "%Y-%m-%d").strftime("%d-%m-%Y")
+    except Exception:
+        header_display_day = str(dashboard_day)
+
+    header_risk_level = str(dashboard_crisis_plan.get("level", "") or "")
+    header_risk_norm = normalize_text(header_risk_level)
+    header_opportunity_score = safe_score_value(opportunity_sum.get("score", 0))
+
+    if "yuksek" in header_risk_norm or "yüksek" in header_risk_norm:
+        header_status = "⚠️ Yüksek Risk"
+    elif "orta" in header_risk_norm:
+        header_status = "🟠 Orta Risk"
+    elif header_opportunity_score >= 6:
+        header_status = "🌟 Fırsat"
+    else:
+        header_status = "Normal Takip"
 
     html_doc = f"""
 <html lang="tr">
@@ -8155,14 +8173,16 @@ a {{ color:#1f2933; font-weight:800; }}
 <body>
 
 <header>
-    <h1>Yerel Liderlik AI Günlük Raporu</h1>
-    <p>Takip edilen isim: Mesut Kocagöz • Bölge: Antalya / Kepez • Tarih: {today} • Güncelleme saati: {report_time}
-       
+    <h1>Kepez — {header_display_day} — {header_status}</h1>
+    <p>Sayın Başkan Günlük Özeti • Güncelleme: {report_time}</p>
+</header>
+
+<main>
+
 {dashboard_html}
 
-
-
 {section_label(" Acil Durum ve Operasyon Hızlı Erişim", "#b91c1c", "#fef2f2")}
+
 <div class="card" style="
     border-left:6px solid #b91c1c;
     background:#fff7f7;

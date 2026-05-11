@@ -4546,8 +4546,6 @@ def president_dashboard_panel(today, report_time, news, social, president_posts,
                     color:#334155;
                     line-height:1.4;
                 ">
-                    📌 Bu 4 hızlı kart <b>{esc(display_day)}</b> için bugünün hızlı karar özetini gösterir. Son 7 gün haber havuzu aşağıda ayrıca verilir.
-                </div>
 
                 <div style="
                     display:grid;

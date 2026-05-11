@@ -3474,29 +3474,26 @@ def build_news_pool_summary_html(news):
     if total_news == 0:
         general_note = "Son 7 günlük haber havuzunda kayıt bulunamadı."
         border_color = "#64748b"
-        bg_color = "#f8fafc"
     elif risk_count > positive_count:
         general_note = "Riskli başlıklar olumlu görünürlükten daha baskın. Haber dili yakından takip edilmeli."
-        border_color = "#dc2626"
-        bg_color = "#fef2f2"
+        border_color = "#ef4444"
     elif positive_count >= risk_count:
         general_note = "Olumlu görünürlük riskli başlıklardan güçlü. Hizmet ve fırsat başlıkları öne çıkarılabilir."
-        border_color = "#2563eb"
-        bg_color = "#eff6ff"
+        border_color = "#3b82f6"
     else:
         general_note = "Genel haber görünümü dengeli. Kritik başlıklar ayrıca takip edilmeli."
         border_color = "#64748b"
-        bg_color = "#f8fafc"
 
     return f"""
     <details id="son-7-gun-haber-havuzu" style="
-        background:{bg_color};
-        border:1px solid #e5e7eb;
+        background:linear-gradient(180deg,rgba(255,255,255,0.09),rgba(255,255,255,0.045));
+        border:1px solid rgba(255,255,255,0.12);
         border-left:6px solid {border_color};
         border-radius:22px;
         padding:0;
         margin:14px 0 16px 0;
         overflow:hidden;
+        box-shadow:0 14px 34px rgba(0,0,0,0.28);
     ">
         <summary style="
             cursor:pointer;
@@ -3504,14 +3501,14 @@ def build_news_pool_summary_html(news):
             padding:16px;
             font-size:20px;
             font-weight:950;
-            color:#0f172a;
+            color:#f8fafc;
             line-height:1.35;
         ">
             📰 Son 7 Gün Haber Havuzu / Genel Algı
             <div style="
                 font-size:13px;
                 font-weight:750;
-                color:#64748b;
+                color:#94a3b8;
                 margin-top:6px;
                 line-height:1.35;
             ">
@@ -3526,23 +3523,58 @@ def build_news_pool_summary_html(news):
                 gap:10px;
                 margin-bottom:12px;
             ">
-                <div class="kpi"><b>{total_news}</b><span>Toplam haber</span></div>
-                <div class="kpi"><b>{positive_count}</b><span>Olumlu</span></div>
-                <div class="kpi"><b>{neutral_count}</b><span>Nötr</span></div>
-                <div class="kpi"><b>{risk_count}</b><span>Riskli</span></div>
+                <div style="
+                    background:rgba(15,23,42,0.78);
+                    border:1px solid rgba(255,255,255,0.08);
+                    border-radius:16px;
+                    padding:12px;
+                ">
+                    <div style="font-size:24px;font-weight:950;color:#f8fafc;">{total_news}</div>
+                    <div style="font-size:12px;font-weight:750;color:#94a3b8;margin-top:4px;">Toplam haber</div>
+                </div>
+
+                <div style="
+                    background:rgba(15,23,42,0.78);
+                    border:1px solid rgba(34,197,94,0.22);
+                    border-radius:16px;
+                    padding:12px;
+                ">
+                    <div style="font-size:24px;font-weight:950;color:#22c55e;">{positive_count}</div>
+                    <div style="font-size:12px;font-weight:750;color:#94a3b8;margin-top:4px;">Olumlu</div>
+                </div>
+
+                <div style="
+                    background:rgba(15,23,42,0.78);
+                    border:1px solid rgba(148,163,184,0.18);
+                    border-radius:16px;
+                    padding:12px;
+                ">
+                    <div style="font-size:24px;font-weight:950;color:#cbd5e1;">{neutral_count}</div>
+                    <div style="font-size:12px;font-weight:750;color:#94a3b8;margin-top:4px;">Nötr</div>
+                </div>
+
+                <div style="
+                    background:rgba(15,23,42,0.78);
+                    border:1px solid rgba(239,68,68,0.22);
+                    border-radius:16px;
+                    padding:12px;
+                ">
+                    <div style="font-size:24px;font-weight:950;color:#ef4444;">{risk_count}</div>
+                    <div style="font-size:12px;font-weight:750;color:#94a3b8;margin-top:4px;">Riskli</div>
+                </div>
             </div>
 
             <div style="
-                background:white;
-                border:1px solid #e2e8f0;
+                background:rgba(15,23,42,0.78);
+                border:1px solid rgba(255,255,255,0.08);
                 border-radius:16px;
                 padding:12px;
                 font-size:14px;
                 font-weight:800;
-                color:#334155;
+                color:#cbd5e1;
                 line-height:1.45;
             ">
-                <b>Genel yorum:</b> {esc(general_note)}
+                <b style="color:#f8fafc;">Genel yorum:</b> {esc(general_note)}
             </div>
         </div>
     </details>

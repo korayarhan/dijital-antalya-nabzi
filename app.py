@@ -4317,7 +4317,7 @@ def president_dashboard_panel(today, report_time, news, social, president_posts,
     if not high_risk and not medium_risk and not strong_opportunity:
         decision_card_html = ""
 
-        today_social_total = len(today_x) + len(today_youtube)
+    today_social_total = len(today_x) + len(today_youtube)
 
     if today_social_total:
         social_kpi_note = f"X {len(today_x)} • YouTube {len(today_youtube)}"

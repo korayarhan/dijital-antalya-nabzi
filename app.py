@@ -4179,101 +4179,106 @@ def president_dashboard_panel(today, report_time, news, social, president_posts,
 
     opportunity_card_html = f"""
     <div id="baskan-firsat" style="
-        background:{opportunity_bg};
-        border:1px solid {opportunity_border};
-        border-left:6px solid {opportunity_color};
-        border-radius:20px;
+        background:linear-gradient(135deg,rgba(217,119,6,0.20),rgba(15,23,42,0.96));
+        border:1px solid rgba(245,158,11,0.55);
+        border-left:6px solid #f59e0b;
+        border-radius:22px;
         padding:16px;
         margin:14px 0 16px 0;
+        box-shadow:0 14px 34px rgba(0,0,0,0.30);
     ">
-        <div style="font-size:18px;font-weight:900;color:{opportunity_color};margin-bottom:6px;">
+        <div style="font-size:18px;font-weight:950;color:#fbbf24;margin-bottom:6px;">
             🌟 Bugünün Fırsatı
         </div>
 
-        <div style="font-size:13px;font-weight:800;color:#64748b;margin-bottom:10px;line-height:1.35;">
+        <div style="font-size:13px;font-weight:800;color:#94a3b8;margin-bottom:10px;line-height:1.35;">
             Seviye: {esc(opportunity_level)} • Skor: {esc(opportunity_score)}/10 • Kaynak: {esc(opportunity_source)}
         </div>
 
-        <div style="font-size:16px;font-weight:900;color:#0f172a;line-height:1.35;margin-bottom:10px;">
-           {esc(opportunity_title_display)}
+        <div style="font-size:17px;font-weight:950;color:#f8fafc;line-height:1.35;margin-bottom:12px;">
+            {esc(opportunity_title_display)}
         </div>
 
         <details style="
-            background:white;
-            border:1px solid {opportunity_border};
+            background:rgba(15,23,42,0.78);
+            border:1px solid rgba(251,191,36,0.25);
             border-radius:14px;
             padding:10px 12px;
-            margin:10px 0;
+            margin:10px 0 12px 0;
         ">
             <summary style="
                 cursor:pointer;
                 font-size:13px;
                 font-weight:900;
-                color:{opportunity_color};
+                color:#fbbf24;
                 list-style:none;
-            ">
+           ">
                 Bu fırsat nereden geldi?
-            </summary>
+           </summary>
 
+           <div style="
+               margin-top:10px;
+               color:#cbd5e1;
+               font-size:13px;
+               font-weight:750;
+               line-height:1.45;
+           ">
+               <div><b style="color:#f8fafc;">Kaynak:</b> {esc(opportunity_source)}</div>
+               <div><b style="color:#f8fafc;">Başlık:</b> {esc(opportunity_title_display)}</div>
+               <div style="margin-top:8px;"><b style="color:#f8fafc;">Neden fırsat?</b> {esc(opportunity_reason)}</div>
+               <div style="margin-top:8px;"><b style="color:#f8fafc;">Önerilen aksiyon:</b> {esc(opportunity_action)}</div>
+           </div>
+       </details>
+
+       <div style="
+           display:grid;
+           grid-template-columns:repeat(2,minmax(0,1fr));
+           gap:10px;
+           margin-bottom:12px;
+       ">
+           <div style="
+               background:rgba(15,23,42,0.78);
+               border:1px solid rgba(255,255,255,0.08);
+               border-radius:16px;
+               padding:12px;
+               color:#cbd5e1;
+               font-size:13px;
+               font-weight:800;
+               line-height:1.45;
+            ">
+               <b style="color:#f8fafc;">Neden önemli?</b><br>
+               {esc(opportunity_reason)}
+            </div>
+ 
             <div style="
-                margin-top:10px;
-                color:#334155;
+                background:rgba(15,23,42,0.78);
+                border:1px solid rgba(255,255,255,0.08);
+                border-radius:16px;
+                padding:12px;
+                color:#cbd5e1;
                 font-size:13px;
-                font-weight:750;
+                font-weight:800;
                 line-height:1.45;
             ">
-                <div><b>Kaynak:</b> {esc(opportunity_source)}</div>
-                <div><b>Başlık:</b> {esc(opportunity_title_display)}</div>
-                <div style="margin-top:8px;"><b>Neden fırsat?</b> {esc(opportunity_reason)}</div>
-                <div style="margin-top:8px;"><b>Önerilen aksiyon:</b> {esc(opportunity_action)}</div>
+                <b style="color:#f8fafc;">Önerilen aksiyon</b><br>
+                {esc(opportunity_action)}
             </div>
-        </details>
-
-        {opportunity_alarm_html}
-
-        <div style="
-            background:white;
-            border:1px solid {opportunity_border};
-            border-radius:14px;
-            padding:12px;
-            margin-bottom:10px;
-            color:#334155;
-            font-size:14px;
-            font-weight:700;
-            line-height:1.45;
-        ">
-            <b>Neden önemli?</b><br>
-            {esc(opportunity_reason)}
         </div>
 
         <div style="
-            background:white;
-            border:1px solid {opportunity_border};
-            border-radius:14px;
+            background:rgba(15,23,42,0.78);
+            border:1px solid rgba(255,255,255,0.08);
+            border-radius:16px;
             padding:12px;
-            margin-bottom:10px;
-            color:#334155;
-            font-size:14px;
-            font-weight:700;
-            line-height:1.45;
-        ">
-            <b>Önerilen aksiyon</b><br>
-            {esc(opportunity_action)}
-        </div>
-
-        <div style="
-            display:grid;
-            grid-template-columns:1fr;
-            gap:8px;
-            color:#334155;
+            color:#cbd5e1;
             font-size:13px;
             font-weight:800;
-            line-height:1.35;
+            line-height:1.45;
         ">
-            <div><b>Fırsat türü:</b> {esc(opportunity_type)}</div>
-            <div><b>Kim hareket etmeli?</b> {esc(opportunity_owner)}</div>
-            <div><b>Önerilen format:</b> {esc(opportunity_format)}</div>
-            <div><b>Bildirim kararı:</b> {esc(opportunity_notify)}</div>
+            <div><b style="color:#f8fafc;">Fırsat türü:</b> {esc(opportunity_type)}</div>
+            <div><b style="color:#f8fafc;">Kim hareket etmeli?</b> {esc(opportunity_owner)}</div>
+            <div><b style="color:#f8fafc;">Önerilen format:</b> {esc(opportunity_format)}</div>
+            <div><b style="color:#f8fafc;">Bildirim kararı:</b> {esc(opportunity_notify)}</div>
         </div>
     </div>
     """

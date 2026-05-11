@@ -3664,10 +3664,10 @@ def build_president_visual_summary_html(summary_day, social, all_news):
         ">
             <div>
                 <div style="font-size:20px;font-weight:950;color:#0f172a;">
-                    Başkan App Görsel Özeti
+                    Bugünün Görsel Özeti
                 </div>
                 <div style="font-size:13px;font-weight:750;color:#64748b;margin-top:4px;">
-                    {esc(display_day)} özet günü için hızlı grafik görünümü
+                    Haber, sosyal medya ve Başkan X performansı kısa görünüm
                 </div>
             </div>
             <div style="font-size:26px;">📱</div>

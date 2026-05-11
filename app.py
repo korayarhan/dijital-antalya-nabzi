@@ -4105,6 +4105,37 @@ def president_dashboard_panel(today, report_time, news, social, president_posts,
            {esc(opportunity_title_display)}
         </div>
 
+        <details style="
+            background:white;
+            border:1px solid {opportunity_border};
+            border-radius:14px;
+            padding:10px 12px;
+            margin:10px 0;
+        ">
+            <summary style="
+                cursor:pointer;
+                font-size:13px;
+                font-weight:900;
+                color:{opportunity_color};
+                list-style:none;
+            ">
+                Bu fırsat nereden geldi?
+            </summary>
+
+            <div style="
+                margin-top:10px;
+                color:#334155;
+                font-size:13px;
+                font-weight:750;
+                line-height:1.45;
+            ">
+                <div><b>Kaynak:</b> {esc(opportunity_source)}</div>
+                <div><b>Başlık:</b> {esc(opportunity_title_display)}</div>
+                <div style="margin-top:8px;"><b>Neden fırsat?</b> {esc(opportunity_reason)}</div>
+                <div style="margin-top:8px;"><b>Önerilen aksiyon:</b> {esc(opportunity_action)}</div>
+            </div>
+        </details>
+
         {opportunity_alarm_html}
 
         <div style="

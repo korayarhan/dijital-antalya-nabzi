@@ -4516,7 +4516,17 @@ def president_dashboard_panel(today, report_time, news, social, president_posts,
         html, body {{
             max-width: 100%;
             overflow-x: hidden;
-        }}
+            background:#0b1020 !important;
+    }}
+
+    header {{
+        background:linear-gradient(180deg,#1f2937 0%,#0b1020 100%) !important;
+    }}
+
+    main {{
+        background:#0b1020 !important;
+    }}
+        
 
         * {{
             box-sizing: border-box;

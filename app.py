@@ -4712,13 +4712,14 @@ def president_dashboard_panel(today, report_time, news, social, president_posts,
                     
                      {platform_social_pulse_html}
 
-                <div id="baskan-haber" style="
-                    background:linear-gradient(180deg,rgba(255,255,255,0.09),rgba(255,255,255,0.045));
-                     border:1px solid rgba(255,255,255,0.12);
-                     border-radius:22px;
-                     padding:16px;
-                     margin:14px 0 16px 0;
-                     box-shadow:0 14px 34px rgba(0,0,0,0.28);
+                <details id="baskan-haber" style="
+                         background:linear-gradient(180deg,rgba(255,255,255,0.09),rgba(255,255,255,0.045));
+                         border:1px solid rgba(255,255,255,0.12);
+                         border-radius:22px;
+                         padding:0;
+                         margin:14px 0 16px 0;
+                         box-shadow:0 14px 34px rgba(0,0,0,0.28);
+                         overflow:hidden;
                 ">
                     <div style="
                         display:flex;
@@ -4726,16 +4727,29 @@ def president_dashboard_panel(today, report_time, news, social, president_posts,
                         gap:10px;
                         margin:0 0 12px 0;
                     ">
-                        <div style="font-size:24px;">📊</div>
-                        <div>
-                            <div style="font-size:20px;font-weight:950;color:#f8fafc;">
-                                Günlük Haber ve Sosyal Nabız
-                            </div>
-                            <div style="font-size:13px;font-weight:750;color:#94a3b8;">
-                                Özet günü için risk, fırsat ve sosyal hareket özeti
+                        <summary style="
+                            cursor:pointer;
+                            list-style:none;
+                            padding:16px;
+                            display:flex;
+                            align-items:center;
+                            gap:10px;
+                    ">
+                            <div style="font-size:24px;">📊</div>
+                            <div>
+                               <div style="font-size:20px;font-weight:950;color:#f8fafc;">
+                                   Günlük Haber ve Sosyal Nabız
+                               </div>
+                               <div style="font-size:13px;font-weight:750;color:#94a3b8;margin-top:4px;">
+                                   Risk başlığı, fırsat başlığı, X ve YouTube kısa durumu
                             </div>
                         </div>
+                    </summary>
+
+                    <div style="padding:0 16px 16px 16px;">
+
                     </div>
+                 </details>
 
                     <div style="
                         display:grid;

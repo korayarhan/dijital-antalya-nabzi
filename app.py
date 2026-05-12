@@ -6168,12 +6168,46 @@ def instagram_pulse_html(social):
             return value[:limit] + "..."
         return value
 
+def instagram_action_suggestion(item, mode="risk"):
+    text = normalize_text(
+        f"{item.get('topic', '')} {item.get('content', '')} {item.get('action_note', '')}"
+    )
+
+    risk_value = safe_score_value(item.get("account_adjusted_risk_score", item.get("risk_score", 0)))
+    opportunity_value = safe_score_value(item.get("opportunity_score", 0))
+
+    if mode == "opportunity":
+        if any(term in text for term in ["cocuk", "çocuk", "aile", "festival", "etkinlik", "sosyal"]):
+            return "Bu içerik sosyal belediyecilik ve insan hikayesi açısından büyütülebilir. Kısa Reels/video, hikaye paylaşımı ve başkan/kurumsal hesap desteği değerlendirilmeli."
+
+        if any(term in text for term in ["hizmet", "park", "yol", "asfalt", "temizlik", "mahalle"]):
+            return "Hizmet görünürlüğü fırsatı var. Sahadan fotoğraf/video ile desteklenip kısa görsel kart veya Reels içeriğine çevrilebilir."
+
+        if opportunity_value >= 7:
+            return "Fırsat skoru yüksek. Ekip bu içeriği büyütülebilir PR fırsatı olarak değerlendirmeli."
+
+        return "Olumlu Instagram kaydı. Standart takip yeterli; iyi çalışan içerik dili haftalık değerlendirmeye alınmalı."
+
+    if any(term in text for term in ["temizlik", "cop", "çöp", "park", "asfalt", "yol", "mahalle", "şikayet", "sikayet"]):
+        return "Hizmet şikayeti olarak takip edilmeli. İlgili birimden saha bilgisi alınmalı; gerekirse kurumsal cevap veya çözüm takvimi hazırlanmalı."
+
+    if any(term in text for term in ["dava", "teleferik", "kaza", "facia", "soruşturma", "sorusturma", "ihmal"]):
+        return "Kriz/hukuki hassasiyet olabilir. Basın ve hukuk diliyle kontrollü takip edilmeli; acele açıklama yapılmamalı."
+
+    if risk_value >= 6:
+        return "Takip gerektiren Instagram kaydı. Yorum artışı, paylaşım hızı ve yerel hesaplardan yayılım ekip tarafından kontrol edilmeli."
+
+    return item.get("action_note", "") or "Ekip tarafından gözle kontrol edilmeli."
+
     def instagram_detail_card(title, item, color="#7c3aed", bg="#f5f3ff"):
         topic = clean_topic_title(item.get("topic", ""))
         content = short_text(item.get("content", "") or item.get("text", ""))
         risk_value = safe_score_value(item.get("account_adjusted_risk_score", item.get("risk_score", 0)))
         opportunity_value = safe_score_value(item.get("opportunity_score", 0))
-
+        action_note = instagram_action_suggestion(
+            item,
+            "opportunity" if "Fırsat" in title or "fırsat" in title.lower() else "risk"
+        )
         return f"""
         <div class="card" style="border-left:5px solid {color}; background:{bg}; margin:14px 0;">
             <h3>{esc(title)}</h3>
@@ -6190,7 +6224,7 @@ def instagram_pulse_html(social):
                 <b>Risk:</b> {risk_value}/10 •
                 <b>Fırsat:</b> {opportunity_value}/10
             </p>
-            <p><b>Aksiyon notu:</b> {esc(item.get("action_note", "") or item.get("notes", ""))}</p>
+            <p><b>Aksiyon notu:</b> {esc(action_note)}
             {social_link(item.get("link", "") or item.get("url", ""))}
         </div>
         """
@@ -7769,6 +7803,37 @@ def build_news_quality_html(news, undated_news=None, dashboard_day=None):
 
     </div>
     """
+
+def instagram_action_suggestion(item, mode="opportunity"):
+    text = normalize_text(
+        f"{item.get('topic', '')} {item.get('content', '')} {item.get('action_note', '')}"
+    )
+
+    risk_score = safe_score_value(item.get("risk_score", 0))
+    opportunity_score = safe_score_value(item.get("opportunity_score", 0))
+
+    if mode == "risk":
+        if any(term in text for term in ["temizlik", "cop", "çöp", "park", "asfalt", "yol", "mahalle", "şikayet", "sikayet"]):
+            return "Hizmet şikayeti olarak takip edilmeli. Yorum artışı, paylaşım hızı ve aynı şikayetin başka hesaplarda tekrar edip etmediği ekip tarafından kontrol edilmeli. İlgili birimden saha bilgisi alınmalı."
+
+        if any(term in text for term in ["dava", "teleferik", "kriz", "ihmal", "soruşturma", "sorusturma"]):
+            return "Kriz/hukuki hassasiyet olabilir. Basın ve hukuk diliyle kontrollü takip edilmeli; hızlı ve savunmacı açıklama yapılmamalı."
+
+        return "Riskli Instagram kaydı olarak takip edilmeli. Yayılım, yorum tonu ve yerel hesaplardan büyüme ihtimali ekip tarafından kontrol edilmeli."
+
+    if any(term in text for term in ["çocuk", "cocuk", "aile", "festival", "etkinlik", "sosyal", "engelsiz"]):
+        return "Bu içerik sosyal belediyecilik ve insan hikayesi açısından büyütülebilir. Kurumsal hesapta kısa video/görsel kart yapılmalı; uygun görülürse Başkan hesabı da destek paylaşımı yapabilir."
+
+    if any(term in text for term in ["hizmet", "park", "asfalt", "yol", "temizlik", "mahalle", "proje"]):
+        return "Hizmet görünürlüğü fırsatı var. Mahalle adı, önce/sonra görseli ve vatandaş faydası vurgulanarak kısa içerik hazırlanabilir."
+
+    if any(term in text for term in ["spor", "genç", "genc", "turnuva"]):
+        return "Gençlik ve şehir aidiyeti açısından fırsat var. Etkinlik görüntüleri kısa video veya hikaye formatında büyütülebilir."
+
+    if opportunity_score >= 6 and risk_score < 6:
+        return "Olumlu Instagram fırsatı var. Ekip bu içeriği kısa video, hikaye veya görsel kart formatıyla destekleyebilir."
+
+    return "Ekip tarafından gözle kontrol edilmeli. Uygun görülürse kurumsal hesapta destek içerik hazırlanabilir."
 
 def build_team_report(news, social, early_warning, crisis_plan, crisis_status, report_time, undated_news=None):
     now_tr = dt.datetime.utcnow() + dt.timedelta(hours=3)

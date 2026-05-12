@@ -6168,36 +6168,37 @@ def instagram_pulse_html(social):
             return value[:limit] + "..."
         return value
 
-def instagram_action_suggestion(item, mode="risk"):
+def instagram_action_suggestion(item, mode="normal"):
     text = normalize_text(
         f"{item.get('topic', '')} {item.get('content', '')} {item.get('action_note', '')}"
     )
 
-    risk_value = safe_score_value(item.get("account_adjusted_risk_score", item.get("risk_score", 0)))
-    opportunity_value = safe_score_value(item.get("opportunity_score", 0))
+    mode_norm = normalize_text(mode)
 
-    if mode == "opportunity":
-        if any(term in text for term in ["cocuk", "çocuk", "aile", "festival", "etkinlik", "sosyal"]):
-            return "Bu içerik sosyal belediyecilik ve insan hikayesi açısından büyütülebilir. Kısa Reels/video, hikaye paylaşımı ve başkan/kurumsal hesap desteği değerlendirilmeli."
+    # Riskli kayıtlar için
+    if "risk" in mode_norm:
+        if any(term in text for term in ["temizlik", "cop", "çöp", "asfalt", "yol", "park", "mahalle", "şikayet", "sikayet"]):
+            return "Hizmet şikayeti olarak takip edilmeli. İlgili birimden saha bilgisi alınmalı; kurumsal cevap gerekip gerekmediği kontrol edilmeli."
 
-        if any(term in text for term in ["hizmet", "park", "yol", "asfalt", "temizlik", "mahalle"]):
-            return "Hizmet görünürlüğü fırsatı var. Sahadan fotoğraf/video ile desteklenip kısa görsel kart veya Reels içeriğine çevrilebilir."
+        if any(term in text for term in ["teleferik", "dava", "mahkeme", "kaza", "facia", "soruşturma", "sorusturma"]):
+            return "Hukuki / kriz hassasiyeti var. Basın ve hukuk diliyle kontrollü takip edilmeli; yorum artışı ayrıca izlenmeli."
 
-        if opportunity_value >= 7:
-            return "Fırsat skoru yüksek. Ekip bu içeriği büyütülebilir PR fırsatı olarak değerlendirmeli."
+        return "Instagram tarafında riskli kayıt var. Yorum artışı, paylaşım hızı ve yerel hesaplardan yayılım ekip tarafından kontrol edilmeli."
 
-        return "Olumlu Instagram kaydı. Standart takip yeterli; iyi çalışan içerik dili haftalık değerlendirmeye alınmalı."
+    # Fırsat kayıtları için
+    if "opportunity" in mode_norm or "firsat" in mode_norm or "fırsat" in mode_norm:
+        if any(term in text for term in ["cocuk", "çocuk", "aile", "sosyal", "etkinlik", "festival", "şenlik", "senlik"]):
+            return "Sosyal belediyecilik fırsatı var. İçerik kısa video, hikâye veya başkan/kurumsal hesap destek paylaşımı için değerlendirilmeli."
 
-    if any(term in text for term in ["temizlik", "cop", "çöp", "park", "asfalt", "yol", "mahalle", "şikayet", "sikayet"]):
-        return "Hizmet şikayeti olarak takip edilmeli. İlgili birimden saha bilgisi alınmalı; gerekirse kurumsal cevap veya çözüm takvimi hazırlanmalı."
+        if any(term in text for term in ["asfalt", "yol", "park", "temizlik", "hizmet", "proje", "mahalle"]):
+            return "Hizmet görünürlüğü fırsatı var. Sahadan görsel/video ile desteklenip kısa hizmet kartı veya hikâye formatına çevrilebilir."
 
-    if any(term in text for term in ["dava", "teleferik", "kaza", "facia", "soruşturma", "sorusturma", "ihmal"]):
-        return "Kriz/hukuki hassasiyet olabilir. Basın ve hukuk diliyle kontrollü takip edilmeli; acele açıklama yapılmamalı."
+        if any(term in text for term in ["spor", "genç", "genc", "turnuva", "festival"]):
+            return "Toplum ve gençlik görünürlüğü açısından fırsat var. Kısa video, hikâye ve başkan hesabı destek paylaşımı değerlendirilmeli."
 
-    if risk_value >= 6:
-        return "Takip gerektiren Instagram kaydı. Yorum artışı, paylaşım hızı ve yerel hesaplardan yayılım ekip tarafından kontrol edilmeli."
+        return "Olumlu Instagram görünürlüğü var. Kurumsal hesap veya başkan hesabı üzerinden destek paylaşımı yapılabilir."
 
-    return item.get("action_note", "") or "Ekip tarafından gözle kontrol edilmeli."
+    return "Ekip tarafından gözle kontrol edilmeli."
 
     def instagram_detail_card(title, item, color="#7c3aed", bg="#f5f3ff"):
         topic = clean_topic_title(item.get("topic", ""))

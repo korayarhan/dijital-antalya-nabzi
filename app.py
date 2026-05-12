@@ -1848,11 +1848,11 @@ def read_social_data():
 
             reader = csv.DictReader(text.splitlines())
 
-                for row in reader:
-                    likes = to_float_local(get_value(row, "likes", "like", "begeni", "beğeni", default="0"))
-                    comments = to_float_local(get_value(row, "comments", "comment", "yorum", default="0"))
-                    shares = to_float_local(get_value(row, "shares", "share", "paylasim", "paylaşım", default="0"))
-                    views = to_float_local(get_value(row, "views", "view", "goruntulenme", "görüntülenme", default="0"))
+            for row in reader:
+                likes = to_float_local(get_value(row, "likes", "like", "begeni", "beğeni", default="0"))
+                comments = to_float_local(get_value(row, "comments", "comment", "yorum", default="0"))
+                shares = to_float_local(get_value(row, "shares", "share", "paylasim", "paylaşım", default="0"))
+                views = to_float_local(get_value(row, "views", "view", "goruntulenme", "görüntülenme", default="0"))
 
                     good_comments = to_float_local(get_value(row, "good_comments", "iyi_yorum", default="0"))
                     neutral_comments = to_float_local(get_value(row, "neutral_comments", "notr_yorum", "nötr_yorum", default="0"))

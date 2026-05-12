@@ -8143,6 +8143,282 @@ def build_news_quality_html(news, undated_news=None, dashboard_day=None):
 
     return "Ekip tarafından gözle kontrol edilmeli. Uygun görülürse kurumsal hesapta destek içerik hazırlanabilir."
 
+def build_social_anomaly_html(social):
+    platform_groups = {}
+
+    for item in social:
+        platform = detect_social_platform(item)
+        platform_groups.setdefault(platform, []).append(item)
+
+    if not platform_groups:
+        return """
+        <div class="card">
+            <b>Sosyal ağlarda olağan dışı hareket:</b> Bugün sosyal medya kaydı bulunamadı.
+            <br><small>Sistem X, Instagram, YouTube ve diğer sosyal ağları izlemeye devam ediyor.</small>
+        </div>
+        """
+
+    def num(value, default=0):
+        try:
+            return float(str(value or default).replace(",", ".").strip())
+        except:
+            return default
+
+    def platform_anomaly(platform, items):
+        count = len(items)
+
+        risky_count = len([
+            item for item in items
+            if num(item.get("account_adjusted_risk_score", item.get("risk_score", 0))) >= 6
+        ])
+
+        high_risk_count = len([
+            item for item in items
+            if num(item.get("account_adjusted_risk_score", item.get("risk_score", 0))) >= 8
+        ])
+
+        opportunity_count = len([
+            item for item in items
+            if num(item.get("opportunity_score", 0)) >= 5
+        ])
+
+        total_likes = sum(num(item.get("likes", 0)) for item in items)
+        total_comments = sum(num(item.get("comments", 0)) for item in items)
+        total_shares = sum(num(item.get("shares", 0)) for item in items)
+        total_views = sum(num(item.get("views", 0)) for item in items)
+
+        score = 0
+        reasons = []
+
+        if count >= 10:
+            score += 2
+            reasons.append(f"{count} kayıt var; platform hareketi yoğun.")
+        elif count >= 5:
+            score += 1
+            reasons.append(f"{count} kayıt var; normalin üstü takip edilebilir.")
+
+        if high_risk_count >= 1:
+            score += 3
+            reasons.append(f"{high_risk_count} yüksek riskli kayıt var.")
+        elif risky_count >= 2:
+            score += 2
+            reasons.append(f"{risky_count} riskli kayıt var.")
+        elif risky_count == 1:
+            score += 1
+            reasons.append("1 riskli kayıt var.")
+
+        if total_comments >= 100:
+            score += 3
+            reasons.append(f"Yorum hareketi yüksek: {int(total_comments)} yorum.")
+        elif total_comments >= 40:
+            score += 2
+            reasons.append(f"Yorum hareketi takipte: {int(total_comments)} yorum.")
+        elif total_comments >= 15:
+            score += 1
+            reasons.append(f"Yorum hareketi başladı: {int(total_comments)} yorum.")
+
+        if total_shares >= 50:
+            score += 3
+            reasons.append(f"Paylaşım hareketi yüksek: {int(total_shares)} paylaşım.")
+        elif total_shares >= 20:
+            score += 2
+            reasons.append(f"Paylaşım hareketi takipte: {int(total_shares)} paylaşım.")
+        elif total_shares >= 8:
+            score += 1
+            reasons.append(f"Paylaşım hareketi başladı: {int(total_shares)} paylaşım.")
+
+        if total_views >= 20000:
+            score += 2
+            reasons.append(f"Görüntülenme yüksek: {int(total_views)}.")
+        elif total_views >= 8000:
+            score += 1
+            reasons.append(f"Görüntülenme takipte: {int(total_views)}.")
+
+        if opportunity_count >= 2:
+            score += 1
+            reasons.append(f"{opportunity_count} fırsat kaydı var; olumlu görünürlük büyütülebilir.")
+
+        if score >= 5:
+            status = "DİKKAT"
+            color = "#b91c1c"
+            bg = "#fef2f2"
+            action = "Bu platformda olağan dışı hareket var. Yorum, paylaşım, görüntülenme ve riskli kayıtlar gün içinde tekrar kontrol edilmeli."
+        elif score >= 3:
+            status = "TAKİPTE"
+            color = "#b45309"
+            bg = "#fff7ed"
+            action = "Bu platformda hareketlenme var. Ekip gün içinde tekrar bakmalı; büyüme varsa aksiyon kaydı açılmalı."
+        else:
+            status = "NORMAL"
+            color = "#15803d"
+            bg = "#f0fdf4"
+            action = "Şimdilik olağan dışı hareket görünmüyor. Standart takip yeterli."
+
+        if not reasons:
+            reasons.append("Belirgin risk, yorum artışı veya paylaşım anomalisi görünmüyor.")
+
+        return {
+            "status": status,
+            "color": color,
+            "bg": bg,
+            "action": action,
+            "score": score,
+            "reasons": reasons,
+            "count": count,
+            "risky_count": risky_count,
+            "opportunity_count": opportunity_count,
+            "likes": total_likes,
+            "comments": total_comments,
+            "shares": total_shares,
+            "views": total_views,
+        }
+
+    def top_item_for_platform(items):
+        return max(
+            items,
+            key=lambda item: (
+                num(item.get("account_adjusted_risk_score", item.get("risk_score", 0))) * 1000
+                + num(item.get("opportunity_score", 0)) * 200
+                + num(item.get("comments", 0)) * 10
+                + num(item.get("shares", 0)) * 10
+                + num(item.get("views", 0)) / 1000
+            )
+        )
+
+    platform_order = ["X", "Instagram", "YouTube", "Facebook", "TikTok", "Diğer"]
+    ordered_platforms = []
+
+    for platform in platform_order:
+        if platform in platform_groups:
+            ordered_platforms.append(platform)
+
+    for platform in platform_groups:
+        if platform not in ordered_platforms:
+            ordered_platforms.append(platform)
+
+    cards_html = ""
+
+    for platform in ordered_platforms:
+        items = platform_groups.get(platform, [])
+        if not items:
+            continue
+
+        info = platform_anomaly(platform, items)
+        top_item = top_item_for_platform(items)
+
+        topic = clean_topic_title(
+            top_item.get("topic", "")
+            or top_item.get("content", "")
+            or "Öne çıkan sosyal medya kaydı"
+        )
+
+        content = clean_text(
+            top_item.get("content", "")
+            or top_item.get("text", "")
+            or top_item.get("action_note", "")
+        )
+
+        if len(content) > 220:
+            content = content[:220] + "..."
+
+        reasons_html = "".join([
+            f"<li>{esc(reason)}</li>"
+            for reason in info.get("reasons", [])
+        ])
+
+        link = top_item.get("link", "") or top_item.get("url", "")
+
+        cards_html += f"""
+        <div class="card" style="
+            border-left:6px solid {info.get("color")};
+            background:{info.get("bg")};
+            border:1px solid {info.get("color")};
+            margin:14px 0;
+        ">
+            <div style="
+                display:flex;
+                justify-content:space-between;
+                gap:10px;
+                align-items:flex-start;
+                flex-wrap:wrap;
+                margin-bottom:10px;
+            ">
+                <div>
+                    <h3 style="margin:0;color:{info.get("color")};">
+                        {esc(platform)} • Olağan Dışı Hareket: {esc(info.get("status"))}
+                    </h3>
+                    <small>
+                        Anomali skoru: {esc(info.get("score"))} • Kayıt: {esc(info.get("count"))}
+                    </small>
+                </div>
+
+                <div style="
+                    background:#ffffff;
+                    color:{info.get("color")};
+                    border:1px solid {info.get("color")};
+                    border-radius:999px;
+                    padding:6px 10px;
+                    font-size:12px;
+                    font-weight:900;
+                ">
+                    {esc(info.get("status"))}
+                </div>
+            </div>
+
+            <div style="
+                display:grid;
+                grid-template-columns:repeat(auto-fit,minmax(130px,1fr));
+                gap:8px;
+                margin:12px 0;
+            ">
+                <div class="card"><b>{int(info.get("risky_count", 0))}</b><br><small>Riskli kayıt</small></div>
+                <div class="card"><b>{int(info.get("opportunity_count", 0))}</b><br><small>Fırsat kaydı</small></div>
+                <div class="card"><b>{int(info.get("comments", 0))}</b><br><small>Yorum</small></div>
+                <div class="card"><b>{int(info.get("shares", 0))}</b><br><small>Paylaşım</small></div>
+                <div class="card"><b>{int(info.get("views", 0))}</b><br><small>Görüntülenme</small></div>
+            </div>
+
+            <p style="margin:10px 0;">
+                <b>Neden:</b>
+            </p>
+
+            <ul style="margin-top:6px;">
+                {reasons_html}
+            </ul>
+
+            <p style="margin:10px 0;">
+                <b>İlk aksiyon:</b> {esc(info.get("action"))}
+            </p>
+
+            <div style="
+                background:#ffffff;
+                border:1px solid #cbd5e1;
+                border-radius:14px;
+                padding:12px;
+                margin-top:12px;
+            ">
+                <p style="margin:0 0 6px 0;">
+                    <b>Öne çıkan kayıt:</b> {esc(topic)}
+                </p>
+                <p style="margin:0;color:#334155;">
+                    {esc(content)}
+                </p>
+                <div style="margin-top:10px;">
+                    {social_link(link)}
+                </div>
+            </div>
+        </div>
+        """
+
+    return f"""
+    <div class="card">
+        <b>Sosyal Ağlarda Olağan Dışı Hareket:</b> Platform bazlı anomali kontrolü yapıldı.
+        <br><small>X, Instagram, YouTube ve ileride eklenecek sosyal ağlarda riskli kayıt, yorum, paylaşım, görüntülenme ve fırsat hareketi birlikte değerlendirilir.</small>
+    </div>
+
+    {cards_html}
+    """
+
 def build_team_report(news, social, early_warning, crisis_plan, crisis_status, report_time, undated_news=None):
     now_tr = dt.datetime.utcnow() + dt.timedelta(hours=3)
     today = now_tr.date().isoformat()

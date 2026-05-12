@@ -1838,7 +1838,7 @@ def read_social_data():
         if not csv_path.exists():
             continue
 
-        try:
+                try:
             text = csv_path.read_text(encoding="utf-8-sig")
 
             # GitHub mobil editör bazen Instagram CSV satır kırılımlarını tek satıra düşürebiliyor.
@@ -1854,93 +1854,93 @@ def read_social_data():
                 shares = to_float_local(get_value(row, "shares", "share", "paylasim", "paylaşım", default="0"))
                 views = to_float_local(get_value(row, "views", "view", "goruntulenme", "görüntülenme", default="0"))
 
-                    good_comments = to_float_local(get_value(row, "good_comments", "iyi_yorum", default="0"))
-                    neutral_comments = to_float_local(get_value(row, "neutral_comments", "notr_yorum", "nötr_yorum", default="0"))
-                    bad_comments = to_float_local(get_value(row, "bad_comments", "kotu_yorum", "kötü_yorum", default="0"))
+                good_comments = to_float_local(get_value(row, "good_comments", "iyi_yorum", default="0"))
+                neutral_comments = to_float_local(get_value(row, "neutral_comments", "notr_yorum", "nötr_yorum", default="0"))
+                bad_comments = to_float_local(get_value(row, "bad_comments", "kotu_yorum", "kötü_yorum", default="0"))
 
-                    sentiment = get_value(row, "sentiment", "duygu", "tone", default="neutral")
+                sentiment = get_value(row, "sentiment", "duygu", "tone", default="neutral")
 
-                    if sentiment == "positive":
-                        tone = "İyi"
-                        good_comments = good_comments or 1
-                    elif sentiment == "negative":
-                        tone = "Kötü"
-                        bad_comments = bad_comments or 1
-                    elif sentiment == "neutral":
-                        tone = "Nötr"
-                        neutral_comments = neutral_comments or 1
-                    else:
-                        tone = sentiment
+                if sentiment == "positive":
+                    tone = "İyi"
+                    good_comments = good_comments or 1
+                elif sentiment == "negative":
+                    tone = "Kötü"
+                    bad_comments = bad_comments or 1
+                elif sentiment == "neutral":
+                    tone = "Nötr"
+                    neutral_comments = neutral_comments or 1
+                else:
+                    tone = sentiment
 
-                    engagement = likes + comments + shares
-                    like_rate = round((likes / views) * 100, 2) if views else 0
-                    engagement_rate = round((engagement / views) * 100, 2) if views else 0
+                engagement = likes + comments + shares
+                like_rate = round((likes / views) * 100, 2) if views else 0
+                engagement_rate = round((engagement / views) * 100, 2) if views else 0
 
-                    risk_score = to_float_local(get_value(row, "risk_score", "risk", default="0"))
-                    opportunity_score = to_float_local(get_value(row, "opportunity_score", "opportunity", default="0"))
+                risk_score = to_float_local(get_value(row, "risk_score", "risk", default="0"))
+                opportunity_score = to_float_local(get_value(row, "opportunity_score", "opportunity", default="0"))
 
-                    action_note = get_value(row, "action_note", "action", "aksiyon", "not")
-                    
-                    platform_value = get_value(row, "platform", "Platform")
-                    account_value = get_value(row, "account", "hesap", "account_name")
+                action_note = get_value(row, "action_note", "action", "aksiyon", "not")
 
-                    acc_info = account_map_info(
-                        platform_value,
-                        account_value,
-                        accounts_map
+                platform_value = get_value(row, "platform", "Platform")
+                account_value = get_value(row, "account", "hesap", "account_name")
+
+                acc_info = account_map_info(
+                    platform_value,
+                    account_value,
+                    accounts_map
+                )
+
+                account_adjusted_risk, account_effect_bonus_value, account_risk_reason = account_adjusted_risk_score(
+                    risk_score,
+                    acc_info
+                )
+
+                item = {
+                    "date": get_value(row, "date", "tarih"),
+                    "platform": platform_value,
+                    "account": account_value,
+                    "content": get_value(row, "content", "icerik", "içerik", "text"),
+                    "topic": get_value(row, "topic", "konu"),
+                    "tone": tone,
+                    "sentiment": sentiment,
+                    "likes": likes,
+                    "comments": comments,
+                    "shares": shares,
+                    "views": views,
+                    "good_comments": good_comments,
+                    "neutral_comments": neutral_comments,
+                    "bad_comments": bad_comments,
+                    "like_rate": like_rate,
+                    "engagement_rate": engagement_rate,
+                    "risk_score": risk_score,
+                    "opportunity_score": opportunity_score,
+                    "url": get_value(row, "url", "link"),
+                    "link": get_value(row, "url", "link"),
+                    "action_note": action_note,
+                    "notes": action_note,
+                    "risk_note": action_note,
+                    "account_type": acc_info.get("type", ""),
+                    "account_side": acc_info.get("side", ""),
+                    "account_influence_level": acc_info.get("influence_level", ""),
+                    "account_watch_level": acc_info.get("watch_level", ""),
+                    "account_notes": acc_info.get("notes", ""),
+                    "account_adjusted_risk_score": account_adjusted_risk,
+                    "account_effect_bonus": account_effect_bonus_value,
+                    "account_risk_reason": account_risk_reason,
+                    "source_type": get_value(row, "source_type", default=default_source_type),
+                }
+
+                # YouTube için ikinci güvenlik filtresi:
+                # CSV'de eski/alakasız kayıt kalmışsa rapora alma.
+                if csv_path == YOUTUBE_SOCIAL_CSV:
+                    youtube_check_text = normalize_text(
+                        f"{item.get('content', '')} {item.get('topic', '')} {item.get('account', '')}"
                     )
 
-                    account_adjusted_risk, account_effect_bonus_value, account_risk_reason = account_adjusted_risk_score(
-                        risk_score,
-                        acc_info
-                    )
-                    
-                    item = {
-                        "date": get_value(row, "date", "tarih"),
-                        "platform": platform_value,
-                         "account": account_value,
-                        "content": get_value(row, "content", "icerik", "içerik", "text"),
-                        "topic": get_value(row, "topic", "konu"),
-                        "tone": tone,
-                        "sentiment": sentiment,
-                        "likes": likes,
-                        "comments": comments,
-                        "shares": shares,
-                        "views": views,
-                        "good_comments": good_comments,
-                        "neutral_comments": neutral_comments,
-                        "bad_comments": bad_comments,
-                        "like_rate": like_rate,
-                        "engagement_rate": engagement_rate,
-                        "risk_score": risk_score,
-                        "opportunity_score": opportunity_score,
-                        "url": get_value(row, "url", "link"),
-                        "link": get_value(row, "url", "link"),
-                        "action_note": action_note,
-                        "notes": action_note,
-                        "risk_note": action_note,
-                        "account_type": acc_info.get("type", ""),
-                         "account_side": acc_info.get("side", ""),
-                         "account_influence_level": acc_info.get("influence_level", ""),
-                         "account_watch_level": acc_info.get("watch_level", ""),
-                         "account_notes": acc_info.get("notes", ""),
-                         "account_adjusted_risk_score": account_adjusted_risk,
-                         "account_effect_bonus": account_effect_bonus_value,
-                         "account_risk_reason": account_risk_reason,
-                         "source_type": get_value(row, "source_type", default=default_source_type),
-                    }
-
-                    # YouTube için ikinci güvenlik filtresi:
-                    # CSV'de eski/alakasız kayıt kalmışsa rapora alma.
-                    if csv_path == YOUTUBE_SOCIAL_CSV:
-                        youtube_check_text = normalize_text(
-                            f"{item.get('content', '')} {item.get('topic', '')} {item.get('account', '')}"
-                    )
-
-                        youtube_content_core = re.sub(
-                            r"\s+",
-                            "",
-                            normalize_text(item.get("content", ""))
+                    youtube_content_core = re.sub(
+                        r"\s+",
+                        "",
+                        normalize_text(item.get("content", ""))
                     )
 
                     strong_youtube_terms = [

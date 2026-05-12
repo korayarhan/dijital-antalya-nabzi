@@ -8462,6 +8462,7 @@ def build_team_report(news, social, early_warning, crisis_plan, crisis_status, r
         dashboard_day,
     )
     instagram_nabzi_html = build_instagram_nabzi_html(social)
+    social_anomaly_html = build_social_anomaly_html(social)
 
     instagram_items_for_summary = [
         item for item in social
@@ -8475,6 +8476,13 @@ def build_team_report(news, social, early_warning, crisis_plan, crisis_status, r
     ]
 
     instagram_subtitle = f"{len(instagram_items_for_summary)} kayıt • {len(instagram_risky_for_summary)} riskli kayıt"
+    social_anomaly_risky_count = len([
+        item for item in social
+        if safe_float(item.get("risk_score", 0)) >= 6
+        or safe_float(item.get("account_adjusted_risk_score", 0)) >= 6
+    ])
+
+    social_anomaly_subtitle = f"{len(social)} sosyal kayıt • {social_anomaly_risky_count} riskli/takipte kayıt"
     instagram_pulse = instagram_pulse_html(social)
     
     x_summary_html = x_social_summary_html(social, president_replies)
@@ -8987,6 +8995,15 @@ def build_team_report(news, social, early_warning, crisis_plan, crisis_status, r
         subtitle=news_quality_subtitle,
     )
 
+    social_anomaly_section = accordion_section(
+        "🚨 Sosyal Ağlarda Olağan Dışı Hareket / Anomali",
+        "#b91c1c",
+        "#fef2f2",
+        social_anomaly_html,
+        opened=True,
+        subtitle=social_anomaly_subtitle,
+    )
+
     instagram_section = accordion_section(
         "📸 Instagram Nabzı",
         "#7c3aed",
@@ -9213,6 +9230,7 @@ th {{
 {crisis_alarm_section}
 {data_flow_section}
 {news_quality_section}
+{social_anomaly_section}
 {instagram_section}
 {learning_section}
 <div id="detay-youtube"></div>

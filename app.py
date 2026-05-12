@@ -5783,6 +5783,141 @@ def build_data_flow_quality_html(news, social, president_posts, president_replie
     </div>
     """
 
+def instagram_pulse_html(social):
+    instagram_items = [
+        item for item in social
+        if is_instagram_platform(item)
+    ]
+
+    if not instagram_items:
+        return """
+        <div class="card">
+            <b>Instagram Nabzı:</b> Instagram kaydı bulunamadı.
+            <br><small>Instagram CSV/API akışı geldiğinde burada risk, fırsat ve etkileşim özeti görünecek.</small>
+        </div>
+        """
+
+    risky_items = [
+        item for item in instagram_items
+        if safe_score_value(item.get("account_adjusted_risk_score", item.get("risk_score", 0))) >= 6
+    ]
+
+    opportunity_items = [
+        item for item in instagram_items
+        if safe_score_value(item.get("opportunity_score", 0)) >= 5
+    ]
+
+    positive_count = len([x for x in instagram_items if social_tone_group(x) == "positive"])
+    negative_count = len([x for x in instagram_items if social_tone_group(x) == "negative"])
+    neutral_count = max(0, len(instagram_items) - positive_count - negative_count)
+
+    total_likes = sum(safe_score_value(x.get("likes", 0)) for x in instagram_items)
+    total_comments = sum(safe_score_value(x.get("comments", 0)) for x in instagram_items)
+    total_shares = sum(safe_score_value(x.get("shares", 0)) for x in instagram_items)
+    total_views = sum(safe_score_value(x.get("views", 0)) for x in instagram_items)
+
+    top_comment_item = max(
+        instagram_items,
+        key=lambda x: safe_score_value(x.get("comments", 0))
+    )
+
+    top_view_item = max(
+        instagram_items,
+        key=lambda x: safe_score_value(x.get("views", 0))
+    )
+
+    top_risk_item = max(
+        instagram_items,
+        key=lambda x: safe_score_value(x.get("account_adjusted_risk_score", x.get("risk_score", 0)))
+    )
+
+    top_opportunity_item = max(
+        instagram_items,
+        key=lambda x: safe_score_value(x.get("opportunity_score", 0))
+    )
+
+    def short_text(value, limit=220):
+        value = str(value or "").strip()
+        if len(value) > limit:
+            return value[:limit] + "..."
+        return value
+
+    def instagram_detail_card(title, item, color="#7c3aed", bg="#f5f3ff"):
+        topic = clean_topic_title(item.get("topic", ""))
+        content = short_text(item.get("content", "") or item.get("text", ""))
+        risk_value = safe_score_value(item.get("account_adjusted_risk_score", item.get("risk_score", 0)))
+        opportunity_value = safe_score_value(item.get("opportunity_score", 0))
+
+        return f"""
+        <div class="card" style="border-left:5px solid {color}; background:{bg}; margin:14px 0;">
+            <h3>{esc(title)}</h3>
+            <p><b>Konu:</b> {esc(topic)}</p>
+            <p class="small">{esc(item.get("date", ""))} • {esc(item.get("account", ""))}</p>
+            <p>{esc(content)}</p>
+            <p>
+                <b>Beğeni:</b> {int(safe_score_value(item.get("likes", 0)))} •
+                <b>Yorum:</b> {int(safe_score_value(item.get("comments", 0)))} •
+                <b>Paylaşım:</b> {int(safe_score_value(item.get("shares", 0)))} •
+                <b>Görüntülenme:</b> {int(safe_score_value(item.get("views", 0)))}
+            </p>
+            <p>
+                <b>Risk:</b> {risk_value}/10 •
+                <b>Fırsat:</b> {opportunity_value}/10
+            </p>
+            <p><b>Aksiyon notu:</b> {esc(item.get("action_note", "") or item.get("notes", ""))}</p>
+            {social_link(item.get("link", "") or item.get("url", ""))}
+        </div>
+        """
+
+    if len(risky_items) >= 1:
+        status_text = "Instagram tarafında takip gerektiren riskli kayıt var."
+        status_color = "#b91c1c"
+        status_bg = "#fef2f2"
+        action_text = "Yorum artışı, paylaşım hızı ve yerel hesaplardan yayılım ekip tarafından kontrol edilmeli."
+    elif len(opportunity_items) >= 1:
+        status_text = "Instagram tarafında görünürlük fırsatı var."
+        status_color = "#15803d"
+        status_bg = "#f0fdf4"
+        action_text = "İyi etkileşim alan içerik kısa video, hikaye veya kurumsal destek paylaşımıyla büyütülebilir."
+    else:
+        status_text = "Instagram tarafında standart takip yeterli."
+        status_color = "#475569"
+        status_bg = "#f8fafc"
+        action_text = "Kayıtlar izlenmeli; yorum veya paylaşım artışı olursa tekrar değerlendirme yapılmalı."
+
+    return f"""
+    <div class="card">
+        <b>Instagram Nabzı:</b> {len(instagram_items)} kayıt analiz edildi.
+        <br><small>Bu bölüm Instagram kayıtlarını risk, fırsat ve etkileşim açısından ayrıca izler.</small>
+
+        <p style="margin-top:12px;">
+            <span style="display:inline-block; padding:7px 11px; border-radius:999px; border:1px solid {status_color}; background:{status_bg}; color:{status_color}; font-weight:700;">
+                {esc(status_text)}
+            </span>
+        </p>
+
+        <p><b>İlk aksiyon:</b> {esc(action_text)}</p>
+
+        <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:10px; margin-top:12px;">
+            <div class="card"><b>{len(instagram_items)}</b><br><small>Toplam kayıt</small></div>
+            <div class="card"><b>{len(risky_items)}</b><br><small>Riskli kayıt</small></div>
+            <div class="card"><b>{len(opportunity_items)}</b><br><small>Fırsat kaydı</small></div>
+            <div class="card"><b>{int(total_likes)}</b><br><small>Toplam beğeni</small></div>
+            <div class="card"><b>{int(total_comments)}</b><br><small>Toplam yorum</small></div>
+            <div class="card"><b>{int(total_views)}</b><br><small>Toplam görüntülenme</small></div>
+        </div>
+
+        <p style="margin-top:12px;">
+            <b>Ton dağılımı:</b> Lehte {positive_count} • Aleyhte {negative_count} • Nötr {neutral_count}
+        </p>
+    </div>
+
+    {instagram_detail_card("En çok yorum alan Instagram içeriği", top_comment_item, "#7c3aed", "#f5f3ff")}
+    {instagram_detail_card("En çok görüntülenen Instagram içeriği", top_view_item, "#2563eb", "#eff6ff")}
+    {instagram_detail_card("En riskli Instagram içeriği", top_risk_item, "#b91c1c", "#fef2f2")}
+    {instagram_detail_card("En güçlü Instagram fırsatı", top_opportunity_item, "#15803d", "#f0fdf4")}
+    """
+
 def team_action_status_badge(status):
     raw_status = str(status or "").strip()
     status_norm = normalize_text(raw_status)
@@ -7351,6 +7486,7 @@ def build_team_report(news, social, early_warning, crisis_plan, crisis_status, r
         undated_news,
         dashboard_day,
     )
+    instagram_pulse = instagram_pulse_html(social)
     
     x_summary_html = x_social_summary_html(social, president_replies)
     service_complaint_followup = x_service_complaint_followup_html(social)
@@ -7862,6 +7998,22 @@ def build_team_report(news, social, early_warning, crisis_plan, crisis_status, r
         subtitle=news_quality_subtitle,
     )
 
+    instagram_count_for_summary = len([item for item in social if is_instagram_platform(item)])
+    instagram_risk_count_for_summary = len([
+        item for item in social
+        if is_instagram_platform(item)
+        and safe_float(item.get("account_adjusted_risk_score", item.get("risk_score", 0))) >= 6
+    ])
+
+    instagram_section = accordion_section(
+        "📸 Instagram Nabzı",
+        "#7c3aed",
+        "#f5f3ff",
+        instagram_pulse,
+        opened=True,
+        subtitle=f"{instagram_count_for_summary} kayıt • {instagram_risk_count_for_summary} riskli kayıt",
+    )
+
     learning_section = accordion_section(
         " Günlük Sistem Öğrenme Notu",
         "#334155",
@@ -8079,6 +8231,7 @@ th {{
 {crisis_alarm_section}
 {data_flow_section}
 {news_quality_section}
+{instagram_section}
 {learning_section}
 <div id="detay-youtube"></div>
 {youtube_section}

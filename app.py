@@ -8448,7 +8448,26 @@ a {{ color:#1f2933; font-weight:800; }}
 #detay-rapor-akisi a[style*="background"] {{
     color:#ffffff !important;
 }}
+/* Haberler işaretinden sonraki detay rapor kartları okunabilirlik düzeltmesi */
+main #haberler ~ *,
+main #haberler ~ * * {{
+    color:#0f172a !important;
+}}
 
+main #haberler ~ * .muted,
+main #haberler ~ * .muted * {{
+    color:#475569 !important;
+}}
+
+main #haberler ~ * a {{
+    color:#2563eb !important;
+}}
+
+main #haberler ~ * .btn,
+main #haberler ~ * .btn *,
+main #haberler ~ * a[style*="background"] {{
+    color:#ffffff !important;
+}}
 </style>
 </head>
 <body>

@@ -8468,6 +8468,26 @@ main #haberler ~ * .btn *,
 main #haberler ~ * a[style*="background"] {{
     color:#ffffff !important;
 }}
+/* Detaylı rapor açık alan kesin okunabilirlik düzeltmesi */
+.detail-light-report,
+.detail-light-report * {{
+    color:#0f172a !important;
+}}
+
+.detail-light-report .muted,
+.detail-light-report .muted * {{
+    color:#475569 !important;
+}}
+
+.detail-light-report a {{
+    color:#2563eb !important;
+}}
+
+.detail-light-report .btn,
+.detail-light-report .btn *,
+.detail-light-report a[style*="background"] {{
+    color:#ffffff !important;
+}}
 </style>
 </head>
 <body>
@@ -8631,6 +8651,7 @@ main #haberler ~ * a[style*="background"] {{
         margin-top:14px;
         padding:4px 0;
     ">
+<div class="detail-light-report">
 
 {report_main_menu()}
 
@@ -8896,6 +8917,7 @@ main #haberler ~ * a[style*="background"] {{
     </div>
 </details>
 
+</div>
 </main>
 </body>
 </html>"""

@@ -8003,7 +8003,7 @@ def build_team_report(news, social, early_warning, crisis_plan, crisis_status, r
                 </span>
             </div>
 
-            <p style="margin:8px 0;"><b>Aksiyon notu:</b> {esc(action_note)}
+            <p style="margin:8px 0;"><b>Aksiyon notu:</b> {esc(item.get("action_note", "") or item.get("notes", "") or item.get("risk_note", "") or "Ekip tarafından gözle kontrol edilmeli.")}
 
             <div style="margin-top:10px;">
                 {social_link(item.get("link", ""))}

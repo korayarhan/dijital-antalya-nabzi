@@ -5636,6 +5636,276 @@ def build_system_learning_note(news, social, alert_logs, team_actions, president
         "operator_action": operator_action,
     }
 
+def build_instagram_nabzi_html(social):
+    instagram_items = []
+
+    for item in social:
+        platform_text = normalize_text(
+            f"{item.get('platform', '')} {item.get('source_type', '')}"
+        )
+
+        if "instagram" in platform_text:
+            instagram_items.append(item)
+
+    if not instagram_items:
+        return """
+        <div class="card">
+            <b>Instagram Nabzı:</b> Henüz Instagram kaydı bulunamadı.
+            <br><small>Instagram verisi geldiğinde risk, fırsat ve etkileşim kartları burada görünecek.</small>
+        </div>
+        """
+
+    def num(value, default=0):
+        try:
+            return float(str(value or default).replace(",", ".").strip())
+        except:
+            return default
+
+    def risk_value(item):
+        return max(
+            num(item.get("risk_score", 0)),
+            num(item.get("account_adjusted_risk_score", 0))
+        )
+
+    def opportunity_value(item):
+        return num(item.get("opportunity_score", 0))
+
+    def engagement_value(item):
+        return (
+            num(item.get("likes", 0))
+            + num(item.get("comments", 0))
+            + num(item.get("shares", 0))
+            + (num(item.get("views", 0)) / 1000)
+        )
+
+    risky_items = [
+        item for item in instagram_items
+        if risk_value(item) >= 6
+    ]
+
+    opportunity_items = [
+        item for item in instagram_items
+        if opportunity_value(item) >= 5
+    ]
+
+    positive_count = len([
+        item for item in instagram_items
+        if social_tone_group(item) == "positive"
+    ])
+
+    negative_count = len([
+        item for item in instagram_items
+        if social_tone_group(item) == "negative"
+    ])
+
+    neutral_count = max(0, len(instagram_items) - positive_count - negative_count)
+
+    total_likes = sum(num(item.get("likes", 0)) for item in instagram_items)
+    total_comments = sum(num(item.get("comments", 0)) for item in instagram_items)
+    total_shares = sum(num(item.get("shares", 0)) for item in instagram_items)
+    total_views = sum(num(item.get("views", 0)) for item in instagram_items)
+
+    top_risk_item = sorted(
+        instagram_items,
+        key=lambda item: risk_value(item),
+        reverse=True
+    )[0]
+
+    top_opportunity_item = sorted(
+        instagram_items,
+        key=lambda item: (opportunity_value(item) * 1000) + engagement_value(item),
+        reverse=True
+    )[0]
+
+    if len(risky_items) > 0:
+        status_text = "Instagram tarafında takip gerektiren riskli kayıt var."
+        status_color = "#b91c1c"
+        status_bg = "#fef2f2"
+        first_action = "Yorum artışı, paylaşım hızı ve yerel hesaplardan yayılım ekip tarafından kontrol edilmeli."
+    elif len(opportunity_items) > 0:
+        status_text = "Instagram tarafında büyütülebilecek fırsat kaydı var."
+        status_color = "#15803d"
+        status_bg = "#f0fdf4"
+        first_action = "Olumlu içerik kısa video, story veya kurumsal hesap desteğiyle büyütülebilir."
+    else:
+        status_text = "Instagram tarafında standart takip yeterli."
+        status_color = "#475569"
+        status_bg = "#f8fafc"
+        first_action = "Yeni yorum, paylaşım veya yerel hesap hareketi olursa tekrar değerlendirilmeli."
+
+    def metric_box(label, value):
+        return f"""
+        <div style="
+            background:#ffffff;
+            border:1px solid #e5e7eb;
+            border-radius:16px;
+            padding:14px;
+            box-shadow:0 10px 26px rgba(15,23,42,0.06);
+        ">
+            <div style="font-size:24px;font-weight:900;color:#0f172a;">
+                {esc(value)}
+            </div>
+            <div style="font-size:13px;font-weight:700;color:#475569;margin-top:6px;">
+                {esc(label)}
+            </div>
+        </div>
+        """
+
+    def instagram_detail_card(title, item, color, bg):
+        topic = clean_text(
+            item.get("topic", "")
+            or item.get("content", "")
+            or "Instagram kaydı"
+        )
+
+        content = clean_text(
+            item.get("content", "")
+            or item.get("text", "")
+            or item.get("action_note", "")
+        )
+
+        if len(content) > 260:
+            content = content[:260] + "..."
+
+        action_note = clean_text(
+            item.get("action_note", "")
+            or item.get("notes", "")
+            or item.get("risk_note", "")
+            or "Ekip tarafından gözle kontrol edilmeli."
+        )
+
+        account = item.get("account", "")
+        date = item.get("date", "")
+        link = item.get("link", "") or item.get("url", "")
+
+        return f"""
+        <div style="
+            background:{bg};
+            border:1px solid {color};
+            border-left:6px solid {color};
+            border-radius:18px;
+            padding:14px;
+            margin:14px 0;
+        ">
+            <div style="
+                display:flex;
+                justify-content:space-between;
+                gap:10px;
+                align-items:flex-start;
+                flex-wrap:wrap;
+                margin-bottom:10px;
+            ">
+                <div>
+                    <div style="font-size:17px;font-weight:900;color:{color};line-height:1.35;">
+                        {esc(title)}
+                    </div>
+                    <div style="font-size:12px;font-weight:700;color:#64748b;margin-top:5px;">
+                        {esc(date)} • {esc(account)}
+                    </div>
+                </div>
+
+                <div style="
+                    background:#ffffff;
+                    border:1px solid {color};
+                    color:{color};
+                    border-radius:999px;
+                    padding:6px 10px;
+                    font-size:12px;
+                    font-weight:900;
+                ">
+                    Risk {risk_value(item):.1f}/10 • Fırsat {opportunity_value(item):.1f}/10
+                </div>
+            </div>
+
+            <p style="margin:8px 0;color:#0f172a;font-weight:800;line-height:1.45;">
+                {esc(topic)}
+            </p>
+
+            <p style="margin:8px 0;color:#334155;line-height:1.45;">
+                {esc(content)}
+            </p>
+
+            <div style="
+                display:flex;
+                flex-wrap:wrap;
+                gap:8px;
+                margin:12px 0;
+            ">
+                <span style="background:#ffffff;border:1px solid #cbd5e1;border-radius:999px;padding:6px 9px;font-size:12px;font-weight:800;color:#334155;">
+                    Beğeni: {int(num(item.get("likes", 0)))}
+                </span>
+                <span style="background:#ffffff;border:1px solid #cbd5e1;border-radius:999px;padding:6px 9px;font-size:12px;font-weight:800;color:#334155;">
+                    Yorum: {int(num(item.get("comments", 0)))}
+                </span>
+                <span style="background:#ffffff;border:1px solid #cbd5e1;border-radius:999px;padding:6px 9px;font-size:12px;font-weight:800;color:#334155;">
+                    Paylaşım: {int(num(item.get("shares", 0)))}
+                </span>
+                <span style="background:#ffffff;border:1px solid #cbd5e1;border-radius:999px;padding:6px 9px;font-size:12px;font-weight:800;color:#334155;">
+                    Görüntülenme: {int(num(item.get("views", 0)))}
+                </span>
+            </div>
+
+            <p style="margin:8px 0;color:#334155;line-height:1.45;">
+                <b>Aksiyon notu:</b> {esc(action_note)}
+            </p>
+
+            <div style="margin-top:10px;">
+                {social_link(link)}
+            </div>
+        </div>
+        """
+
+    return f"""
+    <div class="card">
+        <p>
+            <b>Instagram Nabzı:</b> {len(instagram_items)} kayıt analiz edildi.
+            <br>
+            Bu bölüm Instagram kayıtlarını risk, fırsat ve etkileşim açısından ayrıca izler.
+        </p>
+
+        <div style="
+            background:{status_bg};
+            border:1px solid {status_color};
+            border-radius:999px;
+            padding:12px 14px;
+            color:{status_color};
+            font-size:15px;
+            font-weight:900;
+            line-height:1.45;
+            margin:14px 0;
+        ">
+            {esc(status_text)}
+        </div>
+
+        <p style="font-size:14px;color:#334155;line-height:1.55;">
+            <b>İlk aksiyon:</b> {esc(first_action)}
+        </p>
+
+        <div style="
+            display:grid;
+            grid-template-columns:repeat(2,minmax(0,1fr));
+            gap:10px;
+            margin:18px 0;
+        ">
+            {metric_box("Toplam kayıt", len(instagram_items))}
+            {metric_box("Riskli kayıt", len(risky_items))}
+            {metric_box("Fırsat kaydı", len(opportunity_items))}
+            {metric_box("Toplam beğeni", int(total_likes))}
+            {metric_box("Toplam yorum", int(total_comments))}
+            {metric_box("Toplam görüntülenme", int(total_views))}
+        </div>
+
+        <p style="font-size:14px;color:#0f172a;line-height:1.55;">
+            <b>Ton dağılımı:</b>
+            Lehte {positive_count} • Aleyhte {negative_count} • Nötr {neutral_count}
+        </p>
+    </div>
+
+    {instagram_detail_card("En Riskli Instagram Kaydı", top_risk_item, "#b91c1c", "#fef2f2")}
+
+    {instagram_detail_card("En Güçlü Instagram Fırsatı", top_opportunity_item, "#15803d", "#f0fdf4")}
+    """
+
 def build_data_flow_quality_html(news, social, president_posts, president_replies, youtube_summary, undated_news=None):
     undated_news = undated_news or []
 
@@ -7542,6 +7812,20 @@ def build_team_report(news, social, early_warning, crisis_plan, crisis_status, r
         undated_news,
         dashboard_day,
     )
+    instagram_nabzi_html = build_instagram_nabzi_html(social)
+
+    instagram_items_for_summary = [
+        item for item in social
+        if "instagram" in normalize_text(f"{item.get('platform', '')} {item.get('source_type', '')}")
+    ]
+
+    instagram_risky_for_summary = [
+        item for item in instagram_items_for_summary
+        if safe_float(item.get("risk_score", 0)) >= 6
+        or safe_float(item.get("account_adjusted_risk_score", 0)) >= 6
+    ]
+
+    instagram_subtitle = f"{len(instagram_items_for_summary)} kayıt • {len(instagram_risky_for_summary)} riskli kayıt"
     instagram_pulse = instagram_pulse_html(social)
     
     x_summary_html = x_social_summary_html(social, president_replies)
@@ -8054,20 +8338,13 @@ def build_team_report(news, social, early_warning, crisis_plan, crisis_status, r
         subtitle=news_quality_subtitle,
     )
 
-    instagram_count_for_summary = len([item for item in social if is_instagram_platform(item)])
-    instagram_risk_count_for_summary = len([
-        item for item in social
-        if is_instagram_platform(item)
-        and safe_float(item.get("account_adjusted_risk_score", item.get("risk_score", 0))) >= 6
-    ])
-
     instagram_section = accordion_section(
         "📸 Instagram Nabzı",
         "#7c3aed",
         "#f5f3ff",
-        instagram_pulse,
+        instagram_nabzi_html,
         opened=True,
-        subtitle=f"{instagram_count_for_summary} kayıt • {instagram_risk_count_for_summary} riskli kayıt",
+        subtitle=instagram_subtitle,
     )
 
     learning_section = accordion_section(

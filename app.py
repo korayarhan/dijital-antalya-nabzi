@@ -8413,27 +8413,25 @@ a {{ color:#1f2933; font-weight:800; }}
     header {{ -webkit-print-color-adjust:exact; print-color-adjust:exact; }}
     .card,.item {{ box-shadow:none; }}
 }}
-/* Detaylı Rapor Akışı açık kart yazı rengi düzeltmesi */
+/* Detaylı Rapor Akışı okunabilirlik düzeltmesi */
+#detay-rapor-akisi,
+#detay-rapor-akisi *,
 #detay-rapor-akisi .card,
+#detay-rapor-akisi .card *,
 #detay-rapor-akisi .item,
-#detay-rapor-akisi .kpi {{
+#detay-rapor-akisi .item *,
+#detay-rapor-akisi .kpi,
+#detay-rapor-akisi .kpi * {{
     color:#0f172a !important;
 }}
 
-#detay-rapor-akisi .card *,
-#detay-rapor-akisi .item *,
-#detay-rapor-akisi .kpi *,
-#detay-rapor-akisi p,
-#detay-rapor-akisi div,
-#detay-rapor-akisi span,
-#detay-rapor-akisi h1,
-#detay-rapor-akisi h2,
-#detay-rapor-akisi h3,
-#detay-rapor-akisi h4,
-#detay-rapor-akisi li,
-#detay-rapor-akisi b,
-#detay-rapor-akisi strong {{
-    color:#0f172a !important;
+#detay-rapor-akisi .card,
+#detay-rapor-akisi .item {{
+    background:#f8fafc !important;
+}}
+
+#detay-rapor-akisi .kpi {{
+    background:#ffffff !important;
 }}
 
 #detay-rapor-akisi .muted,
@@ -8448,8 +8446,9 @@ a {{ color:#1f2933; font-weight:800; }}
 #detay-rapor-akisi .btn,
 #detay-rapor-akisi .btn *,
 #detay-rapor-akisi a[style*="background"] {{
-    color:white !important;
+    color:#ffffff !important;
 }}
+
 </style>
 </head>
 <body>

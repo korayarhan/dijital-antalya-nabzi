@@ -8413,6 +8413,43 @@ a {{ color:#1f2933; font-weight:800; }}
     header {{ -webkit-print-color-adjust:exact; print-color-adjust:exact; }}
     .card,.item {{ box-shadow:none; }}
 }}
+/* Detaylı Rapor Akışı açık kart yazı rengi düzeltmesi */
+#detay-rapor-akisi .card,
+#detay-rapor-akisi .item,
+#detay-rapor-akisi .kpi {
+    color:#0f172a !important;
+}
+
+#detay-rapor-akisi .card *,
+#detay-rapor-akisi .item *,
+#detay-rapor-akisi .kpi *,
+#detay-rapor-akisi p,
+#detay-rapor-akisi div,
+#detay-rapor-akisi span,
+#detay-rapor-akisi h1,
+#detay-rapor-akisi h2,
+#detay-rapor-akisi h3,
+#detay-rapor-akisi h4,
+#detay-rapor-akisi li,
+#detay-rapor-akisi b,
+#detay-rapor-akisi strong {
+    color:#0f172a !important;
+}
+
+#detay-rapor-akisi .muted,
+#detay-rapor-akisi .muted * {
+    color:#475569 !important;
+}
+
+#detay-rapor-akisi a {
+    color:#2563eb !important;
+}
+
+#detay-rapor-akisi .btn,
+#detay-rapor-akisi .btn *,
+#detay-rapor-akisi a[style*="background"] {
+    color:white !important;
+}
 </style>
 </head>
 <body>

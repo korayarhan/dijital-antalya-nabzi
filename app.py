@@ -8336,39 +8336,35 @@ main {{ padding:16px; max-width:980px; margin:auto; }}
     margin-bottom:14px;
     box-shadow:0 8px 22px rgba(31,41,51,.06);
     page-break-inside:avoid;
-    /* Detaylı rapor açık kart yazı rengi düzeltmesi */
-    main .card,
-    main .item {{
-        color:#0f172a !important;
-    }}
+    color:#0f172a !important;
+}}
 
-    main .card h1,
-    main .card h2,
-    main .card h3,
-    main .card h4,
-    main .card p,
-    main .card div,
-    main .card span,
-    main .card li,
-    main .item h1,
-    main .item h2,
-    main .item h3,
-    main .item h4,
-    main .item p,
-    main .item div,
-    main .item span,
-    main .item li {{
-        color:#0f172a !important;
-    }}
+/* Detaylı Rapor Akışı kesin okunabilirlik düzeltmesi */
+#detay-rapor-akisi .card,
+#detay-rapor-akisi .item,
+#detay-rapor-akisi .kpi {{
+    color:#0f172a !important;
+    background:#f8fafc !important;
+}}
 
-    main .card .muted,
-    main .item .muted {{
-        color:#475569 !important;
-    }}
+#detay-rapor-akisi .card *,
+#detay-rapor-akisi .item *,
+#detay-rapor-akisi .kpi * {{
+    color:#0f172a !important;
+}}
 
-    main .card b,
-    main .item b {{
-        color:#111827 !important;
+#detay-rapor-akisi .muted,
+#detay-rapor-akisi .muted * {{
+    color:#475569 !important;
+}}
+
+#detay-rapor-akisi a {{
+    color:#2563eb !important;
+}}
+
+#detay-rapor-akisi a[style*="background"],
+#detay-rapor-akisi a[style*="background"] * {{
+    color:#ffffff !important;
 }}
 h2 {{ font-size:19px; margin:4px 0 12px; }}
 h3 {{ font-size:15px; margin:0 0 8px; }}
@@ -8614,9 +8610,6 @@ main #haberler ~ * a[style*="background"] {{
     </div>
 </div>
 
-</header>
-
-<main>
 
 <details id="detay-rapor-akisi" style="
     margin:18px 0;
@@ -8672,7 +8665,7 @@ main #haberler ~ * a[style*="background"] {{
 </div>
 
 <div id="onemli-basliklar"></div>
-<div class="card"><h2>2. Bugünün En Önemli 3 Başlığı<h2>{important_html}</div>
+<div class="card"><h2>2. Bugünün En Önemli 3 Başlığı</h2>{important_html}</div>
 <div id="olumlu-haberler"></div>
 <div class="card"><h2>3. Öne Çıkan Olumlu Haberler</h2>{positive_html}</div>
 <div id="riskli-haberler"></div>

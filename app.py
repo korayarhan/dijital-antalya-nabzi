@@ -7807,10 +7807,23 @@ def build_news_quality_html(news, undated_news=None, dashboard_day=None):
     </div>
     """
 
-def instagram_action_suggestion(item, mode="opportunity"):
-    text = normalize_text(
-        f"{item.get('topic', '')} {item.get('content', '')} {item.get('action_note', '')}"
-    )
+        text_for_action = normalize_text(
+            f"{topic} {content} {item.get('action_note', '')} {item.get('notes', '')} {item.get('risk_note', '')}"
+        )
+
+        title_norm = normalize_text(title)
+
+        if "firsat" in title_norm or "fırsat" in title_norm:
+            if any(term in text_for_action for term in ["cocuk", "çocuk", "aile", "sosyal", "etkinlik", "festival", "senlik", "şenlik"]):
+                action_note = "Sosyal belediyecilik fırsatı var. İçerik kısa video, hikâye veya başkan/kurumsal hesap destek paylaşımı için değerlendirilmeli."
+            elif any(term in text_for_action for term in ["asfalt", "yol", "park", "temizlik", "hizmet", "proje", "mahalle"]):
+                action_note = "Hizmet görünürlüğü fırsatı var. Sahadan görsel/video ile desteklenip kısa hizmet kartı veya hikâye formatına çevrilebilir."
+            elif any(term in text_for_action for term in ["spor", "genc", "genç", "turnuva"]):
+                action_note = "Toplum ve gençlik görünürlüğü açısından fırsat var. Kısa video, hikâye ve başkan hesabı destek paylaşımı değerlendirilmeli."
+            else:
+                action_note = "Olumlu Instagram görünürlüğü var. Kurumsal hesap veya başkan hesabı üzerinden destek paylaşımı yapılabilir."
+        else:
+            action_note = item.get("action_note", "") or item.get("notes", "") or item.get("risk_note", "") or "Ekip tarafından gözle kontrol edilmeli."
 
     risk_score = safe_score_value(item.get("risk_score", 0))
     opportunity_score = safe_score_value(item.get("opportunity_score", 0))

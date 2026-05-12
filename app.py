@@ -6209,6 +6209,7 @@ def instagram_action_suggestion(item, mode="risk"):
             item,
             "opportunity" if "Fırsat" in title or "fırsat" in title.lower() else "risk"
         )
+        
         return f"""
         <div class="card" style="border-left:5px solid {color}; background:{bg}; margin:14px 0;">
             <h3>{esc(title)}</h3>

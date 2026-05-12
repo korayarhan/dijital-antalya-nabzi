@@ -5628,8 +5628,9 @@ def build_data_flow_quality_html(news, social, president_posts, president_replie
         """
 
     x_items = [item for item in social if is_x_platform(item)]
+    instagram_items = [item for item in social if is_instagram_platform(item)]
     youtube_items = [item for item in social if is_youtube_platform(item)]
-
+    
     manual_items = [
         item for item in social
         if "manuel" in normalize_text(item.get("source_type", ""))
@@ -5639,6 +5640,7 @@ def build_data_flow_quality_html(news, social, president_posts, president_replie
         item for item in social
         if "otomatik" in normalize_text(item.get("source_type", ""))
         or is_x_platform(item)
+        or is_instagram_platform(item)
         or is_youtube_platform(item)
     ]
 
@@ -5659,6 +5661,9 @@ def build_data_flow_quality_html(news, social, president_posts, president_replie
     if len(x_items) == 0:
         warnings.append("X verisi boş görünüyor. X token, otomatik tarama ve filtre kontrol edilmeli.")
 
+    if len(instagram_items) == 0:
+        notes.append("Instagram verisi bugün boş görünüyor. Bu her zaman hata değildir; CSV veya manuel/API akışı kontrol edilebilir.")
+    
     if len(youtube_summary) == 0 and len(youtube_items) == 0:
         warnings.append("YouTube kanal özeti ve YouTube sosyal kayıtları boş görünüyor.")
 
@@ -5726,6 +5731,7 @@ def build_data_flow_quality_html(news, social, president_posts, president_replie
             <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;">
                 {metric_card("Toplam sosyal", len(social), "Manuel + otomatik kayıt")}
                 {metric_card("X kayıtları", len(x_items), "X / Twitter kaynaklı kayıt")}
+                 {metric_card("Instagram kayıtları", len(instagram_items), "Instagram gönderi / yorum kaydı")}
                 {metric_card("YouTube sosyal", len(youtube_items), "Yorum / video kaynaklı kayıt")}
                 {metric_card("Otomatik", len(auto_items), "Sistem tarafından çekilen")}
                 {metric_card("Manuel", len(manual_items), "Ekip tarafından girilen")}
@@ -7792,8 +7798,10 @@ def build_team_report(news, social, early_warning, crisis_plan, crisis_status, r
     learning_subtitle = f"{learning_note.get('operator_status', '')} • {learning_note.get('repeated_topic', '')}"
     youtube_subtitle = f"{len(youtube_summary)} kaynak / kanal takipte"
     x_count_for_data_flow = len([x for x in social if is_x_platform(x)])
+    instagram_count_for_data_flow = len([x for x in social if is_instagram_platform(x)])
     youtube_count_for_data_flow = len([x for x in social if is_youtube_platform(x)])
-    data_flow_subtitle = f"Haber {len(news)} • X {x_count_for_data_flow} • YouTube {youtube_count_for_data_flow} • YouTube kaynak {len(youtube_summary)}"
+
+    data_flow_subtitle = f"Haber {len(news)} • X {x_count_for_data_flow} • Instagram {instagram_count_for_data_flow} • YouTube {youtube_count_for_data_flow} • YouTube kaynak {len(youtube_summary)}"
        
     today_news_for_quality = [
         item for item in news

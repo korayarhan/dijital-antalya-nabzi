@@ -1839,8 +1839,14 @@ def read_social_data():
             continue
 
         try:
-            with csv_path.open("r", encoding="utf-8-sig", newline="") as f:
-                reader = csv.DictReader(f)
+            text = csv_path.read_text(encoding="utf-8-sig")
+
+            # GitHub mobil editör bazen Instagram CSV satır kırılımlarını tek satıra düşürebiliyor.
+            # Bu koruma, her Instagram kaydının başına gerçek satır kırılımı ekler.
+            if csv_path == INSTAGRAM_SOCIAL_CSV:
+                text = re.sub(r"\s+(?=\d{4}-\d{2}-\d{2},Instagram,)", "\n", text)
+
+            reader = csv.DictReader(text.splitlines())
 
                 for row in reader:
                     likes = to_float_local(get_value(row, "likes", "like", "begeni", "beğeni", default="0"))

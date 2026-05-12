@@ -6204,6 +6204,7 @@ def instagram_action_suggestion(item, mode="risk"):
         content = short_text(item.get("content", "") or item.get("text", ""))
         risk_value = safe_score_value(item.get("account_adjusted_risk_score", item.get("risk_score", 0)))
         opportunity_value = safe_score_value(item.get("opportunity_score", 0))
+        
         action_note = instagram_action_suggestion(
             item,
             "opportunity" if "Fırsat" in title or "fırsat" in title.lower() else "risk"

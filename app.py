@@ -5751,6 +5751,71 @@ def build_instagram_nabzi_html(social):
         </div>
         """
 
+    # Instagram olağan dışı hareket / anomali kontrolü
+    anomaly_score = 0
+    anomaly_reasons = []
+
+    if total_comments >= 250:
+        anomaly_score += 3
+        anomaly_reasons.append("Yorum sayısı normalin üstünde görünüyor")
+
+    if total_views >= 50000:
+        anomaly_score += 2
+        anomaly_reasons.append("Görüntülenme güçlü seviyede")
+
+    if total_shares >= 100:
+        anomaly_score += 2
+        anomaly_reasons.append("Paylaşım hareketi dikkat çekiyor")
+
+    if len(risky_items) >= 2:
+        anomaly_score += 2
+        anomaly_reasons.append("Birden fazla riskli Instagram kaydı var")
+
+    if len(opportunity_items) >= 3:
+        anomaly_score += 1
+        anomaly_reasons.append("Birden fazla fırsat kaydı var")
+
+    if anomaly_score >= 6:
+        anomaly_status = "DİKKAT"
+        anomaly_color = "#b91c1c"
+        anomaly_bg = "#fef2f2"
+        anomaly_action = "Instagram tarafında olağan dışı hareket var. Yorum, paylaşım ve görüntülenme artışı gün içinde tekrar kontrol edilmeli."
+    elif anomaly_score >= 3:
+        anomaly_status = "TAKİPTE"
+        anomaly_color = "#d97706"
+        anomaly_bg = "#fffbeb"
+        anomaly_action = "Instagram tarafında takip gerektiren hareket var. Şimdilik gözlem yeterli; artış sürerse ekip aksiyonu açılmalı."
+    else:
+        anomaly_status = "NORMAL"
+        anomaly_color = "#15803d"
+        anomaly_bg = "#f0fdf4"
+        anomaly_action = "Instagram tarafında olağan dışı hareket görünmüyor. Standart takip yeterli."
+
+    anomaly_reason_text = " • ".join(anomaly_reasons) if anomaly_reasons else "Belirgin anomali sinyali yok."
+
+    anomaly_html = f"""
+        <div style="
+            background:{anomaly_bg};
+            border:1px solid {anomaly_color};
+            border-left:6px solid {anomaly_color};
+            border-radius:18px;
+            padding:14px;
+            margin:16px 0;
+        ">
+            <div style="font-size:16px;font-weight:900;color:{anomaly_color};line-height:1.35;">
+                Olağan Dışı Hareket: {esc(anomaly_status)}
+            </div>
+
+            <p style="margin:8px 0;color:#334155;line-height:1.45;">
+                <b>Neden:</b> {esc(anomaly_reason_text)}
+            </p>
+
+            <p style="margin:8px 0;color:#334155;line-height:1.45;">
+                <b>İlk aksiyon:</b> {esc(anomaly_action)}
+            </p>
+        </div>
+    """
+
     def instagram_detail_card(title, item, color, bg):
         topic = clean_text(
             item.get("topic", "")
@@ -5895,6 +5960,8 @@ def build_instagram_nabzi_html(social):
         <p style="font-size:14px;color:#334155;line-height:1.55;">
             <b>İlk aksiyon:</b> {esc(first_action)}
         </p>
+
+        {anomaly_html}
 
         <div style="
             display:grid;

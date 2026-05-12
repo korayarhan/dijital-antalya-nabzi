@@ -19,6 +19,7 @@ AUTO_SOCIAL_CSV = ROOT / "data" / "auto_social" / "social_auto.csv"
 PRESIDENT_X_CSV = ROOT / "data" / "auto_social" / "president_x_posts.csv"
 PRESIDENT_X_REPLIES_CSV = ROOT / "data" / "auto_social" / "president_x_replies.csv"
 YOUTUBE_SOCIAL_CSV = ROOT / "data" / "auto_social" / "youtube_social.csv"
+INSTAGRAM_SOCIAL_CSV = ROOT / "data" / "auto_social" / "instagram_social.csv"
 YOUTUBE_WATCH_CSV = ROOT / "data" / "social_watch" / "youtube_watch.csv"
 YOUTUBE_SUMMARY_CSV = ROOT / "data" / "auto_social" / "youtube_summary.csv"
 ACCOUNTS_MAP_CSV = ROOT / "data" / "social_watch" / "accounts_map.csv"
@@ -1812,6 +1813,7 @@ def read_social_data():
         (SOCIAL_CSV, "Manuel"),
         (AUTO_SOCIAL_CSV, "Otomatik"),
         (YOUTUBE_SOCIAL_CSV, "Otomatik YouTube"),
+        (INSTAGRAM_SOCIAL_CSV, "Otomatik Instagram"),
     ]
 
     rows = []

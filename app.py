@@ -8273,6 +8273,39 @@ def build_social_anomaly_html(social):
             "views": total_views,
         }
 
+    def anomaly_team_guidance(platform, status):
+        platform_norm = normalize_text(platform)
+        status_norm = normalize_text(status)
+
+        if "instagram" in platform_norm:
+            team = "Basın / Sosyal Medya Ekibi"
+            direction = "Yorumlar, paylaşım hızı ve yerel hesaplardan yayılım gün içinde tekrar kontrol edilmeli."
+
+        elif platform_norm == "x" or "twitter" in platform_norm:
+            team = "Basın Ekibi + Kriz Takip"
+            direction = "Paylaşımın kimden çıktığı, yayılım hızı ve hizmet/kriz başlığı olup olmadığı kontrol edilmeli."
+
+        elif "youtube" in platform_norm:
+            team = "Medya Takip Ekibi"
+            direction = "Video başlığı, yorum tonu ve yerel gündem bağlantısı gözle kontrol edilmeli."
+
+        elif "facebook" in platform_norm:
+            team = "Sosyal Medya Ekibi"
+            direction = "Mahalle grupları, yorumlar ve paylaşım tekrarları kontrol edilmeli."
+
+        elif "tiktok" in platform_norm:
+            team = "Sosyal Medya Ekibi + Kriz Takip"
+            direction = "Görüntülenme ve paylaşım hızı yüksekse hızlı yayılım ihtimaline karşı tekrar bakılmalı."
+
+        else:
+            team = "Basın / Sosyal Medya Ekibi"
+            direction = "Platform hareketi ekip tarafından gözle kontrol edilmeli."
+
+        if "normal" in status_norm:
+            direction = "Şimdilik standart takip yeterli. Yeni artış olursa tekrar değerlendirilmeli."
+
+        return team, direction
+
     def top_item_for_platform(items):
         return max(
             items,
@@ -8327,6 +8360,10 @@ def build_social_anomaly_html(social):
         ])
 
         link = top_item.get("link", "") or top_item.get("url", "")
+        responsible_team, first_direction = anomaly_team_guidance(
+            platform,
+            info.get("status", "")
+        )
 
         cards_html += f"""
         <div class="card" style="
@@ -8385,6 +8422,14 @@ def build_social_anomaly_html(social):
             <ul style="margin-top:6px;">
                 {reasons_html}
             </ul>
+
+            <p style="margin:10px 0;">
+                <b>Sorumlu ekip:</b> {esc(responsible_team)}
+            </p>
+
+            <p style="margin:10px 0;">
+                <b>İlk yönlendirme:</b> {esc(first_direction)}
+            </p>
 
             <p style="margin:10px 0;">
                 <b>İlk aksiyon:</b> {esc(info.get("action"))}

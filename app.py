@@ -1821,7 +1821,7 @@ def read_social_data():
 
     def to_float_local(value, default=0):
         try:
-            return float(str(value or "0").replace(",", ".").strip())
+            return float(str(value or "0").replace(",", "."))
         except:
             return default
 
@@ -1831,14 +1831,14 @@ def read_social_data():
             if value is not None and str(value).strip() != "":
                 return str(value).strip()
         return default
-        
+
     accounts_map = read_accounts_map()
 
     for csv_path, default_source_type in sources:
         if not csv_path.exists():
             continue
 
-                try:
+        try:
             text = csv_path.read_text(encoding="utf-8-sig")
 
             # GitHub mobil editör bazen Instagram CSV satır kırılımlarını tek satıra düşürebiliyor.

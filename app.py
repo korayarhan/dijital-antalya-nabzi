@@ -6202,7 +6202,7 @@ def instagram_action_suggestion(item, mode="normal"):
 
     return "Kayıt izlenmeli. Şu aşamada acil aksiyon gerekmiyor."
 
-    def instagram_detail_card(title, item, color, bg):
+def instagram_detail_card(title, item, color, bg):
     topic = clean_topic_title(
         item.get("topic", "")
         or item.get("content", "")

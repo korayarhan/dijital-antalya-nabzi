@@ -3084,6 +3084,9 @@ def is_youtube_platform(item):
     text = normalize_text(f"{item.get('platform', '')} {item.get('source_type', '')}")
     return "youtube" in text
 
+def is_instagram_platform(item):
+    text = normalize_text(f"{item.get('platform', '')} {item.get('source_type', '')}")
+    return "instagram" in text
 
 def dashboard_kpi(title, value, note, color="#334155", bg="#f8fafc"):
     value_text = str(value or "")

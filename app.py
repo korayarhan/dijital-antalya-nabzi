@@ -3226,6 +3226,62 @@ def platform_pulse_comment(platform, risky_count, opportunity_count, positive_co
 
     return "Standart takip yeterli. Belirgin risk veya fırsat sinyali görünmüyor."
 
+def instagram_record_comment(item):
+    text = normalize_text(
+        f"{item.get('content', '')} {item.get('topic', '')} {item.get('action_note', '')}"
+    )
+
+    risk_score = safe_score_value(item.get("account_adjusted_risk_score", item.get("risk_score", 0)))
+    opportunity_score = safe_score_value(item.get("opportunity_score", 0))
+    comments = safe_score_value(item.get("comments", 0))
+    shares = safe_score_value(item.get("shares", 0))
+    views = safe_score_value(item.get("views", 0))
+    likes = safe_score_value(item.get("likes", 0))
+
+    service_terms = [
+        "park", "mahalle", "asfalt", "yol", "temizlik", "çöp", "cop",
+        "ulaşım", "ulasim", "şikayet", "sikayet", "bozuk", "sokak"
+    ]
+
+    event_terms = [
+        "festival", "şenlik", "senlik", "çocuk", "cocuk", "aile",
+        "etkinlik", "spor", "kültür", "kultur"
+    ]
+
+    legal_terms = [
+        "dava", "teleferik", "soruşturma", "sorusturma", "mahkeme",
+        "ihmal", "kaza", "facia"
+    ]
+
+    if risk_score >= 7:
+        if any(term in text for term in legal_terms):
+            return "Hukuki veya kriz hassasiyeti taşıyan Instagram kaydı. Yorum artışı ve yerel medya yayılımı ekip tarafından yakından takip edilmeli."
+
+        if any(term in text for term in service_terms):
+            return "Hizmet şikayeti riski yüksek. Mahalle, sokak ve ilgili müdürlük bilgisi kontrol edilmeli; gerekirse kurumsal cevap hazırlanmalı."
+
+        return "Instagram tarafında yüksek riskli kayıt var. Yorum artışı, paylaşım hızı ve yerel hesaplardan yayılım kontrol edilmeli."
+
+    if risk_score >= 4:
+        if comments >= 50 or shares >= 20:
+            return "Orta riskli ama yayılım ihtimali olan kayıt. Yorum ve paylaşım hızı gün içinde tekrar kontrol edilmeli."
+
+        return "Takip gerektiren orta seviye Instagram kaydı. Şimdilik gözlem yeterli; büyürse ekip aksiyonu açılmalı."
+
+    if opportunity_score >= 6:
+        if any(term in text for term in service_terms):
+            return "Hizmet görünürlüğü fırsatı var. Mahalle adı, önce/sonra görseli veya kısa video ile büyütülebilir."
+
+        if any(term in text for term in event_terms):
+            return "Etkinlik ve sosyal belediyecilik fırsatı var. İnsan hikayesi ve sıcak görsel dille paylaşım desteklenebilir."
+
+        return "Instagram tarafında olumlu görünürlük fırsatı var. Kurumsal hesap veya Başkan hesabı destek paylaşımı yapabilir."
+
+    if views >= 10000 and likes < 300:
+        return "Görüntülenme yüksek ama etkileşim görece düşük. Görsel, açıklama metni veya paylaşım formatı haftalık iletişim değerlendirmesine alınmalı."
+
+    return "Standart Instagram takibi yeterli. Belirgin risk veya güçlü fırsat sinyali görünmüyor."
+
 def build_platform_social_pulse_html(social, summary_day):
     platform_groups = {}
 
@@ -3425,7 +3481,7 @@ def build_platform_social_pulse_html(social, summary_day):
                 color:#cbd5e1;
                 line-height:1.4;
             ">
-                <b style="color:#f8fafc;">Kısa yorum:</b> {esc(platform_comment)}
+                <b style="color:#f8fafc;">Kısa yorum:</b> {esc(instagram_record_comment(featured_item) if platform == "Instagram" else platform_comment)}
             </div>
 
             {featured_link_html}

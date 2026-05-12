@@ -6202,12 +6202,34 @@ def instagram_action_suggestion(item, mode="normal"):
 
     return "Kayıt izlenmeli. Şu aşamada acil aksiyon gerekmiyor."
 
-    def instagram_detail_card(title, item, color="#7c3aed", bg="#f5f3ff"):
-        topic = clean_topic_title(item.get("topic", ""))
-        content = short_text(item.get("content", "") or item.get("text", ""))
-        risk_value = safe_score_value(item.get("account_adjusted_risk_score", item.get("risk_score", 0)))
-        opportunity_value = safe_score_value(item.get("opportunity_score", 0))
-        
+    def instagram_detail_card(title, item, color, bg):
+    topic = clean_topic_title(
+        item.get("topic", "")
+        or item.get("content", "")
+        or "Instagram kaydı"
+    )
+
+    content = clean_text(
+        item.get("content", "")
+        or item.get("text", "")
+        or item.get("action_note", "")
+    )
+
+    if len(content) > 260:
+        content = content[:260] + "..."
+
+    risk_value = safe_score_value(item.get("risk_score", 0))
+    opportunity_value = safe_score_value(item.get("opportunity_score", 0))
+
+    account = item.get("account", "")
+    date = item.get("date", "")
+    link = item.get("link", "") or item.get("url", "")
+
+    likes = int(safe_score_value(item.get("likes", 0)))
+    comments = int(safe_score_value(item.get("comments", 0)))
+    shares = int(safe_score_value(item.get("shares", 0)))
+    views = int(safe_score_value(item.get("views", 0)))
+
     title_norm = normalize_text(title)
     instagram_action_text = normalize_text(
         f"{item.get('topic', '')} {item.get('content', '')} {item.get('action_note', '')}"
@@ -6229,27 +6251,63 @@ def instagram_action_suggestion(item, mode="normal"):
             action_note = "Kriz/hukuki hassasiyet taşıyan Instagram kaydı olabilir. Basın ve hukuk diliyle kontrollü takip edilmeli."
         else:
             action_note = "Instagram kaydı ekip tarafından izlenmeli. Yorum artışı, paylaşım hızı ve yerel hesaplardan yayılım kontrol edilmeli."
-        
-        return f"""
-        <div class="card" style="border-left:5px solid {color}; background:{bg}; margin:14px 0;">
-            <h3>{esc(title)}</h3>
-            <p><b>Konu:</b> {esc(topic)}</p>
-            <p class="small">{esc(item.get("date", ""))} • {esc(item.get("account", ""))}</p>
-            <p>{esc(content)}</p>
-            <p>
-                <b>Beğeni:</b> {int(safe_score_value(item.get("likes", 0)))} •
-                <b>Yorum:</b> {int(safe_score_value(item.get("comments", 0)))} •
-                <b>Paylaşım:</b> {int(safe_score_value(item.get("shares", 0)))} •
-                <b>Görüntülenme:</b> {int(safe_score_value(item.get("views", 0)))}
-            </p>
-            <p>
-                <b>Risk:</b> {risk_value}/10 •
-                <b>Fırsat:</b> {opportunity_value}/10
-            </p>
-            <p><b>Aksiyon notu:</b> {esc(action_note)}
-            {social_link(item.get("link", "") or item.get("url", ""))}
+
+    return f"""
+    <div class="card" style="
+        border-left:6px solid {color};
+        background:{bg};
+        border:1px solid {color};
+        margin:14px 0;
+    ">
+        <h3>{esc(title)}</h3>
+
+        <p class="small">
+            {esc(date)} • {esc(account)}
+        </p>
+
+        <p>
+            <span style="
+                display:inline-block;
+                background:#ffffff;
+                border:1px solid {color};
+                color:{color};
+                border-radius:999px;
+                padding:6px 10px;
+                font-size:12px;
+                font-weight:900;
+            ">
+                Risk {risk_value}/10 • Fırsat {opportunity_value}/10
+            </span>
+        </p>
+
+        <p><b>{esc(topic)}</b></p>
+
+        <p>{esc(content)}</p>
+
+        <p>
+            <span style="display:inline-block;background:#ffffff;border:1px solid #cbd5e1;border-radius:999px;padding:6px 10px;margin:4px;font-size:12px;font-weight:800;">
+                Beğeni: {likes}
+            </span>
+            <span style="display:inline-block;background:#ffffff;border:1px solid #cbd5e1;border-radius:999px;padding:6px 10px;margin:4px;font-size:12px;font-weight:800;">
+                Yorum: {comments}
+            </span>
+            <span style="display:inline-block;background:#ffffff;border:1px solid #cbd5e1;border-radius:999px;padding:6px 10px;margin:4px;font-size:12px;font-weight:800;">
+                Paylaşım: {shares}
+            </span>
+            <span style="display:inline-block;background:#ffffff;border:1px solid #cbd5e1;border-radius:999px;padding:6px 10px;margin:4px;font-size:12px;font-weight:800;">
+                Görüntülenme: {views}
+            </span>
+        </p>
+
+        <p style="margin:8px 0;">
+            <b>Aksiyon notu:</b> {esc(action_note)}
+        </p>
+
+        <div style="margin-top:10px;">
+            {social_link(link)}
         </div>
-        """
+    </div>
+    """
 
     if len(risky_items) >= 1:
         status_text = "Instagram tarafında takip gerektiren riskli kayıt var."

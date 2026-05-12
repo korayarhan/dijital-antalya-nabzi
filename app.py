@@ -5921,6 +5921,139 @@ def build_instagram_nabzi_html(social):
     {instagram_detail_card("En Güçlü Instagram Fırsatı", top_opportunity_item, "#15803d", "#f0fdf4")}
     """
 
+def build_instagram_anomaly_html(social):
+    instagram_items = [
+        item for item in social
+        if is_instagram_platform(item)
+    ]
+
+    if not instagram_items:
+        return """
+        <div class="card">
+            <b>Instagram olağan dışı hareket:</b> Instagram kaydı bulunamadı.
+            <br><small>Kayıt geldikçe yorum, paylaşım, görüntülenme ve risk yoğunluğu kontrol edilecek.</small>
+        </div>
+        """
+
+    total_records = len(instagram_items)
+
+    total_likes = sum(safe_score_value(item.get("likes", 0)) for item in instagram_items)
+    total_comments = sum(safe_score_value(item.get("comments", 0)) for item in instagram_items)
+    total_shares = sum(safe_score_value(item.get("shares", 0)) for item in instagram_items)
+    total_views = sum(safe_score_value(item.get("views", 0)) for item in instagram_items)
+
+    risky_items = [
+        item for item in instagram_items
+        if safe_score_value(item.get("account_adjusted_risk_score", item.get("risk_score", 0))) >= 6
+    ]
+
+    opportunity_items = [
+        item for item in instagram_items
+        if safe_score_value(item.get("opportunity_score", 0)) >= 5
+    ]
+
+    anomaly_score = 0
+    reasons = []
+
+    if total_records >= 10:
+        anomaly_score += 2
+        reasons.append("Instagram kayıt sayısı normalden yüksek görünüyor.")
+
+    if total_comments >= 100:
+        anomaly_score += 2
+        reasons.append("Yorum sayısında dikkat çeken artış var.")
+
+    if total_shares >= 40:
+        anomaly_score += 2
+        reasons.append("Paylaşım sayısı yayılım ihtimali oluşturuyor.")
+
+    if total_views >= 30000:
+        anomaly_score += 2
+        reasons.append("Görüntülenme seviyesi yüksek.")
+
+    if len(risky_items) >= 2:
+        anomaly_score += 2
+        reasons.append("Riskli Instagram kayıt sayısı takip gerektiriyor.")
+
+    if len(opportunity_items) >= 3 and len(risky_items) == 0:
+        anomaly_score += 1
+        reasons.append("Olumlu fırsat içerikleri birikiyor.")
+
+    anomaly_score = min(10, anomaly_score)
+
+    if anomaly_score >= 7:
+        level = "DİKKAT"
+        color = "#b91c1c"
+        bg = "#fef2f2"
+        action = "Instagram tarafında olağan dışı hareket var. Yorum artışı, paylaşım hızı ve yerel hesaplardan yayılım ekip tarafından aynı gün içinde kontrol edilmeli."
+    elif anomaly_score >= 4:
+        level = "TAKİPTE"
+        color = "#d97706"
+        bg = "#fffbeb"
+        action = "Instagram hareketi normalin üstüne çıkıyor. Gün içinde tekrar kontrol edilmeli; aynı konu farklı hesaplarda tekrar ederse aksiyon açılmalı."
+    elif anomaly_score >= 1:
+        level = "HAFİF HAREKET"
+        color = "#2563eb"
+        bg = "#eff6ff"
+        action = "Küçük hareketlenme var. Şimdilik standart takip yeterli."
+    else:
+        level = "NORMAL"
+        color = "#15803d"
+        bg = "#f0fdf4"
+        action = "Instagram tarafında olağan dışı hareket görünmüyor. Standart takip yeterli."
+
+    reason_html = ""
+    if reasons:
+        for reason in reasons:
+            reason_html += f"<li>{esc(reason)}</li>"
+    else:
+        reason_html = "<li>Belirgin olağan dışı hareket sinyali yok.</li>"
+
+    return f"""
+    <div class="card" style="
+        border-left:6px solid {color};
+        background:{bg};
+    ">
+        <h3>Instagram Olağan Dışı Hareket Kontrolü</h3>
+
+        <p>
+            <span style="
+                display:inline-block;
+                background:#ffffff;
+                border:1px solid {color};
+                color:{color};
+                border-radius:999px;
+                padding:7px 11px;
+                font-size:13px;
+                font-weight:900;
+            ">
+                Seviye: {esc(level)} • Anomali skoru: {anomaly_score}/10
+            </span>
+        </p>
+
+        <div style="
+            display:grid;
+            grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+            gap:10px;
+            margin:14px 0;
+        ">
+            <div class="card"><b>{total_records}</b><br><small>Toplam kayıt</small></div>
+            <div class="card"><b>{len(risky_items)}</b><br><small>Riskli kayıt</small></div>
+            <div class="card"><b>{len(opportunity_items)}</b><br><small>Fırsat kaydı</small></div>
+            <div class="card"><b>{int(total_comments)}</b><br><small>Toplam yorum</small></div>
+            <div class="card"><b>{int(total_shares)}</b><br><small>Toplam paylaşım</small></div>
+            <div class="card"><b>{int(total_views)}</b><br><small>Toplam görüntülenme</small></div>
+        </div>
+
+        <p><b>Neden:</b></p>
+        <ul style="margin-top:6px;">
+            {reason_html}
+        </ul>
+
+        <p><b>İlk aksiyon:</b> {esc(action)}</p>
+    </div>
+    """
+
 def build_data_flow_quality_html(news, social, president_posts, president_replies, youtube_summary, undated_news=None):
     undated_news = undated_news or []
 

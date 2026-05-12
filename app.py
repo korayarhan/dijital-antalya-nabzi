@@ -6208,10 +6208,27 @@ def instagram_action_suggestion(item, mode="normal"):
         risk_value = safe_score_value(item.get("account_adjusted_risk_score", item.get("risk_score", 0)))
         opportunity_value = safe_score_value(item.get("opportunity_score", 0))
         
-        action_note = instagram_action_suggestion(
-            item,
-            "opportunity" if "Fırsat" in title or "fırsat" in title.lower() else "risk"
-        )
+    title_norm = normalize_text(title)
+    instagram_action_text = normalize_text(
+        f"{item.get('topic', '')} {item.get('content', '')} {item.get('action_note', '')}"
+    )
+
+    if "firsat" in title_norm:
+        if any(term in instagram_action_text for term in ["cocuk", "çocuk", "aile", "festival", "etkinlik", "sosyal", "engelsiz"]):
+            action_note = "Bu fırsat çocuk, aile ve sosyal belediyecilik diliyle büyütülmeli. Kısa video, hikâye ve başkan/kurumsal hesap destek paylaşımı hazırlanabilir."
+        elif any(term in instagram_action_text for term in ["park", "bahce", "bahçe", "asfalt", "yol", "temizlik", "mahalle", "hizmet"]):
+            action_note = "Hizmet görünürlüğü fırsatı var. Mahalle adı, önce/sonra görseli ve kısa saha videosuyla desteklenebilir."
+        elif any(term in instagram_action_text for term in ["spor", "genclik", "gençlik", "turnuva", "mac", "maç"]):
+            action_note = "Spor ve gençlik teması üzerinden pozitif görünürlük üretilebilir. Kısa video ve başarı/katılım vurgusu yapılmalı."
+        else:
+            action_note = "Güçlü Instagram fırsatı var. İçerik hikâye, reels veya kurumsal destek paylaşımıyla büyütülebilir."
+    else:
+        if any(term in instagram_action_text for term in ["temizlik", "cop", "çöp", "asfalt", "yol", "park", "mahalle", "şikayet", "sikayet"]):
+            action_note = "Hizmet şikayeti olarak takip edilmeli. İlgili birimden saha bilgisi alınmalı; gerekirse kurumsal cevap hazırlanmalı."
+        elif any(term in instagram_action_text for term in ["dava", "teleferik", "facia", "kaza", "ihmal", "soruşturma", "sorusturma"]):
+            action_note = "Kriz/hukuki hassasiyet taşıyan Instagram kaydı olabilir. Basın ve hukuk diliyle kontrollü takip edilmeli."
+        else:
+            action_note = "Instagram kaydı ekip tarafından izlenmeli. Yorum artışı, paylaşım hızı ve yerel hesaplardan yayılım kontrol edilmeli."
         
         return f"""
         <div class="card" style="border-left:5px solid {color}; background:{bg}; margin:14px 0;">

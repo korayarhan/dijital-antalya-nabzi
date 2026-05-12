@@ -6173,32 +6173,34 @@ def instagram_action_suggestion(item, mode="normal"):
         f"{item.get('topic', '')} {item.get('content', '')} {item.get('action_note', '')}"
     )
 
-    mode_norm = normalize_text(mode)
+    risk_score = safe_score_value(item.get("risk_score", 0))
+    opportunity_score = safe_score_value(item.get("opportunity_score", 0))
 
-    # Riskli kayıtlar için
-    if "risk" in mode_norm:
-        if any(term in text for term in ["temizlik", "cop", "çöp", "asfalt", "yol", "park", "mahalle", "şikayet", "sikayet"]):
-            return "Hizmet şikayeti olarak takip edilmeli. İlgili birimden saha bilgisi alınmalı; kurumsal cevap gerekip gerekmediği kontrol edilmeli."
+    if mode == "opportunity":
+        if any(term in text for term in ["cocuk", "çocuk", "aile", "festival", "etkinlik", "sosyal", "engelsiz"]):
+            return "Bu fırsat çocuk, aile ve sosyal belediyecilik diliyle büyütülmeli. Kısa video, hikâye ve başkan/kurumsal hesap destek paylaşımı hazırlanabilir."
 
-        if any(term in text for term in ["teleferik", "dava", "mahkeme", "kaza", "facia", "soruşturma", "sorusturma"]):
-            return "Hukuki / kriz hassasiyeti var. Basın ve hukuk diliyle kontrollü takip edilmeli; yorum artışı ayrıca izlenmeli."
+        if any(term in text for term in ["park", "bahce", "bahçe", "asfalt", "yol", "temizlik", "mahalle", "hizmet"]):
+            return "Hizmet görünürlüğü fırsatı var. Mahalle adı, önce/sonra görseli ve kısa saha videosuyla desteklenebilir."
 
-        return "Instagram tarafında riskli kayıt var. Yorum artışı, paylaşım hızı ve yerel hesaplardan yayılım ekip tarafından kontrol edilmeli."
+        if any(term in text for term in ["spor", "genclik", "gençlik", "turnuva", "mac", "maç"]):
+            return "Spor ve gençlik teması üzerinden pozitif görünürlük üretilebilir. Kısa video ve başarı/katılım vurgusu yapılmalı."
 
-    # Fırsat kayıtları için
-    if "opportunity" in mode_norm or "firsat" in mode_norm or "fırsat" in mode_norm:
-        if any(term in text for term in ["cocuk", "çocuk", "aile", "sosyal", "etkinlik", "festival", "şenlik", "senlik"]):
-            return "Sosyal belediyecilik fırsatı var. İçerik kısa video, hikâye veya başkan/kurumsal hesap destek paylaşımı için değerlendirilmeli."
+        if opportunity_score >= 6:
+            return "Güçlü Instagram fırsatı var. İçerik hikâye, reels veya kurumsal destek paylaşımıyla büyütülebilir."
 
-        if any(term in text for term in ["asfalt", "yol", "park", "temizlik", "hizmet", "proje", "mahalle"]):
-            return "Hizmet görünürlüğü fırsatı var. Sahadan görsel/video ile desteklenip kısa hizmet kartı veya hikâye formatına çevrilebilir."
+        return "Olumlu Instagram içeriği takip edilmeli. Uygun görülürse kısa paylaşım veya hikâye formatına çevrilebilir."
 
-        if any(term in text for term in ["spor", "genç", "genc", "turnuva", "festival"]):
-            return "Toplum ve gençlik görünürlüğü açısından fırsat var. Kısa video, hikâye ve başkan hesabı destek paylaşımı değerlendirilmeli."
+    if any(term in text for term in ["temizlik", "cop", "çöp", "asfalt", "yol", "park", "mahalle", "şikayet", "sikayet"]):
+        return "Hizmet şikayeti olarak takip edilmeli. İlgili birimden saha bilgisi alınmalı; gerekirse kurumsal cevap hazırlanmalı."
 
-        return "Olumlu Instagram görünürlüğü var. Kurumsal hesap veya başkan hesabı üzerinden destek paylaşımı yapılabilir."
+    if any(term in text for term in ["dava", "teleferik", "facia", "kaza", "ihmal", "soruşturma", "sorusturma"]):
+        return "Kriz/hukuki hassasiyet taşıyan Instagram kaydı olabilir. Basın ve hukuk diliyle kontrollü takip edilmeli."
 
-    return "Ekip tarafından gözle kontrol edilmeli."
+    if risk_score >= 6:
+        return "Instagram tarafında takip gerektiren riskli kayıt var. Yorum artışı, paylaşım hızı ve yerel hesaplardan yayılım kontrol edilmeli."
+
+    return "Kayıt izlenmeli. Şu aşamada acil aksiyon gerekmiyor."
 
     def instagram_detail_card(title, item, color="#7c3aed", bg="#f5f3ff"):
         topic = clean_topic_title(item.get("topic", ""))

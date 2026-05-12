@@ -8416,9 +8416,9 @@ a {{ color:#1f2933; font-weight:800; }}
 /* Detaylı Rapor Akışı açık kart yazı rengi düzeltmesi */
 #detay-rapor-akisi .card,
 #detay-rapor-akisi .item,
-#detay-rapor-akisi .kpi {
+#detay-rapor-akisi .kpi {{
     color:#0f172a !important;
-}
+}}
 
 #detay-rapor-akisi .card *,
 #detay-rapor-akisi .item *,
@@ -8432,24 +8432,24 @@ a {{ color:#1f2933; font-weight:800; }}
 #detay-rapor-akisi h4,
 #detay-rapor-akisi li,
 #detay-rapor-akisi b,
-#detay-rapor-akisi strong {
+#detay-rapor-akisi strong {{
     color:#0f172a !important;
-}
+}}
 
 #detay-rapor-akisi .muted,
-#detay-rapor-akisi .muted * {
+#detay-rapor-akisi .muted * {{
     color:#475569 !important;
-}
+}}
 
-#detay-rapor-akisi a {
+#detay-rapor-akisi a {{
     color:#2563eb !important;
-}
+}}
 
 #detay-rapor-akisi .btn,
 #detay-rapor-akisi .btn *,
-#detay-rapor-akisi a[style*="background"] {
+#detay-rapor-akisi a[style*="background"] {{
     color:white !important;
-}
+}}
 </style>
 </head>
 <body>

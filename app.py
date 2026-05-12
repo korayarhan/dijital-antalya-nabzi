@@ -5767,12 +5767,27 @@ def build_instagram_nabzi_html(social):
         if len(content) > 260:
             content = content[:260] + "..."
 
-        action_note = clean_text(
-            item.get("action_note", "")
-            or item.get("notes", "")
-            or item.get("risk_note", "")
-            or "Ekip tarafından gözle kontrol edilmeli."
+        title_norm = normalize_text(title)
+        action_text = normalize_text(
+            f"{topic} {content} {item.get('action_note', '')} {item.get('notes', '')} {item.get('risk_note', '')}"
         )
+
+        if "firsat" in title_norm or "fırsat" in title_norm:
+            if any(term in action_text for term in ["cocuk", "çocuk", "aile", "festival", "etkinlik", "sosyal", "engelsiz"]):
+                action_note = "Bu fırsat çocuk, aile ve sosyal belediyecilik diliyle büyütülmeli. Kısa video, hikâye ve başkan/kurumsal hesap destek paylaşımı hazırlanabilir."
+            elif any(term in action_text for term in ["park", "bahce", "bahçe", "asfalt", "yol", "temizlik", "mahalle", "hizmet"]):
+                action_note = "Hizmet görünürlüğü fırsatı var. Mahalle adı, önce/sonra görseli ve kısa saha videosuyla desteklenebilir."
+            elif any(term in action_text for term in ["spor", "genclik", "gençlik", "turnuva", "mac", "maç"]):
+                action_note = "Spor ve gençlik teması üzerinden pozitif görünürlük üretilebilir. Kısa video ve başarı/katılım vurgusu yapılmalı."
+            else:
+                action_note = "Güçlü Instagram fırsatı var. İçerik hikâye, reels veya kurumsal destek paylaşımıyla büyütülebilir."
+        else:
+            action_note = clean_text(
+                item.get("action_note", "")
+                or item.get("notes", "")
+                or item.get("risk_note", "")
+                or "Ekip tarafından gözle kontrol edilmeli."
+            )
 
         account = item.get("account", "")
         date = item.get("date", "")

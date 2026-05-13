@@ -385,10 +385,7 @@ def fetch_news():
 
 
 def to_float(x):
-    try:
-        return float(str(x or "0").replace(",", "."))
-    except ValueError:
-        return 0.0
+    return shared_to_float(x)
 
 def read_watch_keywords():
     if not WATCH_KEYWORDS_CSV.exists():
@@ -1618,10 +1615,7 @@ def account_influence_comment(acc_info):
     return "Kaynak takipte. Şimdilik standart izleme yeterli."
 
 def safe_score_value(value, default=0):
-    try:
-        return float(str(value or default).replace(",", ".").strip())
-    except:
-        return default
+    return shared_safe_score_value(value, default)
 
 
 def account_effect_bonus(acc_info):

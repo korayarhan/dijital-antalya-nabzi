@@ -1252,11 +1252,12 @@ def fetch_youtube_social_comments():
         
 def fetch_instagram_social_posts():
     access_token = os.getenv("IG_ACCESS_TOKEN", "").strip()
+    access_token = access_token.replace("Bearer ", "").replace('"', "").replace("'", "").strip()
     ig_user_id = os.getenv("IG_USER_ID", "").strip()
     graph_version = os.getenv("IG_GRAPH_VERSION", "v25.0").strip()
 
-    if not access_token or not ig_user_id:
-        print("Instagram taraması atlandı: IG_ACCESS_TOKEN veya IG_USER_ID yok.")
+    if not access_token:
+        print("Instagram taraması atlandı: IG_ACCESS_TOKEN yok.")
         return
 
     INSTAGRAM_SOCIAL_CSV.parent.mkdir(parents=True, exist_ok=True)
@@ -1267,8 +1268,6 @@ def fetch_instagram_social_posts():
         "media_type",
         "permalink",
         "timestamp",
-        "like_count",
-        "comments_count",
         "username",
     ])
 
@@ -1278,7 +1277,7 @@ def fetch_instagram_social_posts():
         "access_token": access_token,
     })
 
-    url = f"https://graph.facebook.com/{graph_version}/{ig_user_id}/media?{params}"
+    url = f"https://graph.instagram.com/{graph_version}/me/media?{params}"
 
     rows = []
 

@@ -68,3 +68,15 @@ def same_day(value, target_day):
     value = str(value or "").strip()
     target_day = str(target_day or "").strip()
     return value.startswith(target_day) or target_day in value
+    
+    
+def safe_score_value(value, default=0):
+    try:
+        return float(str(value or default).replace(",", ".").strip())
+    except:
+        return default
+
+
+def same_day(value, today):
+    value = str(value or "").strip()
+    return value.startswith(today) or today in value

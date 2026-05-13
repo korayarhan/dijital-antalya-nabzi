@@ -128,22 +128,15 @@ STOPWORDS = {
 
 
 def esc(x):
-    return html.escape(str(x or ""))
+    return shared_esc(x)
 
 
 def clean_text(text):
-    text = html.unescape(str(text or ""))
-    text = re.sub(r"<.*?>", "", text)
-    text = text.replace("\xa0", " ").replace("&nbsp;", " ")
-    text = re.sub(r"\s+", " ", text)
-    return text.strip()
+    return shared_clean_text(text)
 
 
 def normalize_text(text):
-    text = str(text or "").lower().replace("ı", "i")
-    text = re.sub(r"[^a-zA-ZğüşöçıİĞÜŞÖÇ0-9 ]", " ", text)
-    text = re.sub(r"\s+", " ", text)
-    return text.strip()
+    return shared_normalize_text(text)
 
 
 def read_keyword_file(path):

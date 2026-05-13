@@ -1250,6 +1250,121 @@ def fetch_youtube_social_comments():
     except Exception as e:
         print(f"YouTube taraması başarısız: {e}")
         
+        def fetch_instagram_social_posts():
+    access_token = os.getenv("IG_ACCESS_TOKEN", "").strip()
+    ig_user_id = os.getenv("IG_USER_ID", "").strip()
+    graph_version = os.getenv("IG_GRAPH_VERSION", "v25.0").strip()
+
+    if not access_token or not ig_user_id:
+        print("Instagram taraması atlandı: IG_ACCESS_TOKEN veya IG_USER_ID yok.")
+        return
+
+    INSTAGRAM_SOCIAL_CSV.parent.mkdir(parents=True, exist_ok=True)
+
+    fields = ",".join([
+        "id",
+        "caption",
+        "media_type",
+        "permalink",
+        "timestamp",
+        "like_count",
+        "comments_count",
+        "username",
+    ])
+
+    params = urllib.parse.urlencode({
+        "fields": fields,
+        "limit": "12",
+        "access_token": access_token,
+    })
+
+    url = f"https://graph.facebook.com/{graph_version}/{ig_user_id}/media?{params}"
+
+    rows = []
+
+    try:
+        req = urllib.request.Request(
+            url,
+            headers={
+                "User-Agent": "YerelLiderAI/1.0",
+            },
+        )
+
+        with urllib.request.urlopen(req, timeout=30) as response:
+            payload = json.loads(response.read().decode("utf-8"))
+
+        for post in payload.get("data", []):
+            caption = clean_text(post.get("caption", ""))
+            permalink = str(post.get("permalink", "") or "").strip()
+            post_date = str(post.get("timestamp", ""))[:10]
+            username = str(post.get("username", "") or "").strip()
+
+            likes = safe_score_value(post.get("like_count", 0))
+            comments = safe_score_value(post.get("comments_count", 0))
+            engagement = likes + comments
+
+            sentiment, risk_score, opportunity_score, topic, action_note = score_x_post(
+                caption,
+                "Instagram"
+            )
+
+            if engagement >= 100:
+                opportunity_score = max(opportunity_score, 7)
+                sentiment = "positive"
+
+            rows.append({
+                "date": post_date,
+                "platform": "Instagram",
+                "account": username or "Instagram hesabı",
+                "content": caption.replace("\n", " ").strip(),
+                "topic": topic_key(caption) if caption else "Instagram gönderisi",
+                "sentiment": sentiment,
+                "risk_score": risk_score,
+                "opportunity_score": opportunity_score,
+                "likes": likes,
+                "comments": comments,
+                "shares": 0,
+                "views": 0,
+                "url": permalink,
+                "action_note": action_note,
+                "source_type": "Otomatik Instagram",
+            })
+
+        with INSTAGRAM_SOCIAL_CSV.open("w", encoding="utf-8-sig", newline="") as f:
+            fieldnames = [
+                "date",
+                "platform",
+                "account",
+                "content",
+                "topic",
+                "sentiment",
+                "risk_score",
+                "opportunity_score",
+                "likes",
+                "comments",
+                "shares",
+                "views",
+                "url",
+                "action_note",
+                "source_type",
+            ]
+            writer = csv.DictWriter(f, fieldnames=fieldnames)
+            writer.writeheader()
+            writer.writerows(rows)
+
+        print(f"Instagram otomatik tarama tamamlandı. Kayıt sayısı: {len(rows)}")
+
+    except urllib.error.HTTPError as e:
+        detail = ""
+        try:
+            detail = e.read().decode("utf-8")
+        except Exception:
+            pass
+        print(f"Instagram taraması başarısız. HTTP {e.code}: {detail[:500]}")
+
+    except Exception as e:
+        print(f"Instagram taraması başarısız: {e}")
+        
 def fetch_x_social_posts():
     token = os.getenv("X_BEARER_TOKEN", "").strip()
     if not token:
@@ -10372,6 +10487,7 @@ def main():
     print(f"Haber tarama tamamlandı. Raporlanan haber: {len(news)}, Tarihi okunamayan: {len(undated_news)}")
     fetch_x_social_posts()
     fetch_youtube_social_comments()
+    fetch_instagram_social_posts()
     fetch_president_x_posts()
     fetch_president_x_replies()
     social = read_social_data()

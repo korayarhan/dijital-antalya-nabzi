@@ -1250,7 +1250,7 @@ def fetch_youtube_social_comments():
     except Exception as e:
         print(f"YouTube taraması başarısız: {e}")
         
-        def fetch_instagram_social_posts():
+def fetch_instagram_social_posts():
     access_token = os.getenv("IG_ACCESS_TOKEN", "").strip()
     ig_user_id = os.getenv("IG_USER_ID", "").strip()
     graph_version = os.getenv("IG_GRAPH_VERSION", "v25.0").strip()

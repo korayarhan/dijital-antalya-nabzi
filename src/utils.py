@@ -135,3 +135,8 @@ def clean_topic_title(raw_topic):
         cleaned = cleaned.replace(old, new)
 
     return " ".join([w.capitalize() for w in cleaned.split()])
+
+
+def contains_any(text, terms):
+    text = normalize_text(text)
+    return any(normalize_text(term) in text for term in terms)

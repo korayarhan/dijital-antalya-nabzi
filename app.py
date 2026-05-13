@@ -11,7 +11,7 @@ from email.message import EmailMessage
 import json
 import urllib.request
 import urllib.error
-from utils import (
+from src.utils import (
     esc as shared_esc,
     clean_text as shared_clean_text,
     normalize_text as shared_normalize_text,

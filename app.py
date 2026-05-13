@@ -1690,17 +1690,23 @@ def read_accounts_map():
 def account_map_info(platform, account, accounts_map):
     platform = str(platform or "").strip()
     account = str(account or "").strip()
+    account_clean = account.lstrip("@").strip()
 
-    key = normalize_text(f"{platform}:{account}")
+    account_candidates = []
+    for candidate in [account, account_clean]:
+        if candidate and candidate not in account_candidates:
+            account_candidates.append(candidate)
 
-    if key in accounts_map:
-        return accounts_map[key]
+    for candidate in account_candidates:
+        key = normalize_text(f"{platform}:{candidate}")
+        if key in accounts_map:
+            return accounts_map[key]
 
-    account_only_key = normalize_text(f":{account}")
-
-    for saved_key, info in accounts_map.items():
-        if saved_key.endswith(account_only_key):
-            return info
+    for candidate in account_candidates:
+        account_only_key = normalize_text(f":{candidate}")
+        for saved_key, info in accounts_map.items():
+            if saved_key.endswith(account_only_key):
+                return info
 
     return {
         "platform": platform,
@@ -6022,6 +6028,32 @@ def build_instagram_nabzi_html(social):
         account = item.get("account", "")
         date = item.get("date", "")
         link = item.get("link", "") or item.get("url", "")
+        account_type = clean_text(item.get("account_type", ""))
+        account_side = clean_text(item.get("account_side", ""))
+        account_influence = clean_text(item.get("account_influence_level", ""))
+        account_watch = clean_text(item.get("account_watch_level", ""))
+
+        account_meta_parts = []
+
+        if account_type:
+            account_meta_parts.append(f"Hesap tipi: {account_type}")
+
+        if account_side:
+            account_meta_parts.append(f"Taraf: {account_side}")
+
+        if account_influence:
+            account_meta_parts.append(f"Etki: {account_influence}")
+
+        if account_watch:
+            account_meta_parts.append(f"Takip: {account_watch}")
+
+        account_meta = ""
+        if account_meta_parts:
+            account_meta = f"""
+<p style="font-size:13px;color:#475569;font-weight:700;margin:0 0 12px 0;">
+    {esc(" • ".join(account_meta_parts))}
+</p>
+"""
 
         return f"""
         <div style="
@@ -6046,6 +6078,7 @@ def build_instagram_nabzi_html(social):
                     </div>
                     <div style="font-size:12px;font-weight:700;color:#64748b;margin-top:5px;">
                         {esc(date)} • {esc(account)}
+                        {account_meta}
                     </div>
                 </div>
 

@@ -32,6 +32,7 @@ INSTAGRAM_SOCIAL_CSV = ROOT / "data" / "auto_social" / "instagram_social.csv"
 YOUTUBE_WATCH_CSV = ROOT / "data" / "social_watch" / "youtube_watch.csv"
 YOUTUBE_SUMMARY_CSV = ROOT / "data" / "auto_social" / "youtube_summary.csv"
 ACCOUNTS_MAP_CSV = ROOT / "data" / "social_watch" / "accounts_map.csv"
+INSTAGRAM_ACCOUNTS_MAP_CSV = ROOT / "data" / "social_watch" / "instagram_accounts_map.csv"
 PRESIDENT_X_USERNAME = "mesutkocagoztr"
 WATCH_KEYWORDS_CSV = ROOT / "data" / "social_watch" / "watch_keywords.csv"
 CRISIS_CSV = ROOT / "data" / "manual_crisis" / "crisis_status.csv"
@@ -1643,37 +1644,45 @@ def fetch_x_social_posts():
         print(f"X taraması başarısız: {e}")
 
 def read_accounts_map():
-    if not ACCOUNTS_MAP_CSV.exists():
-        return {}
-
     accounts = {}
 
-    try:
-        with ACCOUNTS_MAP_CSV.open("r", encoding="utf-8-sig", newline="") as f:
-            reader = csv.DictReader(f)
+    map_files = [
+        ACCOUNTS_MAP_CSV,
+        INSTAGRAM_ACCOUNTS_MAP_CSV,
+    ]
 
-            for row in reader:
-                platform = str(row.get("platform", "") or "").strip()
-                account = str(row.get("account", "") or "").strip()
+    for map_path in map_files:
+        if not map_path.exists():
+            continue
 
-                if not account:
-                    continue
+        try:
+            with map_path.open("r", encoding="utf-8-sig", newline="") as f:
+                reader = csv.DictReader(f)
 
-                key = normalize_text(f"{platform}:{account}")
+                for row in reader:
+                    platform = str(row.get("platform") or "").strip()
+                    account = str(row.get("account") or "").strip()
 
-                accounts[key] = {
-                    "platform": platform,
-                    "account": account,
-                    "type": str(row.get("type", "") or "").strip(),
-                    "side": str(row.get("side", "") or "").strip(),
-                    "influence_level": str(row.get("influence_level", "") or "").strip(),
-                    "watch_level": str(row.get("watch_level", "") or "").strip(),
-                    "notes": str(row.get("notes", "") or "").strip(),
-                }
+                    if not account:
+                        continue
 
-    except Exception as e:
-        print(f"Hesap haritası okunamadı: {e}")
-        return {}
+                    account_type = str(row.get("type") or row.get("account_type") or "").strip()
+                    account_side = str(row.get("side") or row.get("account_side") or "").strip()
+
+                    key = normalize_text(f"{platform}:{account}")
+
+                    accounts[key] = {
+                        "platform": platform,
+                        "account": account,
+                        "type": account_type,
+                        "side": account_side,
+                        "influence_level": str(row.get("influence_level") or "").strip(),
+                        "watch_level": str(row.get("watch_level") or "").strip(),
+                        "notes": str(row.get("notes") or "").strip(),
+                    }
+
+        except Exception as e:
+            print(f"Hesap haritası okunamadı: {map_path} - {e}")
 
     return accounts
 

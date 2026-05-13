@@ -2664,6 +2664,7 @@ def build_opportunity_summary(news, social, president_posts, summary_day):
     # 1) Haberlerden fırsat yakala
     for item in news:
         item_date = item.get("parsed_date", item.get("date", ""))
+
         if not same_day(item_date, summary_day):
             continue
 
@@ -2674,10 +2675,14 @@ def build_opportunity_summary(news, social, president_posts, summary_day):
 
         if opportunity_score >= 3 or tone == "Olumlu":
             score = opportunity_score
+
             if risk_score <= 3:
                 score += 1
 
-            opp_type, opp_owner, smart_action = opportunity_context(title, "Haber fırsatı")
+            opp_type, opp_owner, smart_action = opportunity_context(
+                title,
+                "Haber fırsatı"
+            )
 
             candidates.append({
                 "score": score,
@@ -2692,10 +2697,10 @@ def build_opportunity_summary(news, social, president_posts, summary_day):
                 "notify": "Mail gerekmez; günlük fırsat olarak takip edilsin.",
             })
 
-        # 2) Sosyal medyadan fırsat yakala
-        for item in social:
-            if not same_day(item.get("date", ""), summary_day):
-               continue
+    # 2) Sosyal medyadan fırsat yakala
+    for item in social:
+        if not same_day(item.get("date", ""), summary_day):
+            continue
 
         topic = clean_text(item.get("topic", "Sosyal medya fırsatı"))
         opportunity_score = safe_score_value(item.get("opportunity_score", 0))
@@ -2708,10 +2713,14 @@ def build_opportunity_summary(news, social, president_posts, summary_day):
 
         if opportunity_score >= 5 or engagement >= 20 or views >= 1000:
             score = opportunity_score + min(3, engagement / 50)
+
             if risk_score >= 6:
                 score -= 2
 
-            opp_type, opp_owner, smart_action = opportunity_context(topic, "Sosyal medya fırsatı")
+            opp_type, opp_owner, smart_action = opportunity_context(
+                topic,
+                "Sosyal medya fırsatı"
+            )
 
             candidates.append({
                 "score": score,
@@ -2739,9 +2748,12 @@ def build_opportunity_summary(news, social, president_posts, summary_day):
 
         if engagement > 0:
             score = min(10, 4 + (engagement / 50))
-            
-            opp_type, opp_owner, smart_action = opportunity_context(f"{topic} {content}", "Başkan X performans fırsatı")
-            
+
+            opp_type, opp_owner, smart_action = opportunity_context(
+                f"{topic} {content}",
+                "Başkan X performans fırsatı"
+            )
+
             candidates.append({
                 "score": score,
                 "source": "Başkan X performans fırsatı",
@@ -2753,8 +2765,7 @@ def build_opportunity_summary(news, social, president_posts, summary_day):
                 "action": smart_action,
                 "format": "Başkan hesabından devam paylaşımı veya kurumsal hesapla destekleme",
                 "notify": "Mail gerekmez; performans fırsatı olarak izlenmeli.",
-
-           })
+            })
 
     if not candidates:
         return {
@@ -2775,7 +2786,12 @@ def build_opportunity_summary(news, social, president_posts, summary_day):
             "notify": "Bildirim gerekmez.",
         }
 
-    best = sorted(candidates, key=lambda x: x.get("score", 0), reverse=True)[0]
+    best = sorted(
+        candidates,
+        key=lambda x: x.get("score", 0),
+        reverse=True
+    )[0]
+
     best_score = safe_score_value(best.get("score", 0))
 
     if best_score >= 8:
@@ -2793,7 +2809,7 @@ def build_opportunity_summary(news, social, president_posts, summary_day):
     best["score"] = round(best_score, 1)
     best.setdefault("type", "Genel PR / görünürlük fırsatı")
     best.setdefault("owner", "Basın birimi")
-    
+
     alert_decision = opportunity_alert_decision(best)
     best.update(alert_decision)
 

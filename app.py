@@ -6117,7 +6117,6 @@ def build_instagram_nabzi_html(social):
             <b>İlk aksiyon:</b> {esc(first_action)}
         </p>
 
-        {anomaly_html}
 
         <div style="
             display:grid;

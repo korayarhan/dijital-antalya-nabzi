@@ -11,6 +11,15 @@ from email.message import EmailMessage
 import json
 import urllib.request
 import urllib.error
+from utils import (
+    esc as shared_esc,
+    clean_text as shared_clean_text,
+    normalize_text as shared_normalize_text,
+    to_float as shared_to_float,
+    safe_score_value as shared_safe_score_value,
+    contains_any as shared_contains_any,
+    same_day as shared_same_day,
+)
 
 ROOT = Path(__file__).resolve().parent
 CONFIG = ROOT / "config" / "keywords.txt"

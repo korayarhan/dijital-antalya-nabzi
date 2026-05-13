@@ -8120,49 +8120,6 @@ def build_news_quality_html(news, undated_news=None, dashboard_day=None):
     </div>
     """
 
-    text_for_action = normalize_text(
-        f"{topic} {content} {item.get('action_note', '')} {item.get('notes', '')} {item.get('risk_note', '')}"
-    )
-
-    title_norm = normalize_text(title)
-
-    if "firsat" in title_norm or "fırsat" in title_norm:
-        if any(term in text_for_action for term in ["cocuk", "çocuk", "aile", "sosyal", "etkinlik", "festival", "senlik", "şenlik"]):
-            action_note = "Sosyal belediyecilik fırsatı var. İçerik kısa video, hikâye veya başkan/kurumsal hesap destek paylaşımı için değerlendirilmeli."
-        elif any(term in text_for_action for term in ["asfalt", "yol", "park", "temizlik", "hizmet", "proje", "mahalle"]):
-            action_note = "Hizmet görünürlüğü fırsatı var. Sahadan görsel/video ile desteklenip kısa hizmet kartı veya hikâye formatına çevrilebilir."
-        elif any(term in text_for_action for term in ["spor", "genc", "genç", "turnuva"]):
-            action_note = "Toplum ve gençlik görünürlüğü açısından fırsat var. Kısa video, hikâye ve başkan hesabı destek paylaşımı değerlendirilmeli."
-        else:
-            action_note = "Olumlu Instagram görünürlüğü var. Kurumsal hesap veya başkan hesabı üzerinden destek paylaşımı yapılabilir."
-    else:
-        action_note = item.get("action_note", "") or item.get("notes", "") or item.get("risk_note", "") or "Ekip tarafından gözle kontrol edilmeli."
-
-    risk_score = safe_score_value(item.get("risk_score", 0))
-    opportunity_score = safe_score_value(item.get("opportunity_score", 0))
-
-    if mode == "risk":
-        if any(term in text for term in ["temizlik", "cop", "çöp", "park", "asfalt", "yol", "mahalle", "şikayet", "sikayet"]):
-            return "Hizmet şikayeti olarak takip edilmeli. Yorum artışı, paylaşım hızı ve aynı şikayetin başka hesaplarda tekrar edip etmediği ekip tarafından kontrol edilmeli. İlgili birimden saha bilgisi alınmalı."
-
-        if any(term in text for term in ["dava", "teleferik", "kriz", "ihmal", "soruşturma", "sorusturma"]):
-            return "Kriz/hukuki hassasiyet olabilir. Basın ve hukuk diliyle kontrollü takip edilmeli; hızlı ve savunmacı açıklama yapılmamalı."
-
-        return "Riskli Instagram kaydı olarak takip edilmeli. Yayılım, yorum tonu ve yerel hesaplardan büyüme ihtimali ekip tarafından kontrol edilmeli."
-
-    if any(term in text for term in ["çocuk", "cocuk", "aile", "festival", "etkinlik", "sosyal", "engelsiz"]):
-        return "Bu içerik sosyal belediyecilik ve insan hikayesi açısından büyütülebilir. Kurumsal hesapta kısa video/görsel kart yapılmalı; uygun görülürse Başkan hesabı da destek paylaşımı yapabilir."
-
-    if any(term in text for term in ["hizmet", "park", "asfalt", "yol", "temizlik", "mahalle", "proje"]):
-        return "Hizmet görünürlüğü fırsatı var. Mahalle adı, önce/sonra görseli ve vatandaş faydası vurgulanarak kısa içerik hazırlanabilir."
-
-    if any(term in text for term in ["spor", "genç", "genc", "turnuva"]):
-        return "Gençlik ve şehir aidiyeti açısından fırsat var. Etkinlik görüntüleri kısa video veya hikaye formatında büyütülebilir."
-
-    if opportunity_score >= 6 and risk_score < 6:
-        return "Olumlu Instagram fırsatı var. Ekip bu içeriği kısa video, hikaye veya görsel kart formatıyla destekleyebilir."
-
-    return "Ekip tarafından gözle kontrol edilmeli. Uygun görülürse kurumsal hesapta destek içerik hazırlanabilir."
 
 def build_social_anomaly_html(social):
     platform_groups = {}

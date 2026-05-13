@@ -2040,6 +2040,22 @@ def read_social_data():
                     "source_type": get_value(row, "source_type", default=default_source_type),
                 }
 
+                # Instagram için eski kayıt filtresi:
+                # CSV'de eski Instagram gönderileri durabilir ama günlük rapora girmesin.
+                if "instagram" in normalize_text(item.get("platform", "")):
+                    instagram_date_text = str(item.get("date", "") or "").strip()[:10]
+
+                    try:
+                        instagram_date = dt.date.fromisoformat(instagram_date_text)
+                    except Exception:
+                        continue
+
+                    today = dt.date.today()
+                    oldest_allowed = today - dt.timedelta(days=7)
+
+                    if not (oldest_allowed <= instagram_date <= today):
+                        continue
+
                 # YouTube için ikinci güvenlik filtresi:
                 # CSV'de eski/alakasız kayıt kalmışsa rapora alma.
                 if csv_path == YOUTUBE_SOCIAL_CSV:

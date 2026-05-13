@@ -1,0 +1,1 @@
+# Yerel Lider AI modül klasörü

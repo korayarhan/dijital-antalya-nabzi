@@ -254,7 +254,7 @@ LOCAL_EXCLUDE_TERMS = [
 ]
 
 def contains_any(text, terms):
-    return any(normalize_text(term) in text for term in terms)
+    return shared_contains_any(text, terms)
 
 
 def is_relevant(title, summary, keyword):
@@ -3067,8 +3067,7 @@ def accordion_section(title, color, bg, content, opened=False, subtitle=""):
     """
 
 def same_day(value, today):
-    value = str(value or "").strip()
-    return value.startswith(today) or today in value
+    return shared_same_day(value, today)
 
 
 def is_x_platform(item):

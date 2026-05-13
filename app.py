@@ -4002,27 +4002,32 @@ def president_dashboard_panel(today, report_time, news, social, president_posts,
     if "yuksek" in risk_norm or "yüksek" in risk_norm:
         crisis_pulse = "president-pulse"
 
-top_risk_news = ""
+    top_risk_news = ""
 
-# Sadece gerçekten riskli haberleri risk başlığına al.
-risky_news = sorted(
-    [
-        x for x in news
-        if safe_score_value(x.get("risk", 0)) >= 4
-        or normalize_text(x.get("tone", "")) == "riskli"
-    ],
-    key=lambda x: safe_score_value(x.get("risk", 0)),
-    reverse=True
-)
+    # Sadece gerçekten riskli haberleri risk başlığına al.
+    risky_news = sorted(
+        [
+            x for x in news
+            if safe_score_value(x.get("risk", 0)) >= 4
+            or normalize_text(x.get("tone", "")) == "riskli"
+        ],
+        key=lambda x: safe_score_value(x.get("risk", 0)),
+        reverse=True
+    )
 
-if risky_news:
-    top_risk_news = risky_news[0].get("title", "")
+    if risky_news:
+        top_risk_news = risky_news[0].get("title", "")
 
     top_opportunity_news = ""
-    opportunity_news = sorted(news, key=lambda x: safe_score_value(x.get("opportunity", 0)), reverse=True)
+    opportunity_news = sorted(
+        news,
+        key=lambda x: safe_score_value(x.get("opportunity", 0)),
+        reverse=True
+    )
+
     if opportunity_news:
         top_opportunity_news = opportunity_news[0].get("title", "")
-        
+
     if today_president_posts:
         president_x_graph_html = f"""
         <div id="baskan-x-performans-grafik" style="

@@ -10266,6 +10266,47 @@ body,
       grid-template-columns: 1fr;
     }}
   }}
+/* Sabah brifingi başlık okunabilirlik güçlendirme */
+.section-label {{
+    color:#d1d5db !important;
+    font-weight:850 !important;
+    letter-spacing:0.11em !important;
+}}
+
+.topbar-title,
+.topbar-time,
+.item-tag,
+.xperf-label,
+.xbar-label,
+.footer-left,
+.footer-link {{
+    color:#b8c0cc !important;
+}}
+
+.item-sub,
+.stat-desc {{
+    color:#aeb4c2 !important;
+}}
+
+.item-title,
+.risk-text,
+.action-text,
+.xperf-total,
+.topbar-name {{
+    color:#f8fafc !important;
+}}
+
+.stat-card {{
+    background:#151922 !important;
+    border-color:#252b38 !important;
+}}
+
+.item,
+.action-box,
+.xperf {{
+    background:#151922 !important;
+    border-color:#252b38 !important;
+}}
 </style>
 </head>
 <body>

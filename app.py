@@ -10007,7 +10007,7 @@ main #haberler ~ * a[style*="background"] {{
 
 {dashboard_html}
 
-<div style="
+<div id="baskan-kriz" style="
     background:linear-gradient(180deg,rgba(255,255,255,0.09),rgba(255,255,255,0.045));
     border:1px solid rgba(255,255,255,0.12);
     border-left:6px solid #f59e0b;
@@ -10020,7 +10020,7 @@ main #haberler ~ * a[style*="background"] {{
         display:flex;
         align-items:flex-start;
         gap:10px;
-        margin-bottom:10px;
+        margin-bottom:12px;
     ">
         <div style="font-size:24px;">🚨</div>
         <div>
@@ -10030,7 +10030,7 @@ main #haberler ~ * a[style*="background"] {{
                 color:#f8fafc;
                 line-height:1.25;
             ">
-                Kriz ve Operasyon
+                Kriz / Alarm
             </div>
             <div style="
                 font-size:13px;
@@ -10039,30 +10039,53 @@ main #haberler ~ * a[style*="background"] {{
                 margin-top:4px;
                 line-height:1.4;
             ">
-                Gerekirse kriz paneli ve ekip operasyon raporu buradan açılır.
+                Gerekirse kriz paneli ve ekip raporu buradan açılır.
             </div>
         </div>
     </div>
 
     <div style="
+        display:flex;
+        justify-content:space-between;
+        gap:10px;
+        align-items:center;
         background:rgba(15,23,42,0.78);
         border:1px solid rgba(245,158,11,0.22);
         border-radius:16px;
         padding:12px;
-        color:#cbd5e1;
-        font-size:13px;
-        font-weight:800;
-        line-height:1.45;
         margin-bottom:12px;
     ">
-        <b style="color:#f8fafc;">Durum:</b>
-        {esc(crisis_plan.get("level", ""))} •
-        {esc(early_warning.get("decision", ""))} •
-        Güncelleme: {report_time}
-        <br>
-        <span style="color:#94a3b8;font-weight:750;">
-            Orta ve düşük riskte bu bölüm sadece hızlı erişim olarak kalır.
-        </span>
+        <div>
+            <div style="
+                font-size:24px;
+                font-weight:950;
+                color:#fbbf24;
+                line-height:1.1;
+            ">
+                {esc(dashboard_early_warning.get("decision", ""))}
+            </div>
+            <div style="
+                font-size:13px;
+                font-weight:800;
+                color:#94a3b8;
+                margin-top:6px;
+                line-height:1.35;
+            ">
+                Risk seviyesi: {esc(dashboard_crisis_plan.get("level", ""))} • Güncelleme: {report_time}
+            </div>
+        </div>
+
+        <div style="
+            border:1px solid rgba(251,191,36,0.35);
+            border-radius:12px;
+            padding:8px 10px;
+            color:#fbbf24;
+            font-size:12px;
+            font-weight:900;
+            white-space:nowrap;
+        ">
+            TAKİPTE
+        </div>
     </div>
 
     <div style="
@@ -10118,6 +10141,7 @@ main #haberler ~ * a[style*="background"] {{
             </div>
         </a>
     </div>
+</div>
 </div>
 
 

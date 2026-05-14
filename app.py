@@ -8814,6 +8814,15 @@ def build_team_report(news, social, early_warning, crisis_plan, crisis_status, r
         dashboard_day,
     )
     instagram_nabzi_html = build_instagram_nabzi_html(social)
+    demo_social_rows = read_demo_social_accounts()
+    demo_social_section = accordion_section(
+        "🧪 Demo Modu / Sosyal Medya Performans Örneği",
+        "#f59e0b",
+        "#fffbeb",
+        demo_social_accounts_html(demo_social_rows),
+        opened=True,
+        subtitle=f"{len(demo_social_rows)} demo hesap • Canlı hesap bağlantısı öncesi örnek performans"
+    )
     social_anomaly_html = build_social_anomaly_html(social)
 
     instagram_items_for_summary = [
@@ -9584,6 +9593,7 @@ th {{
 {news_quality_section}
 {social_anomaly_section}
 {instagram_section}
+{demo_social_section}
 {learning_section}
 <div id="detay-youtube"></div>
 {youtube_section}

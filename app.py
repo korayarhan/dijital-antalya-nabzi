@@ -3608,20 +3608,40 @@ def build_platform_social_pulse_html(social, summary_day):
     if total_count == 0:
         return """
         <div id="platform-sosyal-nabiz" style="
-            background:linear-gradient(180deg,rgba(255,255,255,0.09),rgba(255,255,255,0.045));
-            border:1px solid rgba(255,255,255,0.12);
-            border-left:6px solid #64748b;
-            border-radius:22px;
-            padding:16px;
-            margin:14px 0 16px 0;
-            box-shadow:0 14px 34px rgba(0,0,0,0.28);
+            background:rgba(255,255,255,0.07);
+            border:1px solid rgba(255,255,255,0.10);
+            border-left:5px solid #64748b;
+            border-radius:18px;
+            padding:13px 14px;
+            margin:12px 0 14px 0;
+            box-shadow:0 10px 24px rgba(0,0,0,0.22);
         ">
-            <h2 style="margin-top:0;color:#f8fafc;font-size:20px;font-weight:950;">
-                📱 Platform Bazlı Sosyal Nabız
-            </h2>
-            <p style="font-weight:800;color:#94a3b8;line-height:1.45;">
-                Özet gününde sosyal medya kaydı bulunamadı. Takip havuzu çalışmaya devam ediyor.
-            </p>
+            <div style="
+                display:flex;
+                align-items:center;
+                gap:10px;
+            ">
+                <div style="font-size:22px;">📱</div>
+                <div>
+                    <div style="
+                        font-size:17px;
+                        font-weight:950;
+                        color:#f8fafc;
+                        line-height:1.25;
+                    ">
+                        Sosyal Nabız
+                    </div>
+                    <div style="
+                        font-size:13px;
+                        font-weight:750;
+                        color:#94a3b8;
+                        margin-top:3px;
+                        line-height:1.35;
+                    ">
+                        Bugün kayıt yok • Sistem izliyor
+                    </div>
+                </div>
+            </div>
         </div>
         """
 

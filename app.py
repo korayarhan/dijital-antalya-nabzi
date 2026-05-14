@@ -9819,6 +9819,61 @@ def build_morning_briefing(summary_day, report_time, news, social, president_pos
 <title>Kepez — Sabah Brifingi</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
+
+/* Sabah brifingi font ve okunabilirlik düzeltmesi */
+body,
+.topbar,
+.topbar *,
+.risk-banner,
+.risk-banner *,
+.section-label,
+.stat-card,
+.stat-card *,
+.item,
+.item *,
+.action-box,
+.action-box *,
+.xperf,
+.xperf *,
+.cta-row,
+.cta-row *,
+.footer,
+.footer * {{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif !important;
+}}
+
+.section-label,
+.topbar-title,
+.topbar-time,
+.item-tag,
+.xperf-label,
+.xbar-label,
+.footer-left,
+.footer-link {{
+    color:#aeb4c2 !important;
+    letter-spacing:0.08em !important;
+}}
+
+.item-sub,
+.stat-desc,
+.action-text,
+.xbar-label {{
+    color:#9ca3af !important;
+}}
+
+.item-title,
+.risk-text,
+.action-text strong,
+.xperf-total,
+.cta-btn {{
+    color:#f8fafc !important;
+}}
+
+.cta-btn {{
+    font-weight:800 !important;
+    letter-spacing:0 !important;
+}}
+<style>
   *, *::before, *::after {{ box-sizing: border-box; margin: 0; padding: 0; }}
 
   :root {{
@@ -9836,7 +9891,7 @@ def build_morning_briefing(summary_day, report_time, news, social, president_pos
   html, body {{
     background: var(--bg);
     color: var(--text);
-    font-family: 'Syne', -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
     min-height: 100vh;
     -webkit-font-smoothing: antialiased;
   }}
@@ -9910,7 +9965,7 @@ def build_morning_briefing(summary_day, report_time, news, social, president_pos
     font-size: 10px;
     letter-spacing: 0.15em;
     text-transform: uppercase;
-    color: var(--muted);
+    color: #aeb4c2;
     padding: 22px 24px 10px;
     animation: fadeUp 0.5s 0.2s ease both;
   }}

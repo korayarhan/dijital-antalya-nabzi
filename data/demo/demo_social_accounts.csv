@@ -1,0 +1,5 @@
+date,platform,account,account_type,followers_today,followers_yesterday,delta_followers,delta_percent,total_engagement,best_post_topic,best_post_engagement,weak_post_topic,weak_post_engagement,demo_note
+2026-05-13,Instagram,mesutkocagoztr,Başkan Instagram hesabı,84250,84080,170,0.20,4250,Anneler Günü / aile teması,1850,Meclis bilgilendirmesi,210,Demo veri - gerçek hesap bağlanınca otomatik güncellenecek
+2026-05-13,Instagram,kepezbelediyesi,Kepez Belediyesi kurumsal hesabı,126400,126120,280,0.22,6100,Park ve mahalle hizmeti,2400,Duyuru paylaşımı,320,Demo veri - gerçek hesap bağlanınca otomatik güncellenecek
+2026-05-13,X,mesutkocagoztr,Başkan X hesabı,58300,58240,60,0.10,980,Haftalık hizmet özeti,420,Link paylaşımı,45,Demo veri - X canlı verisiyle karşılaştırılacak
+2026-05-13,X,kepezbelediyesi,Kepez Belediyesi X hesabı,73500,73420,80,0.11,1250,Yol bakım çalışması,510,Rutin duyuru,70,Demo veri - kurumsal hesap performans örneği

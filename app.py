@@ -4625,41 +4625,6 @@ def president_dashboard_panel(today, report_time, news, social, president_posts,
            </div>
        </details>
 
-       <div style="
-           display:grid;
-           grid-template-columns:repeat(auto-fit,minmax(230px,1fr));
-           gap:10px;
-           margin-bottom:12px;
-       ">
-           <div style="
-               background:rgba(15,23,42,0.78);
-               border:1px solid rgba(255,255,255,0.08);
-               border-radius:16px;
-               padding:12px;
-               color:#cbd5e1;
-               font-size:13px;
-               font-weight:800;
-               line-height:1.45;
-            ">
-               <b style="color:#f8fafc;">Neden önemli?</b><br>
-               {esc(opportunity_reason)}
-            </div>
- 
-            <div style="
-                background:rgba(15,23,42,0.78);
-                border:1px solid rgba(255,255,255,0.08);
-                border-radius:16px;
-                padding:12px;
-                color:#cbd5e1;
-                font-size:13px;
-                font-weight:800;
-                line-height:1.45;
-            ">
-                <b style="color:#f8fafc;">Önerilen aksiyon</b><br>
-                {esc(opportunity_action)}
-            </div>
-        </div>
-
         <div style="
             background:rgba(15,23,42,0.78);
             border:1px solid rgba(255,255,255,0.08);
@@ -4670,10 +4635,8 @@ def president_dashboard_panel(today, report_time, news, social, president_posts,
             font-weight:800;
             line-height:1.45;
         ">
-            <div><b style="color:#f8fafc;">Fırsat türü:</b> {esc(opportunity_type)}</div>
-            <div><b style="color:#f8fafc;">Kim hareket etmeli?</b> {esc(opportunity_owner)}</div>
-            <div><b style="color:#f8fafc;">Önerilen format:</b> {esc(opportunity_format)}</div>
-            <div><b style="color:#f8fafc;">Bildirim kararı:</b> {esc(opportunity_notify)}</div>
+            <b style="color:#f8fafc;">Ekip ne yapsın?</b><br>
+            {esc(opportunity_action)}
         </div>
     </div>
     """

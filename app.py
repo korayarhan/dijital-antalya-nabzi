@@ -3885,7 +3885,7 @@ def build_news_pool_summary_html(news):
         border_color = "#64748b"
 
     return f"""
-    <details id="son-7-gun-haber-havuzu" style="
+    <details id="son-7-gun-haber-havuzu" open style="
         background:linear-gradient(180deg,rgba(255,255,255,0.09),rgba(255,255,255,0.045));
         border:1px solid rgba(255,255,255,0.12);
         border-left:6px solid {border_color};

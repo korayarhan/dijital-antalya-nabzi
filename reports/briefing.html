@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kepez — Sabah Brifingi</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0d0f14;
+    --surface: #14171f;
+    --border: #1e222e;
+    --text: #e8eaf0;
+    --muted: #6b7280;
+    --orange: #f97316;
+    --green: #22c55e;
+    --red: #ef4444;
+    --blue: #60a5fa;
+  }
+
+  html, body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 24px 14px;
+    border-bottom: 1px solid var(--border);
+    animation: fadeDown 0.5s ease both;
+  }
+
+  .topbar-left { display: flex; flex-direction: column; gap: 2px; }
+
+  .topbar-title {
+    font-size: 11px;
+    font-family: 'IBM Plex Mono', monospace;
+    letter-spacing: 0.18em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  .topbar-name {
+    font-size: 17px;
+    font-weight: 800;
+    color: var(--text);
+    letter-spacing: -0.01em;
+  }
+
+  .topbar-time {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    text-align: right;
+    line-height: 1.7;
+  }
+
+  .risk-banner {
+    margin: 20px 20px 0;
+    border-radius: 14px;
+    padding: 20px 22px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: rgba(148,163,184,0.10);
+    border: 1.5px solid rgba(148,163,184,0.24);
+    animation: fadeUp 0.5s 0.1s ease both;
+  }
+
+  .risk-icon { font-size: 28px; flex-shrink: 0; }
+
+  .risk-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: #94a3b8;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .risk-text {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.35;
+  }
+
+  .section-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 22px 24px 10px;
+    animation: fadeUp 0.5s 0.2s ease both;
+  }
+
+  .stat-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+    padding: 0 20px;
+    animation: fadeUp 0.5s 0.25s ease both;
+  }
+
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 12px;
+    text-align: center;
+  }
+
+  .stat-num {
+    font-size: 26px;
+    font-weight: 800;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .stat-num.green { color: var(--green); }
+  .stat-num.neutral { color: var(--muted); }
+  .stat-num.red { color: var(--red); }
+
+  .stat-desc {
+    font-size: 10px;
+    color: var(--muted);
+    font-family: 'IBM Plex Mono', monospace;
+    letter-spacing: 0.05em;
+  }
+
+  .items {
+    padding: 0 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    animation: fadeUp 0.5s 0.3s ease both;
+  }
+
+  .item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 15px 16px;
+    display: flex;
+    align-items: flex-start;
+    gap: 13px;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .item.risk-item {
+    border-color: rgba(239,68,68,0.25);
+    background: rgba(239,68,68,0.10);
+  }
+
+  .item.opportunity-item {
+    border-color: rgba(34,197,94,0.22);
+    background: rgba(34,197,94,0.10);
+  }
+
+  .item.neutral-item { border-color: var(--border); }
+
+  .item-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 5px;
+  }
+
+  .item-dot.red { background: var(--red); box-shadow: 0 0 6px var(--red); }
+  .item-dot.green { background: var(--green); box-shadow: 0 0 6px var(--green); }
+  .item-dot.orange { background: var(--orange); box-shadow: 0 0 6px var(--orange); }
+  .item-dot.neutral { background: var(--muted); }
+
+  .item-body { flex: 1; min-width: 0; }
+
+  .item-tag {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }
+
+  .item-tag.red { color: var(--red); }
+  .item-tag.green { color: var(--green); }
+  .item-tag.orange { color: var(--orange); }
+  .item-tag.neutral { color: var(--muted); }
+
+  .item-title {
+    font-size: 13.5px;
+    font-weight: 700;
+    line-height: 1.35;
+    color: var(--text);
+  }
+
+  .item-sub {
+    font-size: 11.5px;
+    color: var(--muted);
+    margin-top: 3px;
+    line-height: 1.4;
+  }
+
+  .item-arrow {
+    color: var(--muted);
+    font-size: 14px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .action-box {
+    margin: 10px 20px 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--blue);
+    border-radius: 12px;
+    padding: 15px 16px;
+    animation: fadeUp 0.5s 0.35s ease both;
+  }
+
+  .action-tag {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--blue);
+    margin-bottom: 6px;
+  }
+
+  .action-text {
+    font-size: 13.5px;
+    line-height: 1.5;
+    color: var(--text);
+    font-weight: 400;
+  }
+
+  .action-text strong {
+    font-weight: 800;
+    color: var(--text);
+  }
+
+  .xperf {
+    margin: 10px 20px 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 15px 16px;
+    animation: fadeUp 0.5s 0.4s ease both;
+  }
+
+  .xperf-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    gap: 12px;
+  }
+
+  .xperf-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .xperf-total {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+    white-space: nowrap;
+  }
+
+  .xperf-bars {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .xbar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .xbar-label {
+    font-size: 10px;
+    font-family: 'IBM Plex Mono', monospace;
+    color: var(--muted);
+    width: 54px;
+    flex-shrink: 0;
+  }
+
+  .xbar-track {
+    flex: 1;
+    height: 5px;
+    background: var(--border);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+
+  .xbar-fill {
+    height: 100%;
+    border-radius: 99px;
+  }
+
+  .xbar-fill.like { background: var(--orange); }
+  .xbar-fill.repost { background: var(--blue); }
+  .xbar-fill.reply { background: var(--green); }
+  .xbar-fill.quote { background: var(--red); }
+
+  .xbar-num {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text);
+    width: 32px;
+    text-align: right;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  .cta-row {
+    display: grid;
+    grid-template-columns: repeat(3,minmax(0,1fr));
+    gap: 10px;
+    padding: 16px 20px 0;
+    animation: fadeUp 0.5s 0.45s ease both;
+  }
+
+  .cta-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    padding: 14px 10px;
+    border-radius: 12px;
+    font-size: 12.5px;
+    font-weight: 800;
+    cursor: pointer;
+    text-decoration: none;
+    text-align: center;
+  }
+
+  .cta-btn.primary { background: #94a3b8; color: #fff; }
+  .cta-btn.secondary { background: var(--surface); color: var(--text); border: 1px solid var(--border); }
+
+  .footer {
+    padding: 24px 24px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    animation: fadeUp 0.5s 0.5s ease both;
+  }
+
+  .footer-left {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  .footer-link {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    text-decoration: none;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 1px;
+  }
+
+  .pulse { animation: pulse 2s ease infinite; }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @media (max-width: 380px) {
+    .cta-row {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="topbar-title">Kepez Belediyesi</div>
+    <div class="topbar-name">Sabah Brifingi</div>
+  </div>
+  <div class="topbar-time">
+    01:15<br>
+    14 Mayıs 2026 · Prş
+  </div>
+</div>
+
+<div class="risk-banner">
+  <div class="risk-icon">⚪</div>
+  <div>
+    <div class="risk-label pulse">Normal Takip</div>
+    <div class="risk-text">Kritik alarm yok. Sistem takipte.</div>
+  </div>
+</div>
+
+<div class="section-label">Özet günü haber nabzı</div>
+<div class="stat-row">
+  <div class="stat-card">
+    <div class="stat-num green">1</div>
+    <div class="stat-desc">Olumlu</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-num neutral">8</div>
+    <div class="stat-desc">Nötr</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-num red">0</div>
+    <div class="stat-desc">Riskli</div>
+  </div>
+</div>
+
+<div class="section-label">Dikkat gerektiren</div>
+<div class="items">
+  
+        <a class="item risk-item" href="crisis_panel.html">
+            <div class="item-dot red"></div>
+            <div class="item-body">
+                <div class="item-tag red">🚨 Risk · Takip</div>
+                <div class="item-title">Kepez’de gençler için dev doğum günü heyecanı - Kepez Belediyesi</div>
+                <div class="item-sub">Haber · Risk 0.0/10 · Takip edilmeli</div>
+            </div>
+            <div class="item-arrow">›</div>
+        </a>
+        
+        <a class="item opportunity-item" href="daily_report.html#baskan-firsat">
+            <div class="item-dot green"></div>
+            <div class="item-body">
+                <div class="item-tag green">⭐ Fırsat · İletişim</div>
+                <div class="item-title">Prof Smail Tufan Hocamizin</div>
+                <div class="item-sub">Skor 5.2/10 · Başkan X performans fırsatı</div>
+            </div>
+            <div class="item-arrow">›</div>
+        </a>
+        
+        <a class="item neutral-item" href="daily_report.html#platform-sosyal-nabiz">
+            <div class="item-dot orange"></div>
+            <div class="item-body">
+                <div class="item-tag orange">📱 Sosyal Nabız</div>
+                <div class="item-title">Sosyal nabız sakin</div>
+                <div class="item-sub">Bugün kayıt yok · Sistem izliyor</div>
+            </div>
+            <div class="item-arrow">›</div>
+        </a>
+        
+        <a class="item neutral-item" href="daily_report.html#detay-baskan-x">
+            <div class="item-dot neutral"></div>
+            <div class="item-body">
+                <div class="item-tag neutral">👤 Başkan X</div>
+                <div class="item-title">3 gönderi · 155 etkileşim</div>
+                <div class="item-sub">Beğeni 134 · Repost 21 · Yanıt 0</div>
+            </div>
+            <div class="item-arrow">›</div>
+        </a>
+        
+</div>
+
+<div class="section-label">Bugün önerilen yön</div>
+<div class="action-box">
+  <div class="action-tag">📋 Ekip İçin İlk Aksiyon</div>
+  <div class="action-text">
+    <strong>1.</strong> Yorum hızı, paylaşım artışı ve yerel basına sıçrama ihtimali izlenmeli. Açıklama taslağı hazır tutulmalı ama hemen yayınlanmamalı.<br><br>
+    <strong>2.</strong> Başkanın sahada dinleyen ve çözüm takip eden profili kısa içerikle desteklenmeli.<br><br>
+    <strong>3.</strong> Cevap vermeden önce dikkat: Gereksiz açıklama yaparak konu büyütülmemeli.
+  </div>
+</div>
+
+<div class="xperf">
+  <div class="xperf-header">
+    <div class="xperf-label">Başkan X · özet günü 3 gönderi</div>
+    <div class="xperf-total">155 etkileşim</div>
+  </div>
+  <div class="xperf-bars">
+    <div class="xbar">
+      <div class="xbar-label">Beğeni</div>
+      <div class="xbar-track"><div class="xbar-fill like" style="width:100%"></div></div>
+      <div class="xbar-num">134</div>
+    </div>
+    <div class="xbar">
+      <div class="xbar-label">Repost</div>
+      <div class="xbar-track"><div class="xbar-fill repost" style="width:15%"></div></div>
+      <div class="xbar-num">21</div>
+    </div>
+    <div class="xbar">
+      <div class="xbar-label">Yanıt</div>
+      <div class="xbar-track"><div class="xbar-fill reply" style="width:0%"></div></div>
+      <div class="xbar-num">0</div>
+    </div>
+    <div class="xbar">
+      <div class="xbar-label">Alıntı</div>
+      <div class="xbar-track"><div class="xbar-fill quote" style="width:0%"></div></div>
+      <div class="xbar-num">0</div>
+    </div>
+  </div>
+</div>
+
+<div class="cta-row">
+  <a class="cta-btn primary" href="crisis_panel.html">🚨 Kriz</a>
+  <a class="cta-btn secondary" href="daily_report.html">📄 Tam Rapor</a>
+  <a class="cta-btn secondary" href="team_report.html">👥 Ekip</a>
+</div>
+
+<div class="footer">
+  <div class="footer-left">
+    Yerel Lider AI<br>
+    Son güncelleme: 01:15
+  </div>
+  <a class="footer-link" href="daily_report.html">Detaylı rapor →</a>
+</div>
+
+</body>
+</html>

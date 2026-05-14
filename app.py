@@ -1684,6 +1684,117 @@ def read_demo_social_accounts():
         print(f"Demo sosyal hesap verisi okunamadı: {e}")
 
     return rows
+    
+def demo_social_accounts_html(rows):
+    if not rows:
+        return ""
+
+    cards_html = ""
+
+    for item in rows:
+        platform = clean_text(item.get("platform", ""))
+        account = clean_text(item.get("account", ""))
+        account_type = clean_text(item.get("account_type", ""))
+        followers_today = item.get("followers_today", 0)
+        followers_yesterday = item.get("followers_yesterday", 0)
+        delta_followers = item.get("delta_followers", 0)
+        delta_percent = item.get("delta_percent", 0)
+        total_engagement = item.get("total_engagement", 0)
+        best_post_topic = clean_text(item.get("best_post_topic", ""))
+        best_post_engagement = item.get("best_post_engagement", 0)
+        weak_post_topic = clean_text(item.get("weak_post_topic", ""))
+        weak_post_engagement = item.get("weak_post_engagement", 0)
+        demo_note = clean_text(item.get("demo_note", ""))
+
+        delta_sign = "+" if float(delta_followers or 0) > 0 else ""
+        delta_color = "#15803d" if float(delta_followers or 0) >= 0 else "#b91c1c"
+
+        cards_html += f"""
+<div style="
+    border:1px solid #dbe3ef;
+    border-radius:18px;
+    padding:16px;
+    background:#ffffff;
+    box-shadow:0 10px 28px rgba(15,23,42,0.06);
+    margin:0 0 14px 0;
+">
+    <div style="font-size:13px;color:#64748b;font-weight:800;margin-bottom:6px;">
+        {esc(platform)} • @{esc(account)}
+    </div>
+
+    <div style="font-size:18px;color:#0f172a;font-weight:900;margin-bottom:10px;">
+        {esc(account_type)}
+    </div>
+
+    <div style="
+        display:grid;
+        grid-template-columns:repeat(2,minmax(0,1fr));
+        gap:10px;
+        margin:12px 0;
+    ">
+        <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;padding:12px;">
+            <div style="font-size:11px;color:#64748b;font-weight:800;">Bugünkü takipçi</div>
+            <div style="font-size:24px;color:#0f172a;font-weight:900;">{esc(str(followers_today))}</div>
+        </div>
+
+        <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;padding:12px;">
+            <div style="font-size:11px;color:#64748b;font-weight:800;">Dünkü takipçi</div>
+            <div style="font-size:24px;color:#0f172a;font-weight:900;">{esc(str(followers_yesterday))}</div>
+        </div>
+
+        <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;padding:12px;">
+            <div style="font-size:11px;color:#64748b;font-weight:800;">Günlük değişim</div>
+            <div style="font-size:24px;color:{delta_color};font-weight:900;">
+                {esc(delta_sign + str(delta_followers))}
+            </div>
+            <div style="font-size:12px;color:#64748b;font-weight:700;">
+                %{esc(str(delta_percent))}
+            </div>
+        </div>
+
+        <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;padding:12px;">
+            <div style="font-size:11px;color:#64748b;font-weight:800;">Toplam etkileşim</div>
+            <div style="font-size:24px;color:#0f172a;font-weight:900;">{esc(str(total_engagement))}</div>
+        </div>
+    </div>
+
+    <p style="font-size:14px;color:#334155;line-height:1.55;margin:10px 0;">
+        <b>En güçlü içerik:</b> {esc(best_post_topic)} • Etkileşim: {esc(str(best_post_engagement))}
+    </p>
+
+    <p style="font-size:14px;color:#334155;line-height:1.55;margin:10px 0;">
+        <b>Zayıf içerik:</b> {esc(weak_post_topic)} • Etkileşim: {esc(str(weak_post_engagement))}
+    </p>
+
+    <p style="font-size:12px;color:#64748b;font-weight:700;margin:12px 0 0 0;">
+        {esc(demo_note)}
+    </p>
+</div>
+"""
+
+    return f"""
+<div style="
+    border:1px solid #f59e0b;
+    background:#fffbeb;
+    border-radius:22px;
+    padding:18px;
+    margin:22px 0;
+">
+    <div style="font-size:13px;color:#92400e;font-weight:900;margin-bottom:6px;">
+        DEMO MODU
+    </div>
+
+    <h2 style="font-size:24px;color:#0f172a;margin:0 0 8px 0;">
+        Sosyal Medya Performans Örneği
+    </h2>
+
+    <p style="font-size:14px;color:#475569;line-height:1.55;margin:0 0 16px 0;">
+        Bu bölüm demo veriyle gösterilmektedir. Başkan ve kurum hesapları bağlandığında aynı alan gerçek takipçi değişimi ve performans verileriyle otomatik güncellenecektir.
+    </p>
+
+    {cards_html}
+</div>
+"""
 
 def read_accounts_map():
     accounts = {}

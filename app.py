@@ -9602,6 +9602,719 @@ th {{
     out = REPORTS / "team_report.html"
     out.write_text(team_doc, encoding="utf-8")
     print(f"Ekip raporu hazır: {out}")
+    
+def build_morning_briefing(summary_day, report_time, news, social, president_posts, crisis_plan, early_warning, opportunity_sum, all_news=None):
+    all_news = all_news or news
+    opportunity_sum = opportunity_sum or {}
+
+    def short(value, limit=92):
+        value = clean_text(value or "")
+        if len(value) > limit:
+            return value[:limit] + "..."
+        return value
+
+    def date_tr(value):
+        months = [
+            "Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran",
+            "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık"
+        ]
+        days = ["Pzt", "Sal", "Çrş", "Prş", "Cum", "Cmt", "Paz"]
+
+        try:
+            d = dt.datetime.strptime(str(value), "%Y-%m-%d").date()
+            return f"{d.day} {months[d.month - 1]} {d.year} · {days[d.weekday()]}"
+        except Exception:
+            return str(value)
+
+    briefing_news = news if news else all_news
+
+    positive_count = len([
+        x for x in briefing_news
+        if normalize_text(x.get("tone", "")) == "olumlu"
+    ])
+
+    risk_count = len([
+        x for x in briefing_news
+        if normalize_text(x.get("tone", "")) == "riskli"
+        or safe_score_value(x.get("risk", 0)) >= 6
+    ])
+
+    neutral_count = max(0, len(briefing_news) - positive_count - risk_count)
+
+    risk_level = str(crisis_plan.get("level", "") or "Normal")
+    risk_norm = normalize_text(risk_level)
+    decision_text = str(early_warning.get("decision", "") or "NORMAL TAKİP")
+
+    opportunity_score = safe_score_value(opportunity_sum.get("score", 0))
+    opportunity_title = str(opportunity_sum.get("title", "") or "Özet gününde belirgin fırsat görünmüyor.")
+    opportunity_title_display = clean_topic_title(opportunity_title)
+
+    risk_topic = short(crisis_plan.get("risk_topic", "") or "Bugün belirgin risk başlığı yok.", 94)
+
+    if "yuksek" in risk_norm or "yüksek" in risk_norm:
+        status_icon = "🔴"
+        status_label = "Yüksek Risk · Acil"
+        status_color = "#ef4444"
+        status_bg = "rgba(239,68,68,0.12)"
+        status_border = "rgba(239,68,68,0.35)"
+        status_text = risk_topic
+    elif "orta" in risk_norm:
+        status_icon = "🟠"
+        status_label = "Orta Risk · Takipte"
+        status_color = "#f97316"
+        status_bg = "rgba(249,115,22,0.12)"
+        status_border = "rgba(249,115,22,0.35)"
+        status_text = risk_topic
+    elif opportunity_score >= 6:
+        status_icon = "🟢"
+        status_label = "Fırsat · Değerlendir"
+        status_color = "#22c55e"
+        status_bg = "rgba(34,197,94,0.10)"
+        status_border = "rgba(34,197,94,0.28)"
+        status_text = short(opportunity_title_display, 94)
+    else:
+        status_icon = "⚪"
+        status_label = "Normal Takip"
+        status_color = "#94a3b8"
+        status_bg = "rgba(148,163,184,0.10)"
+        status_border = "rgba(148,163,184,0.24)"
+        status_text = "Kritik alarm yok. Sistem takipte."
+
+    risky_news = sorted(
+        briefing_news,
+        key=lambda x: safe_score_value(x.get("risk", 0)),
+        reverse=True
+    )
+
+    opportunity_news = sorted(
+        briefing_news,
+        key=lambda x: safe_score_value(x.get("opportunity", 0)),
+        reverse=True
+    )
+
+    top_risk_title = risk_topic
+    top_risk_sub = f"Karar: {decision_text} · Risk seviyesi: {risk_level}"
+
+    if risky_news:
+        top_risk_title = short(risky_news[0].get("title", top_risk_title), 82)
+        top_risk_sub = f"Haber · Risk {safe_score_value(risky_news[0].get('risk', 0))}/10 · Takip edilmeli"
+
+    top_opportunity_title = short(opportunity_title_display, 82)
+    top_opportunity_sub = f"Skor {opportunity_score}/10 · {short(opportunity_sum.get('source', 'Fırsat'), 34)}"
+
+    if opportunity_score <= 0 and opportunity_news:
+        top_opportunity_title = short(opportunity_news[0].get("title", ""), 82)
+        top_opportunity_sub = f"Haber · Fırsat {safe_score_value(opportunity_news[0].get('opportunity', 0))}/10"
+
+    today_president_posts = [
+        item for item in president_posts
+        if same_day(item.get("date", ""), summary_day)
+    ]
+
+    president_engagement = sum(safe_score_value(item.get("engagement", 0)) for item in today_president_posts)
+    president_likes = sum(safe_score_value(item.get("likes", 0)) for item in today_president_posts)
+    president_reposts = sum(safe_score_value(item.get("reposts", 0)) for item in today_president_posts)
+    president_replies = sum(safe_score_value(item.get("replies", 0)) for item in today_president_posts)
+    president_quotes = sum(safe_score_value(item.get("quotes", 0)) for item in today_president_posts)
+
+    max_metric = max(president_likes, president_reposts, president_replies, president_quotes, 1)
+    likes_pct = int((president_likes / max_metric) * 100)
+    reposts_pct = int((president_reposts / max_metric) * 100)
+    replies_pct = int((president_replies / max_metric) * 100)
+    quotes_pct = int((president_quotes / max_metric) * 100)
+
+    social_count = len(social)
+    risky_social_count = len([
+        x for x in social
+        if safe_score_value(x.get("account_adjusted_risk_score", x.get("risk_score", 0))) >= 6
+    ])
+
+    opportunity_social_count = len([
+        x for x in social
+        if safe_score_value(x.get("opportunity_score", 0)) >= 5
+    ])
+
+    social_title = "Sosyal nabız sakin"
+    social_sub = f"{social_count} kayıt · {risky_social_count} riskli · {opportunity_social_count} fırsat"
+
+    if social_count == 0:
+        social_sub = "Bugün kayıt yok · Sistem izliyor"
+
+    action_1 = short(early_warning.get("first_action", "") or crisis_plan.get("first_30", ""), 135)
+    action_2 = short(opportunity_sum.get("action", "") or "Olumlu başlık varsa hizmet diliyle büyütülebilir.", 135)
+    action_3 = short(crisis_plan.get("what_not_to_do", "") or "Kaynağı belirsiz kişisel saldırılara doğrudan cevap verilmemeli.", 135)
+
+    def briefing_item(kind, tag, title, sub, href=""):
+        if kind == "risk":
+            item_class = "risk-item"
+            dot_class = "red"
+            tag_class = "red"
+        elif kind == "opportunity":
+            item_class = "opportunity-item"
+            dot_class = "green"
+            tag_class = "green"
+        elif kind == "orange":
+            item_class = "neutral-item"
+            dot_class = "orange"
+            tag_class = "orange"
+        else:
+            item_class = "neutral-item"
+            dot_class = "neutral"
+            tag_class = "neutral"
+
+        open_tag = f'<a class="item {item_class}" href="{esc(href)}">' if href else f'<div class="item {item_class}">'
+        close_tag = "</a>" if href else "</div>"
+        arrow = '<div class="item-arrow">›</div>' if href else ""
+
+        return f"""
+        {open_tag}
+            <div class="item-dot {dot_class}"></div>
+            <div class="item-body">
+                <div class="item-tag {tag_class}">{esc(tag)}</div>
+                <div class="item-title">{esc(title)}</div>
+                <div class="item-sub">{esc(sub)}</div>
+            </div>
+            {arrow}
+        {close_tag}
+        """
+
+    items_html = ""
+    items_html += briefing_item(
+        "risk",
+        "🚨 Risk · Takip",
+        top_risk_title,
+        top_risk_sub,
+        "crisis_panel.html"
+    )
+
+    items_html += briefing_item(
+        "opportunity",
+        "⭐ Fırsat · İletişim",
+        top_opportunity_title,
+        top_opportunity_sub,
+        "daily_report.html#baskan-firsat"
+    )
+
+    items_html += briefing_item(
+        "orange",
+        "📱 Sosyal Nabız",
+        social_title,
+        social_sub,
+        "daily_report.html#platform-sosyal-nabiz"
+    )
+
+    items_html += briefing_item(
+        "neutral",
+        "👤 Başkan X",
+        f"{len(today_president_posts)} gönderi · {int(president_engagement)} etkileşim",
+        f"Beğeni {int(president_likes)} · Repost {int(president_reposts)} · Yanıt {int(president_replies)}",
+        "daily_report.html#detay-baskan-x"
+    )
+
+    doc = f"""<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kepez — Sabah Brifingi</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after {{ box-sizing: border-box; margin: 0; padding: 0; }}
+
+  :root {{
+    --bg: #0d0f14;
+    --surface: #14171f;
+    --border: #1e222e;
+    --text: #e8eaf0;
+    --muted: #6b7280;
+    --orange: #f97316;
+    --green: #22c55e;
+    --red: #ef4444;
+    --blue: #60a5fa;
+  }}
+
+  html, body {{
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }}
+
+  .topbar {{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 24px 14px;
+    border-bottom: 1px solid var(--border);
+    animation: fadeDown 0.5s ease both;
+  }}
+
+  .topbar-left {{ display: flex; flex-direction: column; gap: 2px; }}
+
+  .topbar-title {{
+    font-size: 11px;
+    font-family: 'IBM Plex Mono', monospace;
+    letter-spacing: 0.18em;
+    color: var(--muted);
+    text-transform: uppercase;
+  }}
+
+  .topbar-name {{
+    font-size: 17px;
+    font-weight: 800;
+    color: var(--text);
+    letter-spacing: -0.01em;
+  }}
+
+  .topbar-time {{
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    text-align: right;
+    line-height: 1.7;
+  }}
+
+  .risk-banner {{
+    margin: 20px 20px 0;
+    border-radius: 14px;
+    padding: 20px 22px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    background: {status_bg};
+    border: 1.5px solid {status_border};
+    animation: fadeUp 0.5s 0.1s ease both;
+  }}
+
+  .risk-icon {{ font-size: 28px; flex-shrink: 0; }}
+
+  .risk-label {{
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: {status_color};
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }}
+
+  .risk-text {{
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.35;
+  }}
+
+  .section-label {{
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    padding: 22px 24px 10px;
+    animation: fadeUp 0.5s 0.2s ease both;
+  }}
+
+  .stat-row {{
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+    padding: 0 20px;
+    animation: fadeUp 0.5s 0.25s ease both;
+  }}
+
+  .stat-card {{
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 14px 12px;
+    text-align: center;
+  }}
+
+  .stat-num {{
+    font-size: 26px;
+    font-weight: 800;
+    line-height: 1;
+    margin-bottom: 4px;
+  }}
+
+  .stat-num.green {{ color: var(--green); }}
+  .stat-num.neutral {{ color: var(--muted); }}
+  .stat-num.red {{ color: var(--red); }}
+
+  .stat-desc {{
+    font-size: 10px;
+    color: var(--muted);
+    font-family: 'IBM Plex Mono', monospace;
+    letter-spacing: 0.05em;
+  }}
+
+  .items {{
+    padding: 0 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    animation: fadeUp 0.5s 0.3s ease both;
+  }}
+
+  .item {{
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 15px 16px;
+    display: flex;
+    align-items: flex-start;
+    gap: 13px;
+    text-decoration: none;
+    color: inherit;
+  }}
+
+  .item.risk-item {{
+    border-color: rgba(239,68,68,0.25);
+    background: rgba(239,68,68,0.10);
+  }}
+
+  .item.opportunity-item {{
+    border-color: rgba(34,197,94,0.22);
+    background: rgba(34,197,94,0.10);
+  }}
+
+  .item.neutral-item {{ border-color: var(--border); }}
+
+  .item-dot {{
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 5px;
+  }}
+
+  .item-dot.red {{ background: var(--red); box-shadow: 0 0 6px var(--red); }}
+  .item-dot.green {{ background: var(--green); box-shadow: 0 0 6px var(--green); }}
+  .item-dot.orange {{ background: var(--orange); box-shadow: 0 0 6px var(--orange); }}
+  .item-dot.neutral {{ background: var(--muted); }}
+
+  .item-body {{ flex: 1; min-width: 0; }}
+
+  .item-tag {{
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+  }}
+
+  .item-tag.red {{ color: var(--red); }}
+  .item-tag.green {{ color: var(--green); }}
+  .item-tag.orange {{ color: var(--orange); }}
+  .item-tag.neutral {{ color: var(--muted); }}
+
+  .item-title {{
+    font-size: 13.5px;
+    font-weight: 700;
+    line-height: 1.35;
+    color: var(--text);
+  }}
+
+  .item-sub {{
+    font-size: 11.5px;
+    color: var(--muted);
+    margin-top: 3px;
+    line-height: 1.4;
+  }}
+
+  .item-arrow {{
+    color: var(--muted);
+    font-size: 14px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }}
+
+  .action-box {{
+    margin: 10px 20px 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--blue);
+    border-radius: 12px;
+    padding: 15px 16px;
+    animation: fadeUp 0.5s 0.35s ease both;
+  }}
+
+  .action-tag {{
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--blue);
+    margin-bottom: 6px;
+  }}
+
+  .action-text {{
+    font-size: 13.5px;
+    line-height: 1.5;
+    color: var(--text);
+    font-weight: 400;
+  }}
+
+  .action-text strong {{
+    font-weight: 800;
+    color: var(--text);
+  }}
+
+  .xperf {{
+    margin: 10px 20px 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 15px 16px;
+    animation: fadeUp 0.5s 0.4s ease both;
+  }}
+
+  .xperf-header {{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    gap: 12px;
+  }}
+
+  .xperf-label {{
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }}
+
+  .xperf-total {{
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+    white-space: nowrap;
+  }}
+
+  .xperf-bars {{
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }}
+
+  .xbar {{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }}
+
+  .xbar-label {{
+    font-size: 10px;
+    font-family: 'IBM Plex Mono', monospace;
+    color: var(--muted);
+    width: 54px;
+    flex-shrink: 0;
+  }}
+
+  .xbar-track {{
+    flex: 1;
+    height: 5px;
+    background: var(--border);
+    border-radius: 99px;
+    overflow: hidden;
+  }}
+
+  .xbar-fill {{
+    height: 100%;
+    border-radius: 99px;
+  }}
+
+  .xbar-fill.like {{ background: var(--orange); }}
+  .xbar-fill.repost {{ background: var(--blue); }}
+  .xbar-fill.reply {{ background: var(--green); }}
+  .xbar-fill.quote {{ background: var(--red); }}
+
+  .xbar-num {{
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text);
+    width: 32px;
+    text-align: right;
+    font-family: 'IBM Plex Mono', monospace;
+  }}
+
+  .cta-row {{
+    display: grid;
+    grid-template-columns: repeat(3,minmax(0,1fr));
+    gap: 10px;
+    padding: 16px 20px 0;
+    animation: fadeUp 0.5s 0.45s ease both;
+  }}
+
+  .cta-btn {{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    padding: 14px 10px;
+    border-radius: 12px;
+    font-size: 12.5px;
+    font-weight: 800;
+    cursor: pointer;
+    text-decoration: none;
+    text-align: center;
+  }}
+
+  .cta-btn.primary {{ background: {status_color}; color: #fff; }}
+  .cta-btn.secondary {{ background: var(--surface); color: var(--text); border: 1px solid var(--border); }}
+
+  .footer {{
+    padding: 24px 24px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    animation: fadeUp 0.5s 0.5s ease both;
+  }}
+
+  .footer-left {{
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    line-height: 1.6;
+  }}
+
+  .footer-link {{
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    text-decoration: none;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 1px;
+  }}
+
+  .pulse {{ animation: pulse 2s ease infinite; }}
+
+  @keyframes pulse {{
+    0%, 100% {{ opacity: 1; }}
+    50% {{ opacity: 0.5; }}
+  }}
+
+  @keyframes fadeDown {{
+    from {{ opacity: 0; transform: translateY(-10px); }}
+    to {{ opacity: 1; transform: translateY(0); }}
+  }}
+
+  @keyframes fadeUp {{
+    from {{ opacity: 0; transform: translateY(12px); }}
+    to {{ opacity: 1; transform: translateY(0); }}
+  }}
+
+  @media (max-width: 380px) {{
+    .cta-row {{
+      grid-template-columns: 1fr;
+    }}
+  }}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="topbar-title">Kepez Belediyesi</div>
+    <div class="topbar-name">Sabah Brifingi</div>
+  </div>
+  <div class="topbar-time">
+    {esc(report_time)}<br>
+    {esc(date_tr(summary_day))}
+  </div>
+</div>
+
+<div class="risk-banner">
+  <div class="risk-icon">{esc(status_icon)}</div>
+  <div>
+    <div class="risk-label pulse">{esc(status_label)}</div>
+    <div class="risk-text">{esc(status_text)}</div>
+  </div>
+</div>
+
+<div class="section-label">Özet günü haber nabzı</div>
+<div class="stat-row">
+  <div class="stat-card">
+    <div class="stat-num green">{positive_count}</div>
+    <div class="stat-desc">Olumlu</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-num neutral">{neutral_count}</div>
+    <div class="stat-desc">Nötr</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-num red">{risk_count}</div>
+    <div class="stat-desc">Riskli</div>
+  </div>
+</div>
+
+<div class="section-label">Dikkat gerektiren</div>
+<div class="items">
+  {items_html}
+</div>
+
+<div class="section-label">Bugün önerilen yön</div>
+<div class="action-box">
+  <div class="action-tag">📋 Ekip İçin İlk Aksiyon</div>
+  <div class="action-text">
+    <strong>1.</strong> {esc(action_1)}<br><br>
+    <strong>2.</strong> {esc(action_2)}<br><br>
+    <strong>3.</strong> Cevap vermeden önce dikkat: {esc(action_3)}
+  </div>
+</div>
+
+<div class="xperf">
+  <div class="xperf-header">
+    <div class="xperf-label">Başkan X · özet günü {len(today_president_posts)} gönderi</div>
+    <div class="xperf-total">{int(president_engagement)} etkileşim</div>
+  </div>
+  <div class="xperf-bars">
+    <div class="xbar">
+      <div class="xbar-label">Beğeni</div>
+      <div class="xbar-track"><div class="xbar-fill like" style="width:{likes_pct}%"></div></div>
+      <div class="xbar-num">{int(president_likes)}</div>
+    </div>
+    <div class="xbar">
+      <div class="xbar-label">Repost</div>
+      <div class="xbar-track"><div class="xbar-fill repost" style="width:{reposts_pct}%"></div></div>
+      <div class="xbar-num">{int(president_reposts)}</div>
+    </div>
+    <div class="xbar">
+      <div class="xbar-label">Yanıt</div>
+      <div class="xbar-track"><div class="xbar-fill reply" style="width:{replies_pct}%"></div></div>
+      <div class="xbar-num">{int(president_replies)}</div>
+    </div>
+    <div class="xbar">
+      <div class="xbar-label">Alıntı</div>
+      <div class="xbar-track"><div class="xbar-fill quote" style="width:{quotes_pct}%"></div></div>
+      <div class="xbar-num">{int(president_quotes)}</div>
+    </div>
+  </div>
+</div>
+
+<div class="cta-row">
+  <a class="cta-btn primary" href="crisis_panel.html">🚨 Kriz</a>
+  <a class="cta-btn secondary" href="daily_report.html">📄 Tam Rapor</a>
+  <a class="cta-btn secondary" href="team_report.html">👥 Ekip</a>
+</div>
+
+<div class="footer">
+  <div class="footer-left">
+    Yerel Lider AI<br>
+    Son güncelleme: {esc(report_time)}
+  </div>
+  <a class="footer-link" href="daily_report.html">Detaylı rapor →</a>
+</div>
+
+</body>
+</html>"""
+
+    out = REPORTS / "briefing.html"
+    out.write_text(doc, encoding="utf-8")
+    print(f"Sabah brifingi hazır: {out}")
+    
 def build_report(news, social, undated_news=None):
     undated_news = undated_news or []
     now_tr = dt.datetime.utcnow() + dt.timedelta(hours=3)
@@ -9773,6 +10486,18 @@ def build_report(news, social, undated_news=None):
     )
     
     dashboard_html = president_dashboard_panel(
+        dashboard_day,
+        report_time,
+        dashboard_news,
+        dashboard_social,
+        president_posts,
+        dashboard_crisis_plan,
+        dashboard_early_warning,
+        opportunity_sum,
+        news,
+    )
+    
+    build_morning_briefing(
         dashboard_day,
         report_time,
         dashboard_news,

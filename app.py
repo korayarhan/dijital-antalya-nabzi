@@ -5114,6 +5114,7 @@ def president_dashboard_panel(today, report_time, news, social, president_posts,
                      {platform_social_pulse_html}
 
                 <details id="baskan-haber" style="
+                    display:none;
     background:linear-gradient(180deg,rgba(255,255,255,0.09),rgba(255,255,255,0.045));
     border:1px solid rgba(255,255,255,0.12);
     border-radius:22px;

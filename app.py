@@ -9993,6 +9993,24 @@ main #haberler ~ * a[style*="background"] {{
 .detail-light-report .btn *,
 .detail-light-report a[style*="background"] {{
     color:#ffffff !important;
+/* Detaylar ve Tam Rapor kapalı kart görünürlük düzeltmesi */
+#detay-rapor-akisi > summary,
+#detay-rapor-akisi > summary * {{
+    color:#f8fafc !important;
+}}
+
+#detay-rapor-akisi > summary div[style*="color:#94a3b8"] {{
+    color:#cbd5e1 !important;
+}}
+
+#detay-rapor-akisi > summary span {{
+    color:#ffffff !important;
+    opacity:1 !important;
+}}
+
+#detay-rapor-akisi > summary {{
+    background:linear-gradient(135deg,#1e293b,#0f172a) !important;
+    border-color:rgba(255,255,255,0.22) !important;
 }}
 </style>
 </head>

@@ -10165,57 +10165,65 @@ main #haberler ~ * a[style*="background"] {{
 
 <details id="detay-rapor-akisi" style="
     margin:18px 0;
-    border-radius:20px;
+    border-radius:24px;
+    opacity:1 !important;
+    filter:none !important;
 ">
     <summary style="
         cursor:pointer;
         list-style:none;
-        background:linear-gradient(135deg,rgba(30,41,59,0.96),rgba(15,23,42,0.98));
-        border:1px solid rgba(255,255,255,0.12);
-        border-left:6px solid #64748b;
-        color:#f8fafc;
-        border-radius:20px;
-        padding:16px;
-        font-size:18px;
+        background:linear-gradient(135deg,#1e293b 0%,#0f172a 100%) !important;
+        border:1px solid rgba(255,255,255,0.24) !important;
+        border-left:6px solid #94a3b8 !important;
+        color:#f8fafc !important;
+        border-radius:24px;
+        padding:18px;
+        font-size:20px;
         font-weight:950;
-        box-shadow:0 14px 34px rgba(0,0,0,0.28);
+        line-height:1.3;
+        box-shadow:0 14px 34px rgba(0,0,0,0.34);
+        opacity:1 !important;
     ">
         <div style="
             display:flex;
-            align-items:center;
             justify-content:space-between;
+            align-items:flex-start;
             gap:12px;
+            color:#f8fafc !important;
+            opacity:1 !important;
         ">
-            <div>
+            <div style="color:#f8fafc !important;opacity:1 !important;">
                 <div style="
+                    color:#f8fafc !important;
                     font-size:20px;
                     font-weight:950;
-                    color:#f8fafc;
-                    line-height:1.25;
+                    line-height:1.3;
+                    opacity:1 !important;
                 ">
                     📂 Detaylar ve Tam Rapor
                 </div>
 
                 <div style="
                     font-size:13px;
-                    font-weight:750;
-                    color:#94a3b8;
-                    margin-top:6px;
-                    line-height:1.35;
+                    font-weight:800;
+                    color:#cbd5e1 !important;
+                    margin-top:8px;
+                    line-height:1.45;
+                    opacity:1 !important;
                 ">
                     Haber listeleri, sosyal medya detayları, kriz aksiyonları ve Başkan X ayrıntıları
                 </div>
             </div>
 
             <div style="
-                background:rgba(255,255,255,0.08);
-                border:1px solid rgba(255,255,255,0.12);
+                background:rgba(255,255,255,0.10);
+                border:1px solid rgba(255,255,255,0.22);
+                color:#f8fafc !important;
                 border-radius:999px;
-                padding:8px 11px;
-                font-size:12px;
-                font-weight:900;
-                color:#cbd5e1;
-                white-space:nowrap;
+                padding:9px 14px;
+                font-size:13px;
+                font-weight:950;
+                opacity:1 !important;
             ">
                 Aç
             </div>
@@ -10225,52 +10233,61 @@ main #haberler ~ * a[style*="background"] {{
             display:flex;
             flex-wrap:wrap;
             gap:8px;
-            margin-top:12px;
+            margin-top:14px;
+            opacity:1 !important;
         ">
             <span style="
-                background:rgba(37,99,235,0.16);
-                border:1px solid rgba(96,165,250,0.26);
-                color:#bfdbfe;
+                display:inline-block;
+                border:1px solid #3b82f6;
+                color:#bfdbfe !important;
+                background:rgba(37,99,235,0.18);
                 border-radius:999px;
-                padding:6px 9px;
+                padding:6px 10px;
                 font-size:12px;
-                font-weight:850;
+                font-weight:900;
+                opacity:1 !important;
             ">
                 Haber: {total_news}
             </span>
 
             <span style="
-                background:rgba(124,58,237,0.16);
-                border:1px solid rgba(167,139,250,0.26);
-                color:#ddd6fe;
+                display:inline-block;
+                border:1px solid #7c3aed;
+                color:#ddd6fe !important;
+                background:rgba(124,58,237,0.18);
                 border-radius:999px;
-                padding:6px 9px;
+                padding:6px 10px;
                 font-size:12px;
-                font-weight:850;
+                font-weight:900;
+                opacity:1 !important;
             ">
                 Sosyal: {len(social)}
             </span>
 
             <span style="
-                background:rgba(239,68,68,0.14);
-                border:1px solid rgba(248,113,113,0.24);
-                color:#fecaca;
+                display:inline-block;
+                border:1px solid #ef4444;
+                color:#fecaca !important;
+                background:rgba(239,68,68,0.16);
                 border-radius:999px;
-                padding:6px 9px;
+                padding:6px 10px;
                 font-size:12px;
-                font-weight:850;
+                font-weight:900;
+                opacity:1 !important;
             ">
                 Riskli haber: {risk_count}
             </span>
 
             <span style="
+                display:inline-block;
+                border:1px solid #22c55e;
+                color:#bbf7d0 !important;
                 background:rgba(34,197,94,0.14);
-                border:1px solid rgba(74,222,128,0.24);
-                color:#bbf7d0;
                 border-radius:999px;
-                padding:6px 9px;
+                padding:6px 10px;
                 font-size:12px;
-                font-weight:850;
+                font-weight:900;
+                opacity:1 !important;
             ">
                 Arşiv / detay
             </span>

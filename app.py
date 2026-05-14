@@ -9873,7 +9873,7 @@ body,
     font-weight:800 !important;
     letter-spacing:0 !important;
 }}
-<style>
+
   *, *::before, *::after {{ box-sizing: border-box; margin: 0; padding: 0; }}
 
   :root {{
@@ -10773,6 +10773,8 @@ main #haberler ~ * a[style*="background"] {{
 .detail-light-report .btn *,
 .detail-light-report a[style*="background"] {{
     color:#ffffff !important;
+}}
+
 /* Detaylar ve Tam Rapor kapalı kart görünürlük düzeltmesi */
 #detay-rapor-akisi > summary,
 #detay-rapor-akisi > summary * {{

@@ -39,6 +39,7 @@ CRISIS_CSV = ROOT / "data" / "manual_crisis" / "crisis_status.csv"
 CRISIS_LOG_CSV = ROOT / "data" / "manual_crisis" / "crisis_log.csv"
 ALERT_LOG_CSV = ROOT / "data" / "alerts" / "alert_log.csv"
 TEAM_ACTIONS_CSV = ROOT / "data" / "team_actions" / "team_actions.csv"
+DEMO_SOCIAL_ACCOUNTS_CSV = ROOT / "data" / "demo" / "demo_social_accounts.csv"
 ARCHIVE_DIR = ROOT / "data" / "archive"
 DAILY_DECISION_LOG_CSV = ARCHIVE_DIR / "daily_decision_log.csv"
 DYNAMIC_KEYWORDS = ROOT / "data" / "dynamic_keywords.txt"
@@ -1642,6 +1643,47 @@ def fetch_x_social_posts():
 
     except Exception as e:
         print(f"X taraması başarısız: {e}")
+
+def read_demo_social_accounts():
+    rows = []
+
+    if not DEMO_SOCIAL_ACCOUNTS_CSV.exists():
+        return rows
+
+    try:
+        with DEMO_SOCIAL_ACCOUNTS_CSV.open("r", encoding="utf-8-sig", newline="") as f:
+            reader = csv.DictReader(f)
+
+            for row in reader:
+                followers_today = to_float(row.get("followers_today", 0))
+                followers_yesterday = to_float(row.get("followers_yesterday", 0))
+                delta_followers = to_float(row.get("delta_followers", 0))
+                delta_percent = to_float(row.get("delta_percent", 0))
+                total_engagement = to_float(row.get("total_engagement", 0))
+                best_post_engagement = to_float(row.get("best_post_engagement", 0))
+                weak_post_engagement = to_float(row.get("weak_post_engagement", 0))
+
+                rows.append({
+                    "date": clean_text(row.get("date", "")),
+                    "platform": clean_text(row.get("platform", "")),
+                    "account": clean_text(row.get("account", "")),
+                    "account_type": clean_text(row.get("account_type", "")),
+                    "followers_today": int(followers_today),
+                    "followers_yesterday": int(followers_yesterday),
+                    "delta_followers": int(delta_followers),
+                    "delta_percent": delta_percent,
+                    "total_engagement": int(total_engagement),
+                    "best_post_topic": clean_text(row.get("best_post_topic", "")),
+                    "best_post_engagement": int(best_post_engagement),
+                    "weak_post_topic": clean_text(row.get("weak_post_topic", "")),
+                    "weak_post_engagement": int(weak_post_engagement),
+                    "demo_note": clean_text(row.get("demo_note", "")),
+                })
+
+    except Exception as e:
+        print(f"Demo sosyal hesap verisi okunamadı: {e}")
+
+    return rows
 
 def read_accounts_map():
     accounts = {}

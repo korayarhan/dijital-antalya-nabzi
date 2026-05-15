@@ -4583,6 +4583,7 @@ def president_dashboard_panel(today, report_time, news, social, president_posts,
     ]:
         opportunity_title_display = clean_topic_title(opportunity_title)
     else:
+        
         opportunity_title_display = clean_text(opportunity_title)
     
     opportunity_source = str(opportunity_sum.get("source", "Genel takip"))
@@ -9684,6 +9685,31 @@ th {{
     out.write_text(team_doc, encoding="utf-8")
     print(f"Ekip raporu hazır: {out}")
     
+def top_nav_html(active=""):
+    items = [
+        ("Ana Ekran", "../index.html", "home"),
+        ("Sabah", "briefing.html", "briefing"),
+        ("Canlı", "live_report.html", "live"),
+        ("Tam Rapor", "daily_report.html", "daily"),
+        ("Kriz", "crisis_panel.html", "crisis"),
+        ("Ekip", "team_report.html", "team"),
+    ]
+
+    buttons = []
+    for label, href, key in items:
+        active_class = " active" if active == key else ""
+        buttons.append(
+            f'<a class="top-nav-btn{active_class}" href="{href}">{label}</a>'
+        )
+
+    return f"""
+<div class="top-nav-wrap">
+    <div class="top-nav-scroll">
+        {''.join(buttons)}
+    </div>
+</div>
+"""
+    
 def build_morning_briefing(summary_day, report_time, news, social, president_posts, crisis_plan, early_warning, opportunity_sum, all_news=None):
     all_news = all_news or news
     opportunity_sum = opportunity_sum or {}
@@ -9904,6 +9930,8 @@ def build_morning_briefing(summary_day, report_time, news, social, president_pos
         f"Beğeni {int(president_likes)} · Repost {int(president_reposts)} · Yanıt {int(president_replies)}",
         "daily_report.html#detay-baskan-x"
     )
+
+    nav_html = top_nav_html("briefing")
 
     doc = f"""<!DOCTYPE html>
 <html lang="tr">
@@ -10401,9 +10429,46 @@ body,
     background:#151922 !important;
     border-color:#252b38 !important;
 }}
+
+.top-nav-wrap {{
+    position: sticky;
+    top: 0;
+    z-index: 999;
+    background: rgba(13,15,20,0.96);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    padding: 10px 14px 8px;
+}}
+
+.top-nav-scroll {{
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}}
+
+.top-nav-btn {{
+    white-space: nowrap;
+    text-decoration: none;
+    color: #d1d5db;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.14);
+    border-radius: 999px;
+    padding: 8px 12px;
+    font-size: 12px;
+    font-weight: 800;
+}}
+
+.top-nav-btn.active {{
+    color: #ffffff;
+    background: rgba(96,165,250,0.24);
+    border-color: rgba(96,165,250,0.55);
+}}
 </style>
 </head>
 <body>
+
+{nav_html}
 
 <div class="topbar">
   <div class="topbar-left">

@@ -11143,10 +11143,12 @@ def build_report(news, social, undated_news=None):
     dashboard_social_sum = social_summary(dashboard_social)
     dashboard_crisis_sum = build_auto_crisis_summary(dashboard_news, dashboard_social_sum)
     dashboard_crisis_plan = crisis_action_plan(dashboard_crisis_sum)
-    dashboard_early_warning = early_warning_decision(
+        dashboard_early_warning = early_warning_decision(
         dashboard_crisis_plan,
         crisis_status,
-        dashboard_crisis_sum
+        dashboard_crisis_sum,
+    )
+
     # Rapor karar dilini tek kaynağa bağlıyoruz.
     # Başkan ekranı, briefing, daily_report, crisis_panel ve ekip raporu
     # aynı özet gününün risk/fırsat kararını kullansın.
@@ -11154,7 +11156,9 @@ def build_report(news, social, undated_news=None):
     crisis_plan = dashboard_crisis_plan
     early_warning = dashboard_early_warning
     social_sum = dashboard_social_sum
+    
     )
+    
     risk_level_raw = normalize_text(str(crisis_plan.get("level", "")))
     risk_alarm_html = ""
 

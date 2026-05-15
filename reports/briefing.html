@@ -494,9 +494,52 @@ body,
     background:#151922 !important;
     border-color:#252b38 !important;
 }
+
+.top-nav-wrap {
+    position: sticky;
+    top: 0;
+    z-index: 999;
+    background: rgba(13,15,20,0.96);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    padding: 10px 14px 8px;
+}
+
+.top-nav-scroll {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.top-nav-btn {
+    white-space: nowrap;
+    text-decoration: none;
+    color: #d1d5db;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.14);
+    border-radius: 999px;
+    padding: 8px 12px;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.top-nav-btn.active {
+    color: #ffffff;
+    background: rgba(96,165,250,0.24);
+    border-color: rgba(96,165,250,0.55);
+}
 </style>
 </head>
 <body>
+
+
+<div class="top-nav-wrap">
+    <div class="top-nav-scroll">
+        <a class="top-nav-btn" href="../index.html">Ana Ekran</a><a class="top-nav-btn active" href="briefing.html">Sabah</a><a class="top-nav-btn" href="live_report.html">Canlı</a><a class="top-nav-btn" href="daily_report.html">Tam Rapor</a><a class="top-nav-btn" href="crisis_panel.html">Kriz</a><a class="top-nav-btn" href="team_report.html">Ekip</a>
+    </div>
+</div>
+
 
 <div class="topbar">
   <div class="topbar-left">
@@ -504,7 +547,7 @@ body,
     <div class="topbar-name">Sabah Brifingi</div>
   </div>
   <div class="topbar-time">
-    16:10<br>
+    16:47<br>
     14 Mayıs 2026 · Prş
   </div>
 </div>
@@ -524,7 +567,7 @@ body,
     <div class="stat-desc">Olumlu</div>
   </div>
   <div class="stat-card">
-    <div class="stat-num neutral">3</div>
+    <div class="stat-num neutral">4</div>
     <div class="stat-desc">Nötr</div>
   </div>
   <div class="stat-card">
@@ -570,8 +613,8 @@ body,
             <div class="item-dot neutral"></div>
             <div class="item-body">
                 <div class="item-tag neutral">👤 Başkan X</div>
-                <div class="item-title">3 gönderi · 192 etkileşim</div>
-                <div class="item-sub">Beğeni 167 · Repost 25 · Yanıt 0</div>
+                <div class="item-title">3 gönderi · 198 etkileşim</div>
+                <div class="item-sub">Beğeni 173 · Repost 25 · Yanıt 0</div>
             </div>
             <div class="item-arrow">›</div>
         </a>
@@ -591,13 +634,13 @@ body,
 <div class="xperf">
   <div class="xperf-header">
     <div class="xperf-label">Başkan X · özet günü 3 gönderi</div>
-    <div class="xperf-total">192 etkileşim</div>
+    <div class="xperf-total">198 etkileşim</div>
   </div>
   <div class="xperf-bars">
     <div class="xbar">
       <div class="xbar-label">Beğeni</div>
       <div class="xbar-track"><div class="xbar-fill like" style="width:100%"></div></div>
-      <div class="xbar-num">167</div>
+      <div class="xbar-num">173</div>
     </div>
     <div class="xbar">
       <div class="xbar-label">Repost</div>
@@ -626,7 +669,7 @@ body,
 <div class="footer">
   <div class="footer-left">
     Yerel Lider AI<br>
-    Son güncelleme: 16:10
+    Son güncelleme: 16:47
   </div>
   <a class="footer-link" href="daily_report.html">Detaylı rapor →</a>
 </div>

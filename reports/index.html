@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Yerel Lider AI - Başkan Giriş Paneli</title>
+<style>
+* {
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+}
+
+body {
+    min-height:100vh;
+    background:
+        radial-gradient(circle at top left, rgba(59,130,246,0.18), transparent 34%),
+        radial-gradient(circle at bottom right, rgba(245,158,11,0.16), transparent 38%),
+        linear-gradient(180deg,#0b1020 0%,#111827 55%,#0f172a 100%);
+    color:#f8fafc;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+}
+
+.wrap {
+    max-width:980px;
+    margin:0 auto;
+    padding:24px 16px 34px;
+}
+
+.hero {
+    border:1px solid rgba(255,255,255,0.12);
+    background:linear-gradient(180deg,rgba(255,255,255,0.10),rgba(255,255,255,0.045));
+    border-radius:28px;
+    padding:22px;
+    box-shadow:0 24px 60px rgba(0,0,0,0.36);
+    margin-bottom:18px;
+}
+
+.brand {
+    font-size:13px;
+    font-weight:900;
+    letter-spacing:0.16em;
+    color:#93c5fd;
+    text-transform:uppercase;
+    margin-bottom:12px;
+}
+
+.title {
+    font-size:34px;
+    line-height:1.05;
+    font-weight:950;
+    letter-spacing:-0.04em;
+    margin-bottom:10px;
+}
+
+.subtitle {
+    font-size:17px;
+    font-weight:850;
+    color:#e5e7eb;
+    line-height:1.4;
+    margin-bottom:16px;
+}
+
+.meta {
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    margin-top:14px;
+}
+
+.pill {
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    border:1px solid rgba(255,255,255,0.13);
+    background:rgba(15,23,42,0.70);
+    color:#cbd5e1;
+    border-radius:999px;
+    padding:8px 11px;
+    font-size:12px;
+    font-weight:850;
+}
+
+.grid {
+    display:grid;
+    grid-template-columns:1fr;
+    gap:12px;
+    margin-top:16px;
+}
+
+.card {
+    display:block;
+    text-decoration:none;
+    color:inherit;
+    border:1px solid rgba(255,255,255,0.12);
+    background:linear-gradient(180deg,rgba(255,255,255,0.09),rgba(255,255,255,0.045));
+    border-radius:22px;
+    padding:18px;
+    box-shadow:0 16px 40px rgba(0,0,0,0.26);
+}
+
+.card-main {
+    display:flex;
+    align-items:flex-start;
+    gap:14px;
+}
+
+.icon {
+    width:46px;
+    height:46px;
+    flex:0 0 auto;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border-radius:16px;
+    font-size:24px;
+    background:rgba(255,255,255,0.10);
+    border:1px solid rgba(255,255,255,0.12);
+}
+
+.card h2 {
+    font-size:19px;
+    line-height:1.25;
+    font-weight:950;
+    margin-bottom:6px;
+}
+
+.card p {
+    font-size:14px;
+    line-height:1.45;
+    color:#cbd5e1;
+    font-weight:750;
+}
+
+.arrow {
+    margin-left:auto;
+    color:#94a3b8;
+    font-size:22px;
+    font-weight:900;
+}
+
+.morning {
+    border-left:6px solid #f59e0b;
+}
+
+.live {
+    border-left:6px solid #22c55e;
+}
+
+.full {
+    border-left:6px solid #3b82f6;
+}
+
+.team {
+    border-left:6px solid #a855f7;
+}
+
+.note {
+    margin-top:16px;
+    border:1px solid rgba(255,255,255,0.10);
+    background:rgba(15,23,42,0.66);
+    border-radius:20px;
+    padding:14px;
+    color:#94a3b8;
+    font-size:13px;
+    font-weight:750;
+    line-height:1.5;
+}
+
+.footer {
+    margin-top:22px;
+    display:flex;
+    justify-content:space-between;
+    gap:12px;
+    color:#64748b;
+    font-size:12px;
+    font-weight:800;
+}
+
+@media (min-width:760px) {
+    .grid {
+        grid-template-columns:repeat(2,minmax(0,1fr));
+    }
+
+    .title {
+        font-size:46px;
+    }
+
+    .hero {
+        padding:28px;
+    }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+    <section class="hero">
+        <div class="brand">Yerel Lider AI</div>
+
+        <h1 class="title">Başkan Giriş Paneli</h1>
+
+        <div class="subtitle">
+            Sayın Başkan Mesut Kocagöz için günlük bilgilendirme, canlı takip, tam rapor ve ekip detaylarına tek ekrandan erişim.
+        </div>
+
+        <div class="meta">
+            <div class="pill">📍 Antalya / Kepez</div>
+            <div class="pill">📅 Özet günü: 14-05-2026</div>
+            <div class="pill">🕒 Güncelleme: 03:14</div>
+        </div>
+    </section>
+
+    <section class="grid">
+
+        <a class="card morning" href="briefing.html">
+            <div class="card-main">
+                <div class="icon">🌅</div>
+                <div>
+                    <h2>Sabah Bilgilendirme Raporu</h2>
+                    <p>Başkanın güne başlarken 1 dakikada okuyacağı sade özet.</p>
+                </div>
+                <div class="arrow">›</div>
+            </div>
+        </a>
+
+        <a class="card live" href="daily_report.html#platform-sosyal-nabiz">
+            <div class="card-main">
+                <div class="icon">📡</div>
+                <div>
+                    <h2>Gerçek Zamanlı Raporlama</h2>
+                    <p>Gün içi sosyal nabız, risk, fırsat ve platform hareketleri.</p>
+                </div>
+                <div class="arrow">›</div>
+            </div>
+        </a>
+
+        <a class="card full" href="daily_report.html">
+            <div class="card-main">
+                <div class="icon">📄</div>
+                <div>
+                    <h2>Tam Başkan Raporu</h2>
+                    <p>Haberler, sosyal medya, kriz, fırsat ve detaylı başkan ekranı.</p>
+                </div>
+                <div class="arrow">›</div>
+            </div>
+        </a>
+
+        <a class="card team" href="team_report.html">
+            <div class="card-main">
+                <div class="icon">👥</div>
+                <div>
+                    <h2>Ekip Detaylı Raporu</h2>
+                    <p>Operasyon, filtre kalite kontrolü, aksiyonlar ve teknik takip.</p>
+                </div>
+                <div class="arrow">›</div>
+            </div>
+        </a>
+
+    </section>
+
+    <div class="note">
+        Bu ekran başkana gidecek ana bağlantı olarak tasarlanmıştır. Sabah brifingi, gün içi takip ve detay raporları tek merkezden açılır.
+    </div>
+
+    <div class="footer">
+        <div>Yerel Lider AI</div>
+        <div>Son güncelleme: 03:14</div>
+    </div>
+
+</div>
+</body>
+</html>

@@ -10411,289 +10411,627 @@ body,
     out.write_text(doc, encoding="utf-8")
     print(f"Sabah brifingi hazır: {out}")
     
-def build_entry_page(summary_day, report_time):
+def build_entry_page(
+    summary_day,
+    report_time,
+    news=None,
+    social=None,
+    president_posts=None,
+    opportunity_summary=None,
+    crisis_plan=None,
+    early_warning=None,
+):
+    news = news or []
+    social = social or []
+    president_posts = president_posts or []
+    opportunity_summary = opportunity_summary or {}
+    crisis_plan = crisis_plan or {}
+    early_warning = early_warning or {}
+
     try:
         display_day = dt.datetime.strptime(str(summary_day), "%Y-%m-%d").strftime("%d-%m-%Y")
     except Exception:
         display_day = str(summary_day)
 
-    doc = f"""<!doctype html>
+    def _num(value, default=0):
+        try:
+            return float(str(value or default).replace(",", ".").strip())
+        except Exception:
+            return default
+
+    news_risk_count = len([
+        item for item in news
+        if normalize_text(item.get("tone", "")) == "riskli"
+        or _num(item.get("risk", 0)) >= 6
+    ])
+
+    social_risk_count = len([
+        item for item in social
+        if _num(item.get("account_adjusted_risk_score", item.get("risk_score", 0))) >= 6
+    ])
+
+    risk_count = news_risk_count + social_risk_count
+
+    news_opportunity_count = len([
+        item for item in news
+        if normalize_text(item.get("tone", "")) == "olumlu"
+        or _num(item.get("opportunity", 0)) >= 4
+    ])
+
+    social_opportunity_count = len([
+        item for item in social
+        if _num(item.get("opportunity_score", 0)) >= 5
+    ])
+
+    opportunity_count = news_opportunity_count + social_opportunity_count
+
+    if _num(opportunity_summary.get("score", 0)) >= 5:
+        opportunity_count = max(opportunity_count, 1)
+
+    engagement_count = sum(_num(item.get("engagement", 0)) for item in president_posts)
+
+    if engagement_count <= 0:
+        engagement_count = sum(
+            _num(item.get("likes", 0)) +
+            _num(item.get("comments", 0)) +
+            _num(item.get("shares", 0))
+            for item in social
+        )
+
+    engagement_count = int(engagement_count)
+
+    risk_level = str(crisis_plan.get("level", "") or "")
+    risk_norm = normalize_text(risk_level)
+    decision_text = str(early_warning.get("decision", "") or "NORMAL TAKİP")
+
+    if "yuksek" in risk_norm or "yüksek" in risk_norm or risk_count >= 3:
+        risk_label = "🔴 Yüksek Risk"
+        risk_color = "#ef4444"
+        risk_bg = "rgba(239,68,68,0.15)"
+        risk_border = "rgba(239,68,68,0.35)"
+    elif "orta" in risk_norm or risk_count >= 1:
+        risk_label = "🟠 Orta Risk"
+        risk_color = "#f97316"
+        risk_bg = "rgba(249,115,22,0.15)"
+        risk_border = "rgba(249,115,22,0.35)"
+    elif opportunity_count >= 1:
+        risk_label = "🟢 Fırsat Var"
+        risk_color = "#10b981"
+        risk_bg = "rgba(16,185,129,0.15)"
+        risk_border = "rgba(16,185,129,0.35)"
+    else:
+        risk_label = "🟢 Normal Takip"
+        risk_color = "#10b981"
+        risk_bg = "rgba(16,185,129,0.15)"
+        risk_border = "rgba(16,185,129,0.35)"
+
+    doc = f"""<!DOCTYPE html>
 <html lang="tr">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Yerel Lider AI - Başkan Giriş Paneli</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Yerel Lider AI — Başkan Portalı</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 * {{
-    box-sizing:border-box;
-    margin:0;
-    padding:0;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}}
+
+:root {{
+  --bg: #06090f;
+  --bg2: #0c1120;
+  --border: rgba(255,255,255,0.08);
+  --border2: rgba(255,255,255,0.14);
+  --text: #e8edf5;
+  --muted: #7b8aa6;
+  --orange: #f97316;
+  --green: #10b981;
+  --purple: #8b5cf6;
+  --blue: #3b82f6;
 }}
 
 body {{
-    min-height:100vh;
-    background:
-        radial-gradient(circle at top left, rgba(59,130,246,0.18), transparent 34%),
-        radial-gradient(circle at bottom right, rgba(245,158,11,0.16), transparent 38%),
-        linear-gradient(180deg,#0b1020 0%,#111827 55%,#0f172a 100%);
-    color:#f8fafc;
-    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
 }}
 
-.wrap {{
-    max-width:980px;
-    margin:0 auto;
-    padding:24px 16px 34px;
+body::before {{
+  content: '';
+  position: fixed;
+  width: 520px;
+  height: 520px;
+  background: radial-gradient(circle, rgba(59,130,246,0.08) 0%, transparent 70%);
+  top: -130px;
+  left: -130px;
+  pointer-events: none;
+}}
+
+body::after {{
+  content: '';
+  position: fixed;
+  width: 440px;
+  height: 440px;
+  background: radial-gradient(circle, rgba(139,92,246,0.07) 0%, transparent 70%);
+  bottom: -130px;
+  right: -130px;
+  pointer-events: none;
+}}
+
+.wrapper {{
+  position: relative;
+  z-index: 1;
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 18px 13px 28px;
+}}
+
+.header {{
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 12px;
+}}
+
+.logo-row {{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}}
+
+.logo-icon {{
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, var(--blue), var(--purple));
+  border-radius: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 17px;
+  box-shadow: 0 10px 30px rgba(59,130,246,0.22);
+}}
+
+.logo-title {{
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}}
+
+.logo-title span {{
+  color: var(--blue);
+}}
+
+.logo-sub {{
+  font-size: 10px;
+  color: var(--muted);
+  margin-top: 1px;
+  line-height: 1.25;
+}}
+
+.clock-block {{
+  text-align: right;
+  flex-shrink: 0;
+}}
+
+.clock-time {{
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 21px;
+  font-weight: 700;
+  line-height: 1;
+}}
+
+.clock-date {{
+  font-size: 10px;
+  color: var(--muted);
+  margin-top: 4px;
 }}
 
 .hero {{
-    border:1px solid rgba(255,255,255,0.12);
-    background:linear-gradient(180deg,rgba(255,255,255,0.10),rgba(255,255,255,0.045));
-    border-radius:28px;
-    padding:22px;
-    box-shadow:0 24px 60px rgba(0,0,0,0.36);
-    margin-bottom:18px;
+  background: linear-gradient(135deg, rgba(59,130,246,0.14), rgba(139,92,246,0.10));
+  border: 1px solid var(--border2);
+  border-radius: 18px;
+  padding: 13px 14px;
+  margin-bottom: 10px;
 }}
 
-.brand {{
-    font-size:13px;
-    font-weight:900;
-    letter-spacing:0.16em;
-    color:#93c5fd;
-    text-transform:uppercase;
-    margin-bottom:12px;
+.hero-kicker {{
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 800;
+  margin-bottom: 4px;
 }}
 
-.title {{
-    font-size:34px;
-    line-height:1.05;
-    font-weight:950;
-    letter-spacing:-0.04em;
-    margin-bottom:10px;
+.hero-title {{
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  margin-bottom: 4px;
 }}
 
-.subtitle {{
-    font-size:17px;
-    font-weight:850;
-    color:#e5e7eb;
-    line-height:1.4;
-    margin-bottom:16px;
+.hero-desc {{
+  font-size: 12px;
+  color: #a7b3c8;
+  line-height: 1.35;
 }}
 
-.meta {{
-    display:flex;
-    flex-wrap:wrap;
-    gap:8px;
-    margin-top:14px;
+.status-pill {{
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg2);
+  border: 1px solid var(--border2);
+  border-radius: 13px;
+  padding: 8px 12px;
+  margin-bottom: 11px;
 }}
 
-.pill {{
-    display:inline-flex;
-    align-items:center;
-    gap:6px;
-    border:1px solid rgba(255,255,255,0.13);
-    background:rgba(15,23,42,0.70);
-    color:#cbd5e1;
-    border-radius:999px;
-    padding:8px 11px;
-    font-size:12px;
-    font-weight:850;
+.pulse-dot {{
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 10px var(--green);
+  animation: glow 2s infinite;
+  flex-shrink: 0;
 }}
 
-.grid {{
-    display:grid;
-    grid-template-columns:1fr;
-    gap:12px;
-    margin-top:16px;
+@keyframes glow {{
+  0%,100% {{ box-shadow: 0 0 6px var(--green); }}
+  50% {{ box-shadow: 0 0 15px var(--green); }}
+}}
+
+.status-text {{
+  font-size: 11.5px;
+  color: var(--muted);
+  flex: 1;
+  min-width: 0;
+}}
+
+.status-text strong {{
+  color: var(--text);
+  font-weight: 700;
+}}
+
+.risk-badge {{
+  font-size: 10px;
+  font-weight: 800;
+  padding: 4px 9px;
+  border-radius: 20px;
+  background: {risk_bg};
+  color: {risk_color};
+  border: 1px solid {risk_border};
+  white-space: nowrap;
+}}
+
+.stats-row {{
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 12px;
+}}
+
+.stat-card {{
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 10px 8px;
+  text-align: center;
+}}
+
+.stat-val {{
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1;
+  margin-bottom: 4px;
+}}
+
+.stat-label {{
+  font-size: 10px;
+  color: var(--muted);
+  font-weight: 600;
+}}
+
+.section-label {{
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 8px;
+  padding-left: 2px;
+}}
+
+.cards {{
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 13px;
 }}
 
 .card {{
-    display:block;
-    text-decoration:none;
-    color:inherit;
-    border:1px solid rgba(255,255,255,0.12);
-    background:linear-gradient(180deg,rgba(255,255,255,0.09),rgba(255,255,255,0.045));
-    border-radius:22px;
-    padding:18px;
-    box-shadow:0 16px 40px rgba(0,0,0,0.26);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 15px;
+  padding: 12px 13px;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
 }}
 
-.card-main {{
-    display:flex;
-    align-items:flex-start;
-    gap:14px;
+.card::before {{
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, var(--card-color-a, transparent) 0%, transparent 62%);
+  opacity: 0.8;
 }}
 
-.icon {{
-    width:46px;
-    height:46px;
-    flex:0 0 auto;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    border-radius:16px;
-    font-size:24px;
-    background:rgba(255,255,255,0.10);
-    border:1px solid rgba(255,255,255,0.12);
+.card:nth-child(1) {{
+  --card-color-a: rgba(249,115,22,0.07);
+  border-color: rgba(249,115,22,0.22);
 }}
 
-.card h2 {{
-    font-size:19px;
-    line-height:1.25;
-    font-weight:950;
-    margin-bottom:6px;
+.card:nth-child(2) {{
+  --card-color-a: rgba(16,185,129,0.07);
+  border-color: rgba(16,185,129,0.22);
 }}
 
-.card p {{
-    font-size:14px;
-    line-height:1.45;
-    color:#cbd5e1;
-    font-weight:750;
+.card:nth-child(3) {{
+  --card-color-a: rgba(59,130,246,0.07);
+  border-color: rgba(59,130,246,0.22);
 }}
 
-.arrow {{
-    margin-left:auto;
-    color:#94a3b8;
-    font-size:22px;
-    font-weight:900;
+.card:nth-child(4) {{
+  --card-color-a: rgba(139,92,246,0.07);
+  border-color: rgba(139,92,246,0.22);
 }}
 
-.morning {{
-    border-left:6px solid #f59e0b;
+.card-icon {{
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 17px;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
 }}
 
-.live {{
-    border-left:6px solid #22c55e;
+.icon-orange {{
+  background: rgba(249,115,22,0.15);
+  border: 1px solid rgba(249,115,22,0.25);
 }}
 
-.full {{
-    border-left:6px solid #3b82f6;
+.icon-green {{
+  background: rgba(16,185,129,0.15);
+  border: 1px solid rgba(16,185,129,0.25);
 }}
 
-.team {{
-    border-left:6px solid #a855f7;
+.icon-blue {{
+  background: rgba(59,130,246,0.15);
+  border: 1px solid rgba(59,130,246,0.25);
 }}
 
-.note {{
-    margin-top:16px;
-    border:1px solid rgba(255,255,255,0.10);
-    background:rgba(15,23,42,0.66);
-    border-radius:20px;
-    padding:14px;
-    color:#94a3b8;
-    font-size:13px;
-    font-weight:750;
-    line-height:1.5;
+.icon-purple {{
+  background: rgba(139,92,246,0.15);
+  border: 1px solid rgba(139,92,246,0.25);
+}}
+
+.card-body {{
+  flex: 1;
+  min-width: 0;
+  position: relative;
+  z-index: 1;
+}}
+
+.card-tag {{
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  margin-bottom: 2px;
+}}
+
+.tag-orange {{ color: var(--orange); }}
+.tag-green {{ color: var(--green); }}
+.tag-blue {{ color: var(--blue); }}
+.tag-purple {{ color: var(--purple); }}
+
+.card-title {{
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 2px;
+}}
+
+.card-desc {{
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.35;
+}}
+
+.card-arrow {{
+  color: var(--muted);
+  font-size: 17px;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
 }}
 
 .footer {{
-    margin-top:22px;
-    display:flex;
-    justify-content:space-between;
-    gap:12px;
-    color:#64748b;
-    font-size:12px;
-    font-weight:800;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding-top: 11px;
+  border-top: 1px solid var(--border);
 }}
 
-@media (min-width:760px) {{
-    .grid {{
-        grid-template-columns:repeat(2,minmax(0,1fr));
-    }}
+.kepez-badge {{
+  font-size: 10px;
+  color: var(--muted);
+  line-height: 1.35;
+}}
 
-    .title {{
-        font-size:46px;
-    }}
+.kepez-badge strong {{
+  color: var(--text);
+  font-weight: 700;
+}}
 
-    .hero {{
-        padding:28px;
-    }}
+.footer-right {{
+  font-size: 10px;
+  color: var(--muted);
+  white-space: nowrap;
+}}
+
+@media (max-width: 380px) {{
+  .hero-title {{
+    font-size: 17px;
+  }}
+
+  .clock-time {{
+    font-size: 19px;
+  }}
+
+  .card-title {{
+    font-size: 13.5px;
+  }}
+
+  .card-desc {{
+    font-size: 10.5px;
+  }}
 }}
 </style>
 </head>
+
 <body>
-<div class="wrap">
+<div class="wrapper">
 
-    <section class="hero">
-        <div class="brand">Yerel Lider AI</div>
-
-        <h1 class="title">Başkan Giriş Paneli</h1>
-
-        <div class="subtitle">
-            Sayın Başkan Mesut Kocagöz için günlük bilgilendirme, canlı takip, tam rapor ve ekip detaylarına tek ekrandan erişim.
-        </div>
-
-        <div class="meta">
-            <div class="pill">📍 Antalya / Kepez</div>
-            <div class="pill">📅 Özet günü: {esc(display_day)}</div>
-            <div class="pill">🕒 Güncelleme: {esc(report_time)}</div>
-        </div>
-    </section>
-
-    <section class="grid">
-
-        <a class="card morning" href="briefing.html">
-            <div class="card-main">
-                <div class="icon">🌅</div>
-                <div>
-                    <h2>Sabah Bilgilendirme Raporu</h2>
-                    <p>Başkanın güne başlarken 1 dakikada okuyacağı sade özet.</p>
-                </div>
-                <div class="arrow">›</div>
-            </div>
-        </a>
-
-        <a class="card live" href="daily_report.html#platform-sosyal-nabiz">
-            <div class="card-main">
-                <div class="icon">📡</div>
-                <div>
-                    <h2>Gerçek Zamanlı Raporlama</h2>
-                    <p>Gün içi sosyal nabız, risk, fırsat ve platform hareketleri.</p>
-                </div>
-                <div class="arrow">›</div>
-            </div>
-        </a>
-
-        <a class="card full" href="daily_report.html">
-            <div class="card-main">
-                <div class="icon">📄</div>
-                <div>
-                    <h2>Tam Başkan Raporu</h2>
-                    <p>Haberler, sosyal medya, kriz, fırsat ve detaylı başkan ekranı.</p>
-                </div>
-                <div class="arrow">›</div>
-            </div>
-        </a>
-
-        <a class="card team" href="team_report.html">
-            <div class="card-main">
-                <div class="icon">👥</div>
-                <div>
-                    <h2>Ekip Detaylı Raporu</h2>
-                    <p>Operasyon, filtre kalite kontrolü, aksiyonlar ve teknik takip.</p>
-                </div>
-                <div class="arrow">›</div>
-            </div>
-        </a>
-
-    </section>
-
-    <div class="note">
-        Bu ekran başkana gidecek ana bağlantı olarak tasarlanmıştır. Sabah brifingi, gün içi takip ve detay raporları tek merkezden açılır.
+  <header class="header">
+    <div class="logo-row">
+      <div class="logo-icon">⚡</div>
+      <div>
+        <div class="logo-title">Yerel Lider <span>AI</span></div>
+        <div class="logo-sub">Kepez Belediyesi · Başkan Portalı</div>
+      </div>
     </div>
 
-    <div class="footer">
-        <div>Yerel Lider AI</div>
-        <div>Son güncelleme: {esc(report_time)}</div>
+    <div class="clock-block">
+      <div class="clock-time">{esc(report_time)}</div>
+      <div class="clock-date">{esc(display_day)}</div>
     </div>
+  </header>
+
+  <section class="hero">
+    <div class="hero-kicker">Başkan Giriş Ekranı</div>
+    <div class="hero-title">Sayın Başkan Mesut Kocagöz</div>
+    <div class="hero-desc">Sabah brifingi, canlı nabız, tam rapor ve ekip operasyon ekranları tek noktada.</div>
+  </section>
+
+  <div class="status-pill">
+    <div class="pulse-dot"></div>
+    <div class="status-text">Sistem aktif · Güncelleme: <strong>{esc(report_time)}</strong></div>
+    <div class="risk-badge">{esc(risk_label)}</div>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-val" style="color:var(--orange)">{risk_count}</div>
+      <div class="stat-label">Risk</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val" style="color:var(--green)">{opportunity_count}</div>
+      <div class="stat-label">Fırsat</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-val" style="color:var(--purple)">{engagement_count}</div>
+      <div class="stat-label">Etkileşim</div>
+    </div>
+  </div>
+
+  <div class="section-label">Raporlar</div>
+
+  <div class="cards">
+
+    <a class="card" href="briefing.html">
+      <div class="card-icon icon-orange">☀️</div>
+      <div class="card-body">
+        <div class="card-tag tag-orange">Günlük Özet</div>
+        <div class="card-title">Sabah Bilgilendirme Raporu</div>
+        <div class="card-desc">Risk, fırsat ve ilk aksiyon önerileri</div>
+      </div>
+      <div class="card-arrow">›</div>
+    </a>
+
+    <a class="card" href="daily_report.html#platform-sosyal-nabiz">
+      <div class="card-icon icon-green">⟳</div>
+      <div class="card-body">
+        <div class="card-tag tag-green">Canlı Nabız</div>
+        <div class="card-title">Gerçek Zamanlı Raporlama</div>
+        <div class="card-desc">Haber, X, Instagram ve sosyal medya takibi</div>
+      </div>
+      <div class="card-arrow">›</div>
+    </a>
+
+    <a class="card" href="daily_report.html">
+      <div class="card-icon icon-blue">📋</div>
+      <div class="card-body">
+        <div class="card-tag tag-blue">Tam Analiz</div>
+        <div class="card-title">Tam Başkan Raporu</div>
+        <div class="card-desc">Haber havuzu, sosyal nabız ve stratejik yorum</div>
+      </div>
+      <div class="card-arrow">›</div>
+    </a>
+
+    <a class="card" href="team_report.html">
+      <div class="card-icon icon-purple">👥</div>
+      <div class="card-body">
+        <div class="card-tag tag-purple">Ekip</div>
+        <div class="card-title">Ekip Detaylı Raporu</div>
+        <div class="card-desc">Alarm takibi, aksiyonlar ve görev kayıtları</div>
+      </div>
+      <div class="card-arrow">›</div>
+    </a>
+
+  </div>
+
+  <div class="footer">
+    <div class="kepez-badge">🏛️ <strong>Kepez Belediyesi</strong> — Yerel Lider AI</div>
+    <div class="footer-right">{esc(decision_text)}</div>
+  </div>
 
 </div>
 </body>
-</html>"""
+</html>
+"""
 
-    out = REPORTS / "index.html"
-    out.write_text(doc, encoding="utf-8")
-    print(f"Başkan giriş paneli hazır: {out}")
+    index_out = REPORTS / "index.html"
+    entry_out = REPORTS / "entry.html"
+
+    index_out.write_text(doc, encoding="utf-8")
+    entry_out.write_text(doc, encoding="utf-8")
+
+    print(f"Başkan giriş paneli hazır: {index_out}")
+    print(f"Başkan giriş paneli kopyası hazır: {entry_out}")
     
 def build_report(news, social, undated_news=None):
     undated_news = undated_news or []
@@ -10892,6 +11230,12 @@ def build_report(news, social, undated_news=None):
     build_entry_page(
         dashboard_day,
         report_time,
+        dashboard_news,
+        dashboard_social,
+        president_posts,
+        opportunity_sum,
+        dashboard_crisis_plan,
+        dashboard_early_warning,
     )
     
     try:

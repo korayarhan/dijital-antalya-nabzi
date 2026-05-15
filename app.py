@@ -9644,8 +9644,11 @@ th {{
     font-size:14px;
 }}
 </style>
+{top_nav_css()}
 </head>
 <body>
+
+{top_nav_html("team")}
 
 <header>
 <h1>Yerel Lider AI - Ekip Operasyon Raporu</h1>
@@ -9685,14 +9688,43 @@ th {{
     out.write_text(team_doc, encoding="utf-8")
     print(f"Ekip raporu hazır: {out}")
     
+
+    
+def top_nav_html(active=""):
+    items = [
+        ("Ana Ekran", "index.html", "home"),
+        ("Sabah", "briefing.html", "briefing"),
+        ("Canlı", "daily_report.html#platform-sosyal-nabiz", "live"),
+        ("Tam Rapor", "daily_report.html", "daily"),
+        ("Ekip", "team_report.html", "team"),
+    ]
+
+    buttons = []
+
+    for label, href, key in items:
+        active_class = " active" if active == key else ""
+        buttons.append(
+            f'<a class="top-nav-btn top-nav-{key}{active_class}" href="{href}">{label}</a>'
+        )
+
+    return f"""
+<div class="top-nav-wrap">
+    <div class="top-nav-scroll">
+        {''.join(buttons)}
+    </div>
+</div>
+"""
+
 def top_nav_css():
     return """
+<style>
 .top-nav-wrap {
     position: sticky;
     top: 0;
     z-index: 999;
     background: rgba(13,15,20,0.96);
     backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
     border-bottom: 1px solid rgba(255,255,255,0.08);
     padding: 10px 14px 8px;
 }
@@ -9702,6 +9734,7 @@ def top_nav_css():
     gap: 8px;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
 }
 
 .top-nav-scroll::-webkit-scrollbar {
@@ -9711,76 +9744,72 @@ def top_nav_css():
 .top-nav-btn {
     white-space: nowrap;
     text-decoration: none;
-    border-radius: 999px;
-    padding: 8px 13px;
-    font-size: 12px;
-    font-weight: 850;
-    letter-spacing: 0.01em;
-    border: 1px solid rgba(255,255,255,0.14);
-    background: rgba(255,255,255,0.08);
     color: #d1d5db;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.14);
+    border-radius: 999px;
+    padding: 8px 12px;
+    font-size: 12px;
+    font-weight: 800;
 }
 
-.top-nav-btn.nav-home {
-    background: rgba(59,130,246,0.12);
-    border-color: rgba(59,130,246,0.42);
-    color: #bfdbfe;
+.top-nav-home {
+    background: rgba(59,130,246,0.15);
+    border-color: rgba(59,130,246,0.35);
 }
 
-.top-nav-btn.nav-briefing {
-    background: rgba(249,115,22,0.13);
-    border-color: rgba(249,115,22,0.42);
-    color: #fed7aa;
+.top-nav-briefing {
+    background: rgba(249,115,22,0.15);
+    border-color: rgba(249,115,22,0.35);
 }
 
-.top-nav-btn.nav-live {
-    background: rgba(16,185,129,0.13);
-    border-color: rgba(16,185,129,0.42);
-    color: #bbf7d0;
+.top-nav-live {
+    background: rgba(16,185,129,0.15);
+    border-color: rgba(16,185,129,0.35);
 }
 
-.top-nav-btn.nav-daily {
-    background: rgba(59,130,246,0.13);
-    border-color: rgba(59,130,246,0.42);
-    color: #bfdbfe;
+.top-nav-daily {
+    background: rgba(59,130,246,0.15);
+    border-color: rgba(59,130,246,0.35);
 }
 
-.top-nav-btn.nav-team {
-    background: rgba(139,92,246,0.14);
-    border-color: rgba(139,92,246,0.46);
-    color: #ddd6fe;
+.top-nav-team {
+    background: rgba(139,92,246,0.15);
+    border-color: rgba(139,92,246,0.35);
 }
 
 .top-nav-btn.active {
     color: #ffffff;
-    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.25), 0 0 14px rgba(255,255,255,0.10);
+    box-shadow:
+        inset 0 0 0 1px rgba(255,255,255,0.20),
+        0 0 18px rgba(255,255,255,0.06);
 }
-"""
-    
-def top_nav_html(active=""):
-    items = [
-        ("Ana Ekran", "index.html", "home", "nav-home"),
-        ("Sabah", "briefing.html", "briefing", "nav-briefing"),
-        ("Canlı", "daily_report.html#platform-sosyal-nabiz", "live", "nav-live"),
-        ("Tam Rapor", "daily_report.html", "daily", "nav-daily"),
-        ("Ekip", "team_report.html", "team", "nav-team"),
-    ]
 
-    buttons = []
+.top-nav-home.active {
+    background: rgba(59,130,246,0.26);
+    border-color: rgba(59,130,246,0.70);
+}
 
-    for label, href, key, color_class in items:
-        active_class = " active" if active == key else ""
+.top-nav-briefing.active {
+    background: rgba(249,115,22,0.26);
+    border-color: rgba(249,115,22,0.70);
+}
 
-        buttons.append(
-            f'<a class="top-nav-btn {color_class}{active_class}" href="{href}">{label}</a>'
-        )
+.top-nav-live.active {
+    background: rgba(16,185,129,0.26);
+    border-color: rgba(16,185,129,0.70);
+}
 
-    return f"""
-<div class="top-nav-wrap">
-    <div class="top-nav-scroll">
-        {''.join(buttons)}
-    </div>
-</div>
+.top-nav-daily.active {
+    background: rgba(59,130,246,0.26);
+    border-color: rgba(59,130,246,0.70);
+}
+
+.top-nav-team.active {
+    background: rgba(139,92,246,0.26);
+    border-color: rgba(139,92,246,0.70);
+}
+</style>
 """
     
 def build_morning_briefing(summary_day, report_time, news, social, president_posts, crisis_plan, early_warning, opportunity_sum, all_news=None):
@@ -11795,8 +11824,11 @@ main #haberler ~ * a[style*="background"] {{
     border-color:rgba(255,255,255,0.22) !important;
 }}
 </style>
+{top_nav_css()}
 </head>
 <body>
+
+{top_nav_html("daily")}
 
 <header>
     <h1>Kepez — {header_display_day} — {header_status}</h1>
@@ -12459,9 +12491,12 @@ main #haberler ~ * a[style*="background"] {{
       color:#64748b;
       font-size:14px;
     }}
-  </style>
+ </style>
+{top_nav_css()}
 </head>
 <body>
+  {top_nav_html("")}
+
   <div class="wrap">
 
     <a class="btn" href="daily_report.html">← Günlük rapora dön</a>

@@ -4570,17 +4570,6 @@ def president_dashboard_panel(today, report_time, news, social, president_posts,
 
     opportunity_level = str(opportunity_sum.get("level", "Fırsat yok"))
     opportunity_title = str(opportunity_sum.get("title", "Özet gününde belirgin fırsat görünmüyor."))
-    opportunity_title_display = opportunity_title
-    
-    if "_" in opportunity_title or normalize_text(opportunity_title) in [
-        "cocuk aile",
-        "mali disiplin",
-        "hizmet asfalt",
-        "spor etkinlik",
-        "teleferik davasi",
-        "buyuksehir ulasim",
-        "bayrak personel",
-    ]:
     opportunity_title_norm = normalize_text(opportunity_title)
 
     if "_" in opportunity_title or opportunity_title_norm in [
@@ -4595,6 +4584,7 @@ def president_dashboard_panel(today, report_time, news, social, president_posts,
         opportunity_title_display = clean_topic_title(opportunity_title)
     else:
         opportunity_title_display = clean_text(opportunity_title)
+    
     opportunity_source = str(opportunity_sum.get("source", "Genel takip"))
     opportunity_type = str(opportunity_sum.get("type", "Genel PR / görünürlük fırsatı"))
     opportunity_owner = str(opportunity_sum.get("owner", "Basın birimi"))

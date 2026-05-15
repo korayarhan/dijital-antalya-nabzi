@@ -11157,8 +11157,6 @@ def build_report(news, social, undated_news=None):
     early_warning = dashboard_early_warning
     social_sum = dashboard_social_sum
     
-    )
-    
     risk_level_raw = normalize_text(str(crisis_plan.get("level", "")))
     risk_alarm_html = ""
 

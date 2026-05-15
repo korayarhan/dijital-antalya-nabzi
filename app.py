@@ -2475,7 +2475,7 @@ def early_warning_decision(crisis_plan, crisis_status, social_sum):
             "first_action": "İlk 30 dakika içinde basın, hukuk ve ilgili birim aynı bilgi notunda hizalanmalı. Sayın Başkan’a kısa, sakin ve yönlendirici bir özet sunulmalı."
         }
 
-    if "orta" in level_text or social_risk_score >= 4 or "müdahale" in status_text:
+    if "orta" in level_text or social_risk_score >= 4:
         return {
             "decision": "TAKİPTE KAL / HAZIR BEKLE",
             "notify_level": "Ekip içi takip: Basın + ilgili birim",

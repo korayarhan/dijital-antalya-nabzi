@@ -2985,6 +2985,49 @@ def opportunity_alert_decision(opportunity):
         "alarm_reason": "Günlük raporda görünmesi yeterli. Şimdilik ayrıca bildirim gerekmez.",
     }
 
+def make_opportunity_display_title(raw_title, source="", opp_type=""):
+    text = clean_text(raw_title)
+    combined = normalize_text(f"{raw_title} {source} {opp_type}")
+
+    if (
+        "baskan x" in combined
+        or "başkan x" in combined
+        or "performans" in combined
+    ):
+        if any(term in combined for term in [
+            "tesekkur", "teşekkür", "hocamiz", "hocamız",
+            "sag ol", "sağ ol", "destek", "kutlarim", "kutlarım"
+        ]):
+            return "Başkan X olumlu etkileşim fırsatı"
+
+        if any(term in combined for term in [
+            "cocuk", "çocuk", "aile", "sosyal", "yasli", "yaşlı",
+            "kadin", "kadın", "genç", "genc"
+        ]):
+            return "Başkan X sosyal belediyecilik fırsatı"
+
+        if any(term in combined for term in [
+            "hizmet", "proje", "mahalle", "asfalt", "yol",
+            "park", "temizlik", "acilis", "açılış"
+        ]):
+            return "Başkan X hizmet görünürlüğü fırsatı"
+
+        return "Başkan X performans fırsatı"
+
+    if "sosyal belediyecilik" in normalize_text(opp_type):
+        return "Sosyal belediyecilik fırsatı"
+
+    if "hizmet" in normalize_text(opp_type):
+        return "Hizmet görünürlüğü fırsatı"
+
+    if "kurumsal basari" in normalize_text(opp_type) or "kurumsal başarı" in normalize_text(opp_type):
+        return "Kurumsal başarı fırsatı"
+
+    if text:
+        return text[:90]
+
+    return "Günlük iletişim fırsatı"
+
 def build_opportunity_summary(news, social, president_posts, summary_day):
     candidates = []
 
@@ -3087,7 +3130,12 @@ def build_opportunity_summary(news, social, president_posts, summary_day):
                 "type": opp_type,
                 "owner": opp_owner,
                 "risk_score": 0,
-                "title": topic or content[:90],
+                "title": make_opportunity_display_title(
+                    content or topic,
+                    "Başkan X performans fırsatı",
+                    opp_type
+                ),
+                "raw_title": content[:160],
                 "reason": f"Başkan X gönderisi etkileşim aldı. Beğeni: {int(likes)}, repost: {int(reposts)}, toplam etkileşim: {int(engagement)}.",
                 "action": smart_action,
                 "format": "Başkan hesabından devam paylaşımı veya kurumsal hesapla destekleme",
@@ -4532,7 +4580,20 @@ def president_dashboard_panel(today, report_time, news, social, president_posts,
         "buyuksehir ulasim",
         "bayrak personel",
     ]:
+    opportunity_title_norm = normalize_text(opportunity_title)
+
+    if "_" in opportunity_title or opportunity_title_norm in [
+        "cocuk aile",
+        "mali disiplin",
+        "hizmet asfalt",
+        "spor etkinlik",
+        "teleferik davasi",
+        "buyuksehir ulasim",
+        "bayrak personel",
+    ]:
         opportunity_title_display = clean_topic_title(opportunity_title)
+    else:
+        opportunity_title_display = clean_text(opportunity_title)
     opportunity_source = str(opportunity_sum.get("source", "Genel takip"))
     opportunity_type = str(opportunity_sum.get("type", "Genel PR / görünürlük fırsatı"))
     opportunity_owner = str(opportunity_sum.get("owner", "Basın birimi"))
@@ -9676,7 +9737,20 @@ def build_morning_briefing(summary_day, report_time, news, social, president_pos
 
     opportunity_score = safe_score_value(opportunity_sum.get("score", 0))
     opportunity_title = str(opportunity_sum.get("title", "") or "Özet gününde belirgin fırsat görünmüyor.")
-    opportunity_title_display = clean_topic_title(opportunity_title)
+    opportunity_title_norm = normalize_text(opportunity_title)
+
+    if "_" in opportunity_title or opportunity_title_norm in [
+        "cocuk aile",
+        "mali disiplin",
+        "hizmet asfalt",
+        "spor etkinlik",
+        "teleferik davasi",
+        "buyuksehir ulasim",
+        "bayrak personel",
+    ]:
+        opportunity_title_display = clean_topic_title(opportunity_title)
+    else:
+        opportunity_title_display = clean_text(opportunity_title)
 
     risk_topic = short(crisis_plan.get("risk_topic", "") or "Bugün belirgin risk başlığı yok.", 94)
 

@@ -9685,20 +9685,94 @@ th {{
     out.write_text(team_doc, encoding="utf-8")
     print(f"Ekip raporu hazır: {out}")
     
+def top_nav_css():
+    return """
+.top-nav-wrap {
+    position: sticky;
+    top: 0;
+    z-index: 999;
+    background: rgba(13,15,20,0.96);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    padding: 10px 14px 8px;
+}
+
+.top-nav-scroll {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.top-nav-scroll::-webkit-scrollbar {
+    display: none;
+}
+
+.top-nav-btn {
+    white-space: nowrap;
+    text-decoration: none;
+    border-radius: 999px;
+    padding: 8px 13px;
+    font-size: 12px;
+    font-weight: 850;
+    letter-spacing: 0.01em;
+    border: 1px solid rgba(255,255,255,0.14);
+    background: rgba(255,255,255,0.08);
+    color: #d1d5db;
+}
+
+.top-nav-btn.nav-home {
+    background: rgba(59,130,246,0.12);
+    border-color: rgba(59,130,246,0.42);
+    color: #bfdbfe;
+}
+
+.top-nav-btn.nav-briefing {
+    background: rgba(249,115,22,0.13);
+    border-color: rgba(249,115,22,0.42);
+    color: #fed7aa;
+}
+
+.top-nav-btn.nav-live {
+    background: rgba(16,185,129,0.13);
+    border-color: rgba(16,185,129,0.42);
+    color: #bbf7d0;
+}
+
+.top-nav-btn.nav-daily {
+    background: rgba(59,130,246,0.13);
+    border-color: rgba(59,130,246,0.42);
+    color: #bfdbfe;
+}
+
+.top-nav-btn.nav-team {
+    background: rgba(139,92,246,0.14);
+    border-color: rgba(139,92,246,0.46);
+    color: #ddd6fe;
+}
+
+.top-nav-btn.active {
+    color: #ffffff;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,0.25), 0 0 14px rgba(255,255,255,0.10);
+}
+"""
+    
 def top_nav_html(active=""):
     items = [
-        ("Ana Ekran", "index.html", "home"),
-        ("Sabah", "briefing.html", "briefing"),
-        ("Canlı", "daily_report.html#platform-sosyal-nabiz", "live"),
-        ("Tam Rapor", "daily_report.html", "daily"),
-        ("Ekip", "team_report.html", "team"),
+        ("Ana Ekran", "index.html", "home", "nav-home"),
+        ("Sabah", "briefing.html", "briefing", "nav-briefing"),
+        ("Canlı", "daily_report.html#platform-sosyal-nabiz", "live", "nav-live"),
+        ("Tam Rapor", "daily_report.html", "daily", "nav-daily"),
+        ("Ekip", "team_report.html", "team", "nav-team"),
     ]
 
     buttons = []
-    for label, href, key in items:
+
+    for label, href, key, color_class in items:
         active_class = " active" if active == key else ""
+
         buttons.append(
-            f'<a class="top-nav-btn{active_class}" href="{href}">{label}</a>'
+            f'<a class="top-nav-btn {color_class}{active_class}" href="{href}">{label}</a>'
         )
 
     return f"""

@@ -195,6 +195,16 @@ body::after {
   flex-shrink: 0;
 }
 
+.live-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 14px var(--green);
+  display: block;
+  animation: glow 2s infinite;
+}
+
 @keyframes glow {
   0%,100% { box-shadow: 0 0 6px var(--green); }
   50% { box-shadow: 0 0 15px var(--green); }
@@ -450,7 +460,7 @@ body::after {
     </div>
 
     <div class="clock-block">
-      <div class="clock-time">14:34</div>
+      <div class="clock-time">14:43</div>
       <div class="clock-date">14-05-2026</div>
     </div>
   </header>
@@ -458,12 +468,12 @@ body::after {
   <section class="hero">
     <div class="hero-kicker">Başkan Giriş Ekranı</div>
     <div class="hero-title">Sayın Başkan Mesut Kocagöz</div>
-    <div class="hero-desc">Sabah brifingi, canlı nabız, tam rapor ve ekip operasyon ekranları tek noktada.</div>
+   
   </section>
 
   <div class="status-pill">
     <div class="pulse-dot"></div>
-    <div class="status-text">Sistem aktif · Güncelleme: <strong>14:34</strong></div>
+    <div class="status-text">Sistem aktif · Güncelleme: <strong>14:43</strong></div>
     <div class="risk-badge">🟢 Fırsat Var</div>
   </div>
 
@@ -477,7 +487,7 @@ body::after {
       <div class="stat-label">Fırsat</div>
     </div>
     <div class="stat-card">
-      <div class="stat-val" style="color:var(--purple)">529</div>
+      <div class="stat-val" style="color:var(--purple)">530</div>
       <div class="stat-label">Etkileşim</div>
     </div>
   </div>
@@ -497,7 +507,7 @@ body::after {
     </a>
 
     <a class="card" href="daily_report.html#platform-sosyal-nabiz">
-      <div class="card-icon icon-green">⟳</div>
+      <div class="card-icon icon-green"><span class="live-dot"></span></div>
       <div class="card-body">
         <div class="card-tag tag-green">Canlı Nabız</div>
         <div class="card-title">Gerçek Zamanlı Raporlama</div>
@@ -530,7 +540,7 @@ body::after {
 
   <div class="footer">
     <div class="kepez-badge">🏛️ <strong>Kepez Belediyesi</strong> — Yerel Lider AI</div>
-    <div class="footer-right">TAKİPTE KAL / HAZIR BEKLE</div>
+    
   </div>
 
 </div>

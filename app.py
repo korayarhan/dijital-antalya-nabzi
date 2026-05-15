@@ -10505,6 +10505,15 @@ def build_entry_page(
         risk_bg = "rgba(16,185,129,0.15)"
         risk_border = "rgba(16,185,129,0.35)"
 
+    risk_label_norm = normalize_text(risk_label)
+
+    if "firsat" in risk_label_norm or "fırsat" in risk_label_norm:
+        risk_badge_href = "daily_report.html#baskan-firsat"
+    elif "normal" in risk_label_norm:
+        risk_badge_href = "daily_report.html"
+    else:
+        risk_badge_href = "crisis_panel.html"
+
     doc = f"""<!DOCTYPE html>
 <html lang="tr">
 <head>
@@ -10738,6 +10747,14 @@ body::after {{
   color: {risk_color};
   border: 1px solid {risk_border};
   white-space: nowrap;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}}
+
+.risk-badge:active {{
+  transform: scale(0.98);
 }}
 
 .stats-row {{
@@ -10981,7 +10998,7 @@ body::after {{
   <div class="status-pill">
     <div class="pulse-dot"></div>
     <div class="status-text">Sistem aktif · Güncelleme: <strong>{esc(report_time)}</strong></div>
-    <div class="risk-badge">{esc(risk_label)}</div>
+    <a class="risk-badge" href="{esc(risk_badge_href)}">{esc(risk_label)}</a>
   </div>
 
   <div class="stats-row">

@@ -447,7 +447,7 @@ def score_x_post(text, matched_keyword):
     if risk_score >= 6:
         sentiment = "negative"
         action_note = "X üzerinde riskli paylaşım tespit edildi. Yayılım, yorum tonu ve yerel basına sıçrama ihtimali izlenmeli."
-    elif opportunity_score >= 6:
+    elif opportunity_score >= 5:
         sentiment = "positive"
         action_note = "Olumlu/fırsat içeriği tespit edildi. Hizmet iletişimiyle büyütülebilir."
     else:
@@ -3606,7 +3606,7 @@ def instagram_record_comment(item):
 
         return "Takip gerektiren orta seviye Instagram kaydı. Şimdilik gözlem yeterli; büyürse ekip aksiyonu açılmalı."
 
-    if opportunity_score >= 6:
+    if opportunity_score >= 5:
         if any(term in text for term in service_terms):
             return "Hizmet görünürlüğü fırsatı var. Mahalle adı, önce/sonra görseli veya kısa video ile büyütülebilir."
 
@@ -4704,7 +4704,7 @@ def president_dashboard_panel(today, report_time, news, social, president_posts,
 
     strong_opportunity = (
         opportunity_alarm
-        or opportunity_score >= 6
+        or opportunity_score >= 5
         or "yuksek" in opportunity_norm
         or "yüksek" in opportunity_norm
     )
@@ -6764,7 +6764,7 @@ def instagram_action_suggestion(item, mode="normal"):
         if any(term in text for term in ["spor", "genclik", "gençlik", "turnuva", "mac", "maç"]):
             return "Spor ve gençlik teması üzerinden pozitif görünürlük üretilebilir. Kısa video ve başarı/katılım vurgusu yapılmalı."
 
-        if opportunity_score >= 6:
+        if opportunity_score >= 5:
             return "Güçlü Instagram fırsatı var. İçerik hikâye, reels veya kurumsal destek paylaşımıyla büyütülebilir."
 
         return "Olumlu Instagram içeriği takip edilmeli. Uygun görülürse kısa paylaşım veya hikâye formatına çevrilebilir."
@@ -9694,7 +9694,7 @@ def build_morning_briefing(summary_day, report_time, news, social, president_pos
         status_bg = "rgba(249,115,22,0.12)"
         status_border = "rgba(249,115,22,0.35)"
         status_text = risk_topic
-    elif opportunity_score >= 6:
+    elif opportunity_score >= 5:
         status_icon = "🟢"
         status_label = "Fırsat · Değerlendir"
         status_color = "#22c55e"
@@ -11337,7 +11337,7 @@ def build_report(news, social, undated_news=None):
         header_status = "⚠️ Yüksek Risk"
     elif "orta" in header_risk_norm:
         header_status = "🟠 Orta Risk"
-    elif header_opportunity_score >= 6:
+    elif header_opportunity_score >= 5:
         header_status = "🌟 Fırsat"
     else:
         header_status = "Normal Takip"

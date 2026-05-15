@@ -9695,7 +9695,7 @@ def top_nav_html(active=""):
         ("Ana Ekran", "index.html", "home"),
         ("Sabah", "briefing.html", "briefing"),
         ("Canlı", "daily_report.html#platform-sosyal-nabiz", "live"),
-        ("Tam Rapor", "daily_report.html", "daily"),
+        ("Tam Rapor", "daily_report.html#top", "daily"),
         ("Ekip", "team_report.html", "team"),
     ]
 
@@ -9809,6 +9809,22 @@ def top_nav_css():
     background: rgba(139,92,246,0.26);
     border-color: rgba(139,92,246,0.70);
 }
+
+html {
+    scroll-behavior: smooth;
+}
+
+#top,
+#baskan-ozet,
+#baskan-firsat,
+#platform-sosyal-nabiz,
+#detay-baskan-x,
+#detay-haberler,
+#detay-social,
+#baskan-kriz {
+    scroll-margin-top: 78px;
+}
+
 </style>
 """
     
@@ -11826,7 +11842,7 @@ main #haberler ~ * a[style*="background"] {{
 </style>
 {top_nav_css()}
 </head>
-<body>
+<body id="top">
 
 {top_nav_html("daily")}
 

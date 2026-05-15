@@ -4571,6 +4571,7 @@ def president_dashboard_panel(today, report_time, news, social, president_posts,
     opportunity_level = str(opportunity_sum.get("level", "Fırsat yok"))
     opportunity_title = str(opportunity_sum.get("title", "Özet gününde belirgin fırsat görünmüyor."))
     opportunity_title_display = opportunity_title
+    
     if "_" in opportunity_title or normalize_text(opportunity_title) in [
         "cocuk aile",
         "mali disiplin",

@@ -9687,9 +9687,9 @@ th {{
     
 def top_nav_html(active=""):
     items = [
-        ("Ana Ekran", "../index.html", "home"),
+        ("Ana Ekran", "index.html", "home"),
         ("Sabah", "briefing.html", "briefing"),
-        ("Canlı", "live_report.html", "live"),
+        ("Canlı", "daily_report.html#platform-sosyal-nabiz", "live"),
         ("Tam Rapor", "daily_report.html", "daily"),
         ("Ekip", "team_report.html", "team"),
     ]

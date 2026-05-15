@@ -10889,7 +10889,7 @@ def build_report(news, social, undated_news=None):
         news,
     )
     
-        build_entry_page(
+    build_entry_page(
         dashboard_day,
         report_time,
     )

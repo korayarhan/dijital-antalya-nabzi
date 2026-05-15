@@ -10224,7 +10224,7 @@ body,
     padding: 24px 24px 40px;
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: flex-start;
     animation: fadeUp 0.5s 0.5s ease both;
   }}
 
@@ -10702,6 +10702,16 @@ body::after {{
   flex-shrink: 0;
 }}
 
+.live-dot {{
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--green);
+  box-shadow: 0 0 14px var(--green);
+  display: block;
+  animation: glow 2s infinite;
+}}
+
 @keyframes glow {{
   0%,100% {{ box-shadow: 0 0 6px var(--green); }}
   50% {{ box-shadow: 0 0 15px var(--green); }}
@@ -10965,7 +10975,7 @@ body::after {{
   <section class="hero">
     <div class="hero-kicker">Başkan Giriş Ekranı</div>
     <div class="hero-title">Sayın Başkan Mesut Kocagöz</div>
-    <div class="hero-desc">Sabah brifingi, canlı nabız, tam rapor ve ekip operasyon ekranları tek noktada.</div>
+   
   </section>
 
   <div class="status-pill">
@@ -11004,7 +11014,7 @@ body::after {{
     </a>
 
     <a class="card" href="daily_report.html#platform-sosyal-nabiz">
-      <div class="card-icon icon-green">⟳</div>
+      <div class="card-icon icon-green"><span class="live-dot"></span></div>
       <div class="card-body">
         <div class="card-tag tag-green">Canlı Nabız</div>
         <div class="card-title">Gerçek Zamanlı Raporlama</div>
@@ -11037,7 +11047,7 @@ body::after {{
 
   <div class="footer">
     <div class="kepez-badge">🏛️ <strong>Kepez Belediyesi</strong> — Yerel Lider AI</div>
-    <div class="footer-right">{esc(decision_text)}</div>
+    
   </div>
 
 </div>

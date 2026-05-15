@@ -10928,8 +10928,9 @@ body::after {{
 
   <header class="header">
     <div class="logo-row">
-      <div class="logo-icon">⚡</div>
-      <div>
+      <div class="logo-icon">
+        <img src="../neon_tech_crest_with_glowing_ai_symbol.png" alt="Yerel Lider AI Logo" style="width:100%;height:100%;object-fit:contain;display:block;">
+      </div>
         <div class="logo-title">Yerel Lider <span>AI</span></div>
         <div class="logo-sub">Kepez Belediyesi · Başkan Portalı</div>
       </div>

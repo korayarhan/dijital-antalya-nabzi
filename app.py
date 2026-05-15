@@ -10455,13 +10455,50 @@ body,
     border-radius: 999px;
     padding: 8px 12px;
     font-size: 12px;
-    font-weight: 800;
+    font-weight: 850;
+    box-shadow: 0 8px 18px rgba(0,0,0,0.18);
+}}
+
+/* Ana Ekran */
+.top-nav-btn:nth-child(1) {{
+    color: #bfdbfe;
+    background: rgba(59,130,246,0.13);
+    border-color: rgba(59,130,246,0.34);
+}}
+
+/* Sabah */
+.top-nav-btn:nth-child(2) {{
+    color: #fed7aa;
+    background: rgba(249,115,22,0.14);
+    border-color: rgba(249,115,22,0.38);
+}}
+
+/* Canlı */
+.top-nav-btn:nth-child(3) {{
+    color: #bbf7d0;
+    background: rgba(16,185,129,0.14);
+    border-color: rgba(16,185,129,0.38);
+}}
+
+/* Tam Rapor */
+.top-nav-btn:nth-child(4) {{
+    color: #bfdbfe;
+    background: rgba(59,130,246,0.14);
+    border-color: rgba(59,130,246,0.38);
+}}
+
+/* Ekip */
+.top-nav-btn:nth-child(5) {{
+    color: #ddd6fe;
+    background: rgba(139,92,246,0.14);
+    border-color: rgba(139,92,246,0.38);
 }}
 
 .top-nav-btn.active {{
     color: #ffffff;
-    background: rgba(96,165,250,0.24);
-    border-color: rgba(96,165,250,0.55);
+    border-color: rgba(255,255,255,0.55);
+    box-shadow: 0 0 0 1px rgba(255,255,255,0.12), 0 10px 24px rgba(0,0,0,0.26);
+    transform: translateY(-1px);
 }}
 </style>
 </head>

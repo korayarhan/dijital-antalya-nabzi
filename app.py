@@ -9691,7 +9691,6 @@ def top_nav_html(active=""):
         ("Sabah", "briefing.html", "briefing"),
         ("Canlı", "live_report.html", "live"),
         ("Tam Rapor", "daily_report.html", "daily"),
-        ("Kriz", "crisis_panel.html", "crisis"),
         ("Ekip", "team_report.html", "team"),
     ]
 

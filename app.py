@@ -10572,28 +10572,46 @@ body::after {{
 
 .header {{
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
-  gap: 10px;
+  gap: 12px;
   margin-bottom: 12px;
 }}
 
 .logo-row {{
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 11px;
+  min-width: 0;
+  flex: 1;
 }}
 
 .logo-icon {{
-  width: 36px;
-  height: 36px;
-  background: linear-gradient(135deg, var(--blue), var(--purple));
-  border-radius: 11px;
+  width: 54px;
+  height: 54px;
+  background: rgba(59,130,246,0.08);
+  border: 1px solid rgba(59,130,246,0.22);
+  border-radius: 15px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 17px;
-  box-shadow: 0 10px 30px rgba(59,130,246,0.22);
+  box-shadow: 0 10px 30px rgba(59,130,246,0.18);
+  overflow: hidden;
+  flex-shrink: 0;
+}}
+
+.logo-icon img {{
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}}
+
+.logo-text {{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
 }}
 
 .logo-title {{
@@ -10929,8 +10947,10 @@ body::after {{
   <header class="header">
     <div class="logo-row">
       <div class="logo-icon">
-        <img src="../neon_tech_crest_with_glowing_ai_symbol.png" alt="Yerel Lider AI Logo" style="width:100%;height:100%;object-fit:contain;display:block;">
+        <img src="../neon_tech_crest_with_glowing_ai_symbol.png" alt="Yerel Lider AI Logo">
       </div>
+
+      <div class="logo-text">
         <div class="logo-title">Yerel Lider <span>AI</span></div>
         <div class="logo-sub">Kepez Belediyesi · Başkan Portalı</div>
       </div>

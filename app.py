@@ -2208,6 +2208,35 @@ def read_social_data():
                     "source_type": get_value(row, "source_type", default=default_source_type),
                 }
 
+                # Canlı rapora test / demo sosyal kayıtlar girmesin.
+                test_raw = (
+                    f"{item.get('platform', '')} "
+                    f"{item.get('account', '')} "
+                    f"{item.get('content', '')} "
+                    f"{item.get('topic', '')} "
+                    f"{item.get('url', '')} "
+                    f"{item.get('link', '')} "
+                    f"{item.get('source_type', '')}"
+                ).lower()
+
+                test_norm = normalize_text(test_raw)
+
+                test_terms = [
+                    "example.com",
+                    "test-duaci-asfalt",
+                    "test-duacı-asfalt",
+                    "test okul insaat",
+                    "test okul inşaat",
+                    "test-okul-insaat",
+                    "test-okul-inşaat",
+                    "instagram.com/test",
+                    "tiktok.com/test",
+                    "/test-",
+                ]
+
+                if any(term in test_raw for term in test_terms) or any(normalize_text(term) in test_norm for term in test_terms):
+                    continue
+
                 # Instagram için eski kayıt filtresi:
                 # CSV'de eski Instagram gönderileri durabilir ama günlük rapora girmesin.
                 if "instagram" in normalize_text(item.get("platform", "")):
@@ -11118,6 +11147,13 @@ def build_report(news, social, undated_news=None):
         dashboard_crisis_plan,
         crisis_status,
         dashboard_crisis_sum
+    # Rapor karar dilini tek kaynağa bağlıyoruz.
+    # Başkan ekranı, briefing, daily_report, crisis_panel ve ekip raporu
+    # aynı özet gününün risk/fırsat kararını kullansın.
+    crisis_sum = dashboard_crisis_sum
+    crisis_plan = dashboard_crisis_plan
+    early_warning = dashboard_early_warning
+    social_sum = dashboard_social_sum
     )
     risk_level_raw = normalize_text(str(crisis_plan.get("level", "")))
     risk_alarm_html = ""

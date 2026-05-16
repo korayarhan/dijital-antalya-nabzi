@@ -9697,15 +9697,35 @@ def pwa_head_tags():
 <meta name="apple-mobile-web-app-title" content="Yerel Lider AI">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="apple-touch-icon" href="../neon_tech_crest_with_glowing_ai_symbol.png">
+
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+<script>
+(function () {
+    var params = new URLSearchParams(window.location.search);
+    if (!params.has("v")) {
+        var freshVersion = new Date().getTime();
+        var newUrl = window.location.pathname + "?v=" + freshVersion + window.location.hash;
+        window.location.replace(newUrl);
+    }
+})();
+</script>
 """
+
+def page_version():
+    return (dt.datetime.utcnow() + dt.timedelta(hours=3)).strftime("%Y%m%d%H%M")
     
 def top_nav_html(active=""):
+    v = page_version()
+
     items = [
-        ("Ana Ekran", "index.html", "home"),
-        ("Sabah", "briefing.html", "briefing"),
-        ("Canlı", "daily_report.html#platform-sosyal-nabiz", "live"),
-        ("Tam Rapor", "daily_report.html#top", "daily"),
-        ("Ekip", "team_report.html", "team"),
+        ("Ana Ekran", f"index.html?v={v}", "home"),
+        ("Sabah", f"briefing.html?v={v}", "briefing"),
+        ("Canlı", f"daily_report.html?v={v}#platform-sosyal-nabiz", "live"),
+        ("Tam Rapor", f"daily_report.html?v={v}#top", "daily"),
+        ("Ekip", f"team_report.html?v={v}", "team"),
     ]
 
     buttons = []
@@ -10830,12 +10850,14 @@ def build_entry_page(
 
     risk_label_norm = normalize_text(risk_label)
 
+    version = page_version()
+
     if "firsat" in risk_label_norm or "fırsat" in risk_label_norm:
-        risk_badge_href = "daily_report.html#baskan-firsat"
+        risk_badge_href = f"daily_report.html?v={version}#baskan-firsat"
     elif "normal" in risk_label_norm:
-        risk_badge_href = "daily_report.html"
+        risk_badge_href = f"daily_report.html?v={version}"
     else:
-        risk_badge_href = "crisis_panel.html"
+        risk_badge_href = f"crisis_panel.html?v={version}"
 
     doc = f"""<!DOCTYPE html>
 <html lang="tr">
@@ -11344,7 +11366,7 @@ body::after {{
 
   <div class="cards">
 
-    <a class="card" href="briefing.html">
+    <a class="card" href="briefing.html?v={version}">
       <div class="card-icon icon-orange">☀️</div>
       <div class="card-body">
         <div class="card-tag tag-orange">Günlük Özet</div>
@@ -11354,7 +11376,7 @@ body::after {{
       <div class="card-arrow">›</div>
     </a>
 
-    <a class="card" href="daily_report.html#platform-sosyal-nabiz">
+    <a class="card" href="daily_report.html?v={version}#platform-sosyal-nabiz">
       <div class="card-icon icon-green"><span class="live-dot"></span></div>
       <div class="card-body">
         <div class="card-tag tag-green">Canlı Nabız</div>
@@ -11364,7 +11386,7 @@ body::after {{
       <div class="card-arrow">›</div>
     </a>
 
-    <a class="card" href="daily_report.html">
+    <a class="card" href="daily_report.html?v={version}">
       <div class="card-icon icon-blue">📋</div>
       <div class="card-body">
         <div class="card-tag tag-blue">Tam Analiz</div>
@@ -11374,7 +11396,7 @@ body::after {{
       <div class="card-arrow">›</div>
     </a>
 
-    <a class="card" href="team_report.html">
+    <a class="card" href="team_report.html?v={version}">
       <div class="card-icon icon-purple">👥</div>
       <div class="card-body">
         <div class="card-tag tag-purple">Ekip</div>

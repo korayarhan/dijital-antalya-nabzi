@@ -46,6 +46,8 @@ DYNAMIC_KEYWORDS = ROOT / "data" / "dynamic_keywords.txt"
 REPORTS = ROOT / "reports"
 REPORTS.mkdir(exist_ok=True)
 
+RUN_VERSION = (dt.datetime.utcnow() + dt.timedelta(hours=3)).strftime("%Y%m%d%H%M%S")
+
 POSITIVE_WORDS = [
     "hizmet", "asfalt", "açılış", "ödül", "teşekkür", "çocuk",
     "şenlik", "proje", "destek", "spor", "başarı", "tamamlandı",
@@ -9599,6 +9601,7 @@ Bir sonraki küçük gelişim: {esc(learning_note.get("next_improvement", ""))}
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Yerel Lider AI - Ekip Raporu</title>
+{pwa_head_tags()}
 <style>
 body {{
     margin:0;
@@ -9706,21 +9709,88 @@ def pwa_head_tags():
 
 <script>
 (function () {{
-    var currentVersion = "{v}";
-    var params = new URLSearchParams(window.location.search);
-    var urlVersion = params.get("v");
+    var pageVersion = "{v}";
+    var refreshing = false;
 
-    if (urlVersion !== currentVersion) {{
-        params.set("v", currentVersion);
-        var newUrl = window.location.pathname + "?" + params.toString() + window.location.hash;
-        window.location.replace(newUrl);
+    function reloadWithVersion(latestVersion) {{
+        if (refreshing) return;
+
+        var url = new URL(window.location.href);
+        var urlVersion = url.searchParams.get("v");
+
+        if (urlVersion === latestVersion && pageVersion === latestVersion) {{
+            return;
+        }}
+
+        refreshing = true;
+        url.searchParams.set("v", latestVersion);
+        window.location.replace(url.pathname + url.search + url.hash);
     }}
+
+    function checkLatestVersion() {{
+        fetch("version.json?t=" + Date.now(), {{
+            cache: "no-store"
+        }})
+        .then(function (response) {{
+            if (!response.ok) return null;
+            return response.json();
+        }})
+        .then(function (data) {{
+            if (!data || !data.version) return;
+
+            var latestVersion = String(data.version).trim();
+
+            if (latestVersion && latestVersion !== pageVersion) {{
+                reloadWithVersion(latestVersion);
+            }}
+        }})
+        .catch(function () {{
+            // Sessiz geç. İnternet yoksa veya dosya okunamazsa sayfa açık kalır.
+        }});
+    }}
+
+    window.addEventListener("pageshow", function () {{
+        setTimeout(checkLatestVersion, 400);
+    }});
+
+    document.addEventListener("visibilitychange", function () {{
+        if (!document.hidden) {{
+            setTimeout(checkLatestVersion, 400);
+        }}
+    }});
+
+    window.addEventListener("focus", function () {{
+        setTimeout(checkLatestVersion, 400);
+    }});
+
+    setInterval(function () {{
+        if (!document.hidden) {{
+            checkLatestVersion();
+        }}
+    }}, 60000);
+
+    setTimeout(checkLatestVersion, 700);
 }})();
 </script>
 """
 
 def page_version():
-    return (dt.datetime.utcnow() + dt.timedelta(hours=3)).strftime("%Y%m%d%H%M")
+    return RUN_VERSION
+    
+def write_pwa_version_file():
+    version_file = REPORTS / "version.json"
+
+    payload = {
+        "version": page_version(),
+        "updated_at": (dt.datetime.utcnow() + dt.timedelta(hours=3)).strftime("%Y-%m-%d %H:%M:%S"),
+    }
+
+    version_file.write_text(
+        json.dumps(payload, ensure_ascii=False, indent=2),
+        encoding="utf-8"
+    )
+
+    print(f"PWA version dosyası hazır: {version_file}")
     
 def top_nav_html(active=""):
     v = page_version()
@@ -10091,6 +10161,7 @@ def build_morning_briefing(summary_day, report_time, news, social, president_pos
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Kepez — Sabah Brifingi</title>
+{pwa_head_tags()}
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 
@@ -11671,6 +11742,7 @@ def build_report(news, social, undated_news=None):
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Yerel Liderlik AI Günlük Raporu</title>
+{pwa_head_tags()}
 <style>
 :root {{
     --bg:#f4efe7;
@@ -12464,6 +12536,7 @@ main #haberler ~ * a[style*="background"] {{
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Acil Eylem Planı / Kriz Paneli</title>
+  {pwa_head_tags()}
   <style>
     body {{
       margin:0;
@@ -12700,6 +12773,8 @@ main #haberler ~ * a[style*="background"] {{
 def main():
     os.makedirs("reports", exist_ok=True)
     os.makedirs("data", exist_ok=True)
+    
+    write_pwa_version_file()
 
     news, undated_news = fetch_news()
     print(f"Haber tarama tamamlandı. Raporlanan haber: {len(news)}, Tarihi okunamayan: {len(undated_news)}")

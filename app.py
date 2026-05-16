@@ -9688,7 +9688,16 @@ th {{
     out.write_text(team_doc, encoding="utf-8")
     print(f"Ekip raporu hazır: {out}")
     
-
+def pwa_head_tags():
+    return """
+<link rel="manifest" href="../manifest.json">
+<meta name="theme-color" content="#0f172a">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Yerel Lider AI">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="../neon_tech_crest_with_glowing_ai_symbol.png">
+"""
     
 def top_nav_html(active=""):
     items = [
@@ -11280,6 +11289,7 @@ body::after {{
   }}
 }}
 </style>
+{pwa_head_tags()}
 </head>
 
 <body>

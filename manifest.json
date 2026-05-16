@@ -1,12 +1,12 @@
 {
-  "id": "/dijital-antalya-nabzi/",
+  "id": "/dijital-antalya-nabzi/reports/",
   "name": "Yerel Lider AI",
-  "short_name": "Yerel Lider",
+  "short_name": "Yerel Lider AI",
   "description": "Yerel liderler için kriz, fırsat ve sosyal nabız karar destek ekranı.",
-  "start_url": "/dijital-antalya-nabzi/index.html",
-  "scope": "/dijital-antalya-nabzi/",
+  "start_url": "/dijital-antalya-nabzi/reports/index.html",
+  "scope": "/dijital-antalya-nabzi/reports/",
   "display": "standalone",
-  "background_color": "#06111f",
+  "background_color": "#06090f",
   "theme_color": "#0f172a",
   "orientation": "portrait-primary",
   "icons": [

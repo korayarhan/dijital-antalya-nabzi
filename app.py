@@ -9689,28 +9689,33 @@ th {{
     print(f"Ekip raporu hazır: {out}")
     
 def pwa_head_tags():
-    return """
-<link rel="manifest" href="../manifest.json">
+    v = page_version()
+
+    return f"""
+<link rel="manifest" href="../manifest.json?v={v}">
 <meta name="theme-color" content="#0f172a">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Yerel Lider AI">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<link rel="apple-touch-icon" href="../neon_tech_crest_with_glowing_ai_symbol.png">
+<link rel="apple-touch-icon" href="../neon_tech_crest_with_glowing_ai_symbol.png?v={v}">
 
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 
 <script>
-(function () {
+(function () {{
+    var currentVersion = "{v}";
     var params = new URLSearchParams(window.location.search);
-    if (!params.has("v")) {
-        var freshVersion = new Date().getTime();
-        var newUrl = window.location.pathname + "?v=" + freshVersion + window.location.hash;
+    var urlVersion = params.get("v");
+
+    if (urlVersion !== currentVersion) {{
+        params.set("v", currentVersion);
+        var newUrl = window.location.pathname + "?" + params.toString() + window.location.hash;
         window.location.replace(newUrl);
-    }
-})();
+    }}
+}})();
 </script>
 """
 
@@ -10865,6 +10870,7 @@ def build_entry_page(
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Yerel Lider AI — Başkan Portalı</title>
+{pwa_head_tags()}
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 * {{

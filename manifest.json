@@ -1,0 +1,20 @@
+{
+  "id": "/dijital-antalya-nabzi/",
+  "name": "Yerel Lider AI",
+  "short_name": "Yerel Lider",
+  "description": "Yerel liderler için kriz, fırsat ve sosyal nabız karar destek ekranı.",
+  "start_url": "/dijital-antalya-nabzi/index.html",
+  "scope": "/dijital-antalya-nabzi/",
+  "display": "standalone",
+  "background_color": "#06111f",
+  "theme_color": "#0f172a",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/dijital-antalya-nabzi/neon_tech_crest_with_glowing_ai_symbol.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

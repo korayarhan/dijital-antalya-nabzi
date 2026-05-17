@@ -260,50 +260,296 @@ LOCAL_EXCLUDE_TERMS = [
 def contains_any(text, terms):
     return shared_contains_any(text, terms)
 
+# Yerel Uygunluk Skoru v0.1
+# Amaç: Tek kelime filtresi yerine checklist + puanlama ile Kepez ilgisini ölçmek.
+
+KEPEZ_STRONG_NEIGHBORHOODS = [
+    "ahatlı", "ahatli",
+    "aktoprak",
+    "altınova düden", "altinova duden",
+    "altınova menderes", "altinova menderes",
+    "altınova orta", "altinova orta",
+    "altınova sinan", "altinova sinan",
+    "ayanoğlu varsak", "ayanoglu varsak",
+    "aydoğmuş varsak", "aydogmus varsak",
+    "başköy", "baskoy",
+    "beşkonaklılar", "beskonaklilar",
+    "duacı", "duaci",
+    "duraliler",
+    "düdenbaşı", "dudenbasi",
+    "fabrikalar",
+    "gaziler",
+    "göçerler", "gocerler",
+    "gülveren", "gulveren",
+    "güneş mahallesi", "gunes mahallesi",
+    "habibler",
+    "hüsnü karakaş", "husnu karakas",
+    "kızıllı", "kizilli",
+    "kirişçiler", "kirisciler",
+    "kuzeyyaka",
+    "kütükçü", "kutukcu",
+    "odabaşı", "odabasi",
+    "sütçüler", "sutculer",
+    "şafak mahallesi", "safak mahallesi",
+    "şelale", "selale",
+    "teomanpaşa", "teomanpasa",
+    "varsak esentepe",
+    "varsak karşıyaka", "varsak karsiyaka",
+    "varsak menderes",
+    "yeni doğan", "yeni dogan", "yenidoğan", "yenidogan",
+    "yeni emek", "yeniemek",
+    "yeşiltepe", "yesiltepe",
+    "yeşilyurt", "yesilyurt",
+    "yükseliş", "yukselis",
+]
+
+KEPEZ_WEAK_NEIGHBORHOODS = [
+    "altıayak", "altiayak",
+    "atatürk", "ataturk",
+    "avni tolunay",
+    "ayanoğlu", "ayanoglu",
+    "aydoğmuş", "aydogmus",
+    "baraj",
+    "barış", "baris",
+    "çamlıbel", "camlibel",
+    "çamlıca", "camlica",
+    "çankaya", "cankaya",
+    "demirel",
+    "emek",
+    "erenköy", "erenkoy",
+    "esentepe",
+    "fatih",
+    "fevzi çakmak", "fevzi cakmak",
+    "gazi mahallesi",
+    "gazi",
+    "göksu", "goksu",
+    "gündoğdu", "gundogdu",
+    "kanal",
+    "karşıyaka", "karsiyaka",
+    "kazım karabekir", "kazim karabekir",
+    "kepez mahallesi",
+    "kültür", "kultur",
+    "mehmet akif ersoy",
+    "menderes",
+    "özgürlük", "ozgurluk",
+    "santral",
+    "ulus",
+    "ünsal", "unsal",
+    "yavuz selim",
+    "yeni mahalle", "yenimahalle",
+    "zafer",
+    "zeytinlik",
+]
+
+LOCAL_SERVICE_RISK_TERMS = [
+    "asfalt", "yol", "kaldırım", "kaldirim", "çukur", "cukur",
+    "temizlik", "çöp", "cop", "park", "bahçe", "bahce",
+    "ulaşım", "ulasim", "otobüs", "otobus", "durak",
+    "şikayet", "sikayet", "mağdur", "magdur", "tepki",
+    "hizmet", "mahalle", "belediye", "başkan", "baskan",
+    "dava", "kriz", "kaza", "yaralı", "yarali", "ölüm", "olum",
+    "teleferik", "soruşturma", "sorusturma", "ihmal",
+]
+
+LOCAL_OFFTOPIC_TERMS = [
+    "satılık", "satilik", "kiralık", "kiralik", "emlak",
+    "daire", "konut", "arsa", "otomobil", "araç", "arac",
+    "iş ilanı", "is ilani", "personel alımı", "personel alimi",
+    "kepezspor", "kepez spor", "maç sonucu", "mac sonucu",
+    "okul ilanı", "okul ilani",
+]
+
+
+def local_relevance_level(score):
+    try:
+        score = float(score or 0)
+    except Exception:
+        score = 0
+
+    if score >= 8:
+        return "Yüksek"
+    if score >= 5:
+        return "Orta"
+    return "Düşük"
+
+
+def local_relevance_analysis(text, source_type="genel"):
+    text_norm = normalize_text(text)
+
+    mesut_hit = any(
+        normalize_text(term) in text_norm
+        for term in ["mesut kocagöz", "mesut kocagoz", "kocagöz", "kocagoz"]
+    )
+
+    kepez_belediye_hit = any(
+        normalize_text(term) in text_norm
+        for term in [
+            "kepez belediyesi",
+            "kepez belediye",
+            "kepez belediye başkanı",
+            "kepez belediye baskani",
+        ]
+    )
+
+    kepez_hit = "kepez" in text_norm
+
+    antalya_hit = "antalya" in text_norm
+
+    antalya_kepez_hit = any(
+        normalize_text(term) in text_norm
+        for term in ["antalya kepez", "kepez antalya"]
+    )
+
+    municipality_hit = any(
+        normalize_text(term) in text_norm
+        for term in [
+            "belediye",
+            "belediyesi",
+            "başkan",
+            "baskan",
+            "belediye başkanı",
+            "belediye baskani",
+        ]
+    )
+
+    strong_neighborhood_hit = any(
+        normalize_text(term) in text_norm
+        for term in KEPEZ_STRONG_NEIGHBORHOODS
+    )
+
+    weak_neighborhood_hit = any(
+        normalize_text(term) in text_norm
+        for term in KEPEZ_WEAK_NEIGHBORHOODS
+    )
+
+    neighborhood_hit = strong_neighborhood_hit or weak_neighborhood_hit
+
+    service_risk_hit = any(
+        normalize_text(term) in text_norm
+        for term in LOCAL_SERVICE_RISK_TERMS
+    )
+
+    off_topic_hit = any(
+        normalize_text(term) in text_norm
+        for term in LOCAL_OFFTOPIC_TERMS
+    )
+
+    score = 0
+    reasons = []
+
+    if mesut_hit:
+        score += 5
+        reasons.append("Mesut Kocagöz sinyali")
+
+    if kepez_belediye_hit:
+        score += 5
+        reasons.append("Kepez Belediyesi / Kepez Belediye Başkanı sinyali")
+    elif kepez_hit:
+        score += 3
+        reasons.append("Kepez sinyali")
+
+    if antalya_kepez_hit:
+        score += 3
+        reasons.append("Antalya + Kepez birlikte")
+    elif antalya_hit:
+        score += 1
+        reasons.append("Antalya sinyali")
+
+    if municipality_hit:
+        score += 1
+        reasons.append("Başkan / belediye bağlamı")
+
+    if strong_neighborhood_hit:
+        score += 3
+        reasons.append("güçlü Kepez mahalle sinyali")
+    elif weak_neighborhood_hit:
+        score += 1
+        reasons.append("genel/zayıf mahalle sinyali")
+
+    if service_risk_hit:
+        score += 2
+        reasons.append("hizmet / şikayet / kriz bağlamı")
+
+    if off_topic_hit:
+        score -= 5
+        reasons.append("alakasız ilan / emlak / spor / iş ilanı sinyali")
+
+    score = max(0, min(10, score))
+
+    strong_context = (
+        mesut_hit
+        or kepez_belediye_hit
+        or antalya_kepez_hit
+        or (kepez_hit and (neighborhood_hit or service_risk_hit or municipality_hit))
+        or (strong_neighborhood_hit and service_risk_hit)
+    )
+
+    is_relevant = score >= 5 and strong_context
+
+    president_decision_candidate = "Evet" if score >= 8 and strong_context and not off_topic_hit else "Hayır"
+
+    if score >= 5 and strong_context and president_decision_candidate == "Hayır":
+        control_decision = "Ekip kontrolü"
+    elif president_decision_candidate == "Evet":
+        control_decision = "Başkan karar aday"
+    else:
+        control_decision = "Alma"
+
+    return {
+        "score": score,
+        "level": local_relevance_level(score),
+        "is_relevant": is_relevant,
+        "strong_context": strong_context,
+        "president_decision_candidate": president_decision_candidate,
+        "control_decision": control_decision,
+        "off_topic": off_topic_hit,
+        "reason": " • ".join(reasons) if reasons else "yerel uygunluk sinyali zayıf",
+        "hits": {
+            "mesut_kocagoz": mesut_hit,
+            "kepez_belediyesi": kepez_belediye_hit,
+            "kepez": kepez_hit,
+            "antalya": antalya_hit,
+            "antalya_kepez": antalya_kepez_hit,
+            "municipality": municipality_hit,
+            "strong_neighborhood": strong_neighborhood_hit,
+            "weak_neighborhood": weak_neighborhood_hit,
+            "service_risk": service_risk_hit,
+            "off_topic": off_topic_hit,
+        }
+    }
 
 def is_relevant(title, summary, keyword):
-    body_text = normalize_text(f"{title} {summary}")
-    full_text = normalize_text(f"{title} {summary} {keyword}")
+    body_raw = f"{title} {summary}"
+    full_raw = f"{title} {summary} {keyword}"
 
-    # Haber gövdesinde Kepez / Mesut Kocagöz / Antalya Büyükşehir bağlantısı yoksa alma.
-    has_local_connection = contains_any(body_text, LOCAL_INCLUDE_TERMS)
-    if not has_local_connection:
+    body_text = normalize_text(body_raw)
+
+    local_check = local_relevance_analysis(full_raw, "news")
+
+    # Tek kelime değil; yerel uygunluk checklist sonucu yetersizse haberi alma.
+    if not local_check.get("is_relevant"):
         return False
 
-    # Haber başka ilçeye kayıyorsa ve Kepez bağlantısı zayıfsa ele.
+    # Haber başka ilçeye kayıyorsa ve güçlü Kepez/Mesut/mahalle bağlamı yoksa ele.
     outside_hit = contains_any(body_text, LOCAL_EXCLUDE_TERMS)
+    hits = local_check.get("hits", {})
 
-    strong_kepez_or_mesut = contains_any(
-        body_text,
-        [
-            "kepez",
-            "mesut kocagöz",
-            "mesut kocagoz",
-            "duacı",
-            "duaci",
-            "varsak",
-            "sütçüler",
-            "sutculer",
-        ],
+    strong_kepez_connection = (
+        hits.get("mesut_kocagoz")
+        or hits.get("kepez_belediyesi")
+        or hits.get("kepez")
+        or hits.get("antalya_kepez")
+        or hits.get("strong_neighborhood")
     )
 
-    bigcity_hit = contains_any(
-        body_text,
-        [
-            "antalya büyükşehir",
-            "antalya buyuksehir",
-            "antalya büyükşehir belediyesi",
-            "antalya buyuksehir belediyesi",
-        ],
-    )
-
-    if outside_hit and not strong_kepez_or_mesut and not bigcity_hit:
+    if outside_hit and not strong_kepez_connection:
         return False
 
-    # Ana takip konularımızdan en az biri de geçsin.
-    return contains_any(full_text, CORE_TERMS)
-NEWS_MAX_AGE_DAYS = 7  # Son 7 gün. İstersen 3 yapabiliriz.
+    # Emlak / ilan / Kepezspor gibi alakasız sinyal varsa ve puan çok güçlü değilse alma.
+    if local_check.get("off_topic") and local_check.get("score", 0) < 8:
+        return False
 
+    return True
 
 def parse_news_date(item):
     try:
@@ -366,6 +612,11 @@ def fetch_news():
             seen_topics.add(topic)
 
             tone, risk, opportunity = classify(title + " " + summary)
+            
+            local_check = local_relevance_analysis(
+                f"{title} {summary} {keyword}",
+                "news"
+            )
 
             row = {
                 "keyword": keyword,
@@ -378,6 +629,11 @@ def fetch_news():
                 "risk": risk,
                 "opportunity": opportunity,
                 "topic": topic,
+                "local_relevance_score": local_check.get("score", 0),
+                "local_relevance_level": local_check.get("level", ""),
+                "local_relevance_reason": local_check.get("reason", ""),
+                "president_decision_candidate": local_check.get("president_decision_candidate", "Hayır"),
+                "control_decision": local_check.get("control_decision", "Alma"),
             }
 
             if is_undated:
@@ -1446,6 +1702,8 @@ def fetch_x_social_posts():
         for post in payload.get("data", []):
             text = post.get("text", "")
             text_norm = normalize_text(text)
+            local_check = local_relevance_analysis(text, "x")
+            local_score = local_check.get("score", 0)
 
             context_hit = any(
                 normalize_text(term.replace('"', "")) in text_norm
@@ -1546,9 +1804,25 @@ def fetch_x_social_posts():
 
             if exclude_hit:
                 relevance_score -= 6
+                
+            if local_score >= 8:
+                relevance_score += 5
+            elif local_score >= 5:
+                relevance_score += 3
 
-            # Hem ana bağlam hem risk kelimesi yoksa alma.
-            if not context_hit or not risk_hit:
+            if local_check.get("strong_context"):
+                relevance_score += 3
+
+            if local_check.get("off_topic"):
+                relevance_score -= 5
+
+            # Hem eski X filtresi hem yeni yerel checklist birlikte çalışsın.
+            # Yeni checklist güçlü değilse ve eski bağlam/risk filtresi de tutmuyorsa alma.
+            if not local_check.get("is_relevant") and (not context_hit or not risk_hit):
+                continue
+
+            # Yerel uygunluk çok zayıfsa, sadece tek kelimeye güvenip alma.
+            if local_score < 5 and not strong_context_hit:
                 continue
 
             # Sadece zayıf Kepez eşleşmesi varsa ve belediye/hizmet/siyasi bağlam yoksa alma.
@@ -1592,6 +1866,11 @@ def fetch_x_social_posts():
             shares = (metrics.get("retweet_count", 0) or 0) + (metrics.get("quote_count", 0) or 0)
 
             post_url = f"https://x.com/{username}/status/{post.get('id')}" if username else ""
+            
+            local_check = local_relevance_analysis(
+                f"{text} {matched_keyword} {account}",
+                "x"
+            )
 
             rows.append({
                 "date": str(post.get("created_at", ""))[:10],
@@ -1609,6 +1888,11 @@ def fetch_x_social_posts():
                 "url": post_url,
                 "action_note": action_note,
                 "source_type": "Otomatik X",
+                "local_relevance_score": local_check.get("score", 0),
+                "local_relevance_level": local_check.get("level", ""),
+                "local_relevance_reason": local_check.get("reason", ""),
+                "president_decision_candidate": local_check.get("president_decision_candidate", "Hayır"),
+                "control_decision": local_check.get("control_decision", "Alma"),
             })
 
         with AUTO_SOCIAL_CSV.open("w", encoding="utf-8-sig", newline="") as f:
@@ -1628,6 +1912,11 @@ def fetch_x_social_posts():
                 "url",
                 "action_note",
                 "source_type",
+                "local_relevance_score",
+                "local_relevance_level",
+                "local_relevance_reason",
+                "president_decision_candidate",
+                "control_decision",
             ]
             writer = csv.DictWriter(f, fieldnames=fieldnames)
             writer.writeheader()

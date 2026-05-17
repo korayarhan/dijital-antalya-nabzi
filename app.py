@@ -48,6 +48,8 @@ REPORTS.mkdir(exist_ok=True)
 
 RUN_VERSION = (dt.datetime.utcnow() + dt.timedelta(hours=3)).strftime("%Y%m%d%H%M%S")
 
+NEWS_MAX_AGE_DAYS = 7
+
 POSITIVE_WORDS = [
     "hizmet", "asfalt", "açılış", "ödül", "teşekkür", "çocuk",
     "şenlik", "proje", "destek", "spor", "başarı", "tamamlandı",

@@ -4,6 +4,85 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Acil Eylem Planı / Kriz Paneli</title>
+  
+<link rel="manifest" href="../manifest.json?v=20260517030000">
+<meta name="theme-color" content="#0f172a">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Yerel Lider AI">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="../neon_tech_crest_with_glowing_ai_symbol.png?v=20260517030000">
+
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+<script>
+(function () {
+    var pageVersion = "20260517030000";
+    var refreshing = false;
+
+    function reloadWithVersion(latestVersion) {
+        if (refreshing) return;
+
+        var url = new URL(window.location.href);
+        var urlVersion = url.searchParams.get("v");
+
+        if (urlVersion === latestVersion && pageVersion === latestVersion) {
+            return;
+        }
+
+        refreshing = true;
+        url.searchParams.set("v", latestVersion);
+        window.location.replace(url.pathname + url.search + url.hash);
+    }
+
+    function checkLatestVersion() {
+        fetch("version.json?t=" + Date.now(), {
+            cache: "no-store"
+        })
+        .then(function (response) {
+            if (!response.ok) return null;
+            return response.json();
+        })
+        .then(function (data) {
+            if (!data || !data.version) return;
+
+            var latestVersion = String(data.version).trim();
+
+            if (latestVersion && latestVersion !== pageVersion) {
+                reloadWithVersion(latestVersion);
+            }
+        })
+        .catch(function () {
+            // Sessiz geç. İnternet yoksa veya dosya okunamazsa sayfa açık kalır.
+        });
+    }
+
+    window.addEventListener("pageshow", function () {
+        setTimeout(checkLatestVersion, 400);
+    });
+
+    document.addEventListener("visibilitychange", function () {
+        if (!document.hidden) {
+            setTimeout(checkLatestVersion, 400);
+        }
+    });
+
+    window.addEventListener("focus", function () {
+        setTimeout(checkLatestVersion, 400);
+    });
+
+    setInterval(function () {
+        if (!document.hidden) {
+            checkLatestVersion();
+        }
+    }, 60000);
+
+    setTimeout(checkLatestVersion, 700);
+})();
+</script>
+
   <style>
     body {
       margin:0;
@@ -202,7 +281,7 @@ html {
   
 <div class="top-nav-wrap">
     <div class="top-nav-scroll">
-        <a class="top-nav-btn top-nav-home" href="index.html?v=202605170247">Ana Ekran</a><a class="top-nav-btn top-nav-briefing" href="briefing.html?v=202605170247">Sabah</a><a class="top-nav-btn top-nav-live" href="daily_report.html?v=202605170247#platform-sosyal-nabiz">Canlı</a><a class="top-nav-btn top-nav-daily" href="daily_report.html?v=202605170247#top">Tam Rapor</a><a class="top-nav-btn top-nav-team" href="team_report.html?v=202605170247">Ekip</a>
+        <a class="top-nav-btn top-nav-home" href="index.html?v=20260517030000">Ana Ekran</a><a class="top-nav-btn top-nav-briefing" href="briefing.html?v=20260517030000">Sabah</a><a class="top-nav-btn top-nav-live" href="daily_report.html?v=20260517030000#platform-sosyal-nabiz">Canlı</a><a class="top-nav-btn top-nav-daily" href="daily_report.html?v=20260517030000#top">Tam Rapor</a><a class="top-nav-btn top-nav-team" href="team_report.html?v=20260517030000">Ekip</a>
     </div>
 </div>
 
@@ -218,7 +297,7 @@ html {
       <div class="status">
         <div><b>Risk seviyesi</b><br>Orta</div>
         <div><b>Kriz başlığı</b><br>Kepez Belediyesi + şikayet</div>
-        <div><b>Son güncelleme</b><br>2026-05-17 • 02:47</div>
+        <div><b>Son güncelleme</b><br>2026-05-17 • 03:00</div>
         <div><b>Durum</b><br>Müdahale ediliyor</div>
       </div>
     </div>

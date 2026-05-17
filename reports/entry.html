@@ -5,13 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Yerel Lider AI — Başkan Portalı</title>
 
-<link rel="manifest" href="../manifest.json?v=202605170247">
+<link rel="manifest" href="../manifest.json?v=20260517030000">
 <meta name="theme-color" content="#0f172a">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Yerel Lider AI">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<link rel="apple-touch-icon" href="../neon_tech_crest_with_glowing_ai_symbol.png?v=202605170247">
+<link rel="apple-touch-icon" href="../neon_tech_crest_with_glowing_ai_symbol.png?v=20260517030000">
 
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
@@ -19,15 +19,67 @@
 
 <script>
 (function () {
-    var currentVersion = "202605170247";
-    var params = new URLSearchParams(window.location.search);
-    var urlVersion = params.get("v");
+    var pageVersion = "20260517030000";
+    var refreshing = false;
 
-    if (urlVersion !== currentVersion) {
-        params.set("v", currentVersion);
-        var newUrl = window.location.pathname + "?" + params.toString() + window.location.hash;
-        window.location.replace(newUrl);
+    function reloadWithVersion(latestVersion) {
+        if (refreshing) return;
+
+        var url = new URL(window.location.href);
+        var urlVersion = url.searchParams.get("v");
+
+        if (urlVersion === latestVersion && pageVersion === latestVersion) {
+            return;
+        }
+
+        refreshing = true;
+        url.searchParams.set("v", latestVersion);
+        window.location.replace(url.pathname + url.search + url.hash);
     }
+
+    function checkLatestVersion() {
+        fetch("version.json?t=" + Date.now(), {
+            cache: "no-store"
+        })
+        .then(function (response) {
+            if (!response.ok) return null;
+            return response.json();
+        })
+        .then(function (data) {
+            if (!data || !data.version) return;
+
+            var latestVersion = String(data.version).trim();
+
+            if (latestVersion && latestVersion !== pageVersion) {
+                reloadWithVersion(latestVersion);
+            }
+        })
+        .catch(function () {
+            // Sessiz geç. İnternet yoksa veya dosya okunamazsa sayfa açık kalır.
+        });
+    }
+
+    window.addEventListener("pageshow", function () {
+        setTimeout(checkLatestVersion, 400);
+    });
+
+    document.addEventListener("visibilitychange", function () {
+        if (!document.hidden) {
+            setTimeout(checkLatestVersion, 400);
+        }
+    });
+
+    window.addEventListener("focus", function () {
+        setTimeout(checkLatestVersion, 400);
+    });
+
+    setInterval(function () {
+        if (!document.hidden) {
+            checkLatestVersion();
+        }
+    }, 60000);
+
+    setTimeout(checkLatestVersion, 700);
 })();
 </script>
 
@@ -478,13 +530,13 @@ body::after {
 }
 </style>
 
-<link rel="manifest" href="../manifest.json?v=202605170247">
+<link rel="manifest" href="../manifest.json?v=20260517030000">
 <meta name="theme-color" content="#0f172a">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Yerel Lider AI">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<link rel="apple-touch-icon" href="../neon_tech_crest_with_glowing_ai_symbol.png?v=202605170247">
+<link rel="apple-touch-icon" href="../neon_tech_crest_with_glowing_ai_symbol.png?v=20260517030000">
 
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
@@ -492,15 +544,67 @@ body::after {
 
 <script>
 (function () {
-    var currentVersion = "202605170247";
-    var params = new URLSearchParams(window.location.search);
-    var urlVersion = params.get("v");
+    var pageVersion = "20260517030000";
+    var refreshing = false;
 
-    if (urlVersion !== currentVersion) {
-        params.set("v", currentVersion);
-        var newUrl = window.location.pathname + "?" + params.toString() + window.location.hash;
-        window.location.replace(newUrl);
+    function reloadWithVersion(latestVersion) {
+        if (refreshing) return;
+
+        var url = new URL(window.location.href);
+        var urlVersion = url.searchParams.get("v");
+
+        if (urlVersion === latestVersion && pageVersion === latestVersion) {
+            return;
+        }
+
+        refreshing = true;
+        url.searchParams.set("v", latestVersion);
+        window.location.replace(url.pathname + url.search + url.hash);
     }
+
+    function checkLatestVersion() {
+        fetch("version.json?t=" + Date.now(), {
+            cache: "no-store"
+        })
+        .then(function (response) {
+            if (!response.ok) return null;
+            return response.json();
+        })
+        .then(function (data) {
+            if (!data || !data.version) return;
+
+            var latestVersion = String(data.version).trim();
+
+            if (latestVersion && latestVersion !== pageVersion) {
+                reloadWithVersion(latestVersion);
+            }
+        })
+        .catch(function () {
+            // Sessiz geç. İnternet yoksa veya dosya okunamazsa sayfa açık kalır.
+        });
+    }
+
+    window.addEventListener("pageshow", function () {
+        setTimeout(checkLatestVersion, 400);
+    });
+
+    document.addEventListener("visibilitychange", function () {
+        if (!document.hidden) {
+            setTimeout(checkLatestVersion, 400);
+        }
+    });
+
+    window.addEventListener("focus", function () {
+        setTimeout(checkLatestVersion, 400);
+    });
+
+    setInterval(function () {
+        if (!document.hidden) {
+            checkLatestVersion();
+        }
+    }, 60000);
+
+    setTimeout(checkLatestVersion, 700);
 })();
 </script>
 
@@ -522,7 +626,7 @@ body::after {
     </div>
 
     <div class="clock-block">
-      <div class="clock-time">02:47</div>
+      <div class="clock-time">03:00</div>
       <div class="clock-date">16-05-2026</div>
     </div>
   </header>
@@ -535,8 +639,8 @@ body::after {
 
   <div class="status-pill">
     <div class="pulse-dot"></div>
-    <div class="status-text">Sistem aktif · Güncelleme: <strong>02:47</strong></div>
-    <a class="risk-badge" href="crisis_panel.html?v=202605170247">🟠 Orta Risk</a>
+    <div class="status-text">Sistem aktif · Güncelleme: <strong>03:00</strong></div>
+    <a class="risk-badge" href="crisis_panel.html?v=20260517030000">🟠 Orta Risk</a>
   </div>
 
   <div class="stats-row">
@@ -549,7 +653,7 @@ body::after {
       <div class="stat-label">Fırsat</div>
     </div>
     <div class="stat-card">
-      <div class="stat-val" style="color:var(--purple)">802</div>
+      <div class="stat-val" style="color:var(--purple)">803</div>
       <div class="stat-label">Etkileşim</div>
     </div>
   </div>
@@ -558,7 +662,7 @@ body::after {
 
   <div class="cards">
 
-    <a class="card" href="briefing.html?v=202605170247">
+    <a class="card" href="briefing.html?v=20260517030000">
       <div class="card-icon icon-orange">☀️</div>
       <div class="card-body">
         <div class="card-tag tag-orange">Günlük Özet</div>
@@ -568,7 +672,7 @@ body::after {
       <div class="card-arrow">›</div>
     </a>
 
-    <a class="card" href="daily_report.html?v=202605170247#platform-sosyal-nabiz">
+    <a class="card" href="daily_report.html?v=20260517030000#platform-sosyal-nabiz">
       <div class="card-icon icon-green"><span class="live-dot"></span></div>
       <div class="card-body">
         <div class="card-tag tag-green">Canlı Nabız</div>
@@ -578,7 +682,7 @@ body::after {
       <div class="card-arrow">›</div>
     </a>
 
-    <a class="card" href="daily_report.html?v=202605170247">
+    <a class="card" href="daily_report.html?v=20260517030000">
       <div class="card-icon icon-blue">📋</div>
       <div class="card-body">
         <div class="card-tag tag-blue">Tam Analiz</div>
@@ -588,7 +692,7 @@ body::after {
       <div class="card-arrow">›</div>
     </a>
 
-    <a class="card" href="team_report.html?v=202605170247">
+    <a class="card" href="team_report.html?v=20260517030000">
       <div class="card-icon icon-purple">👥</div>
       <div class="card-body">
         <div class="card-tag tag-purple">Ekip</div>

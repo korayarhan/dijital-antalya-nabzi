@@ -4,6 +4,85 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Yerel Liderlik AI Günlük Raporu</title>
+
+<link rel="manifest" href="../manifest.json?v=20260517030000">
+<meta name="theme-color" content="#0f172a">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Yerel Lider AI">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="../neon_tech_crest_with_glowing_ai_symbol.png?v=20260517030000">
+
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+<script>
+(function () {
+    var pageVersion = "20260517030000";
+    var refreshing = false;
+
+    function reloadWithVersion(latestVersion) {
+        if (refreshing) return;
+
+        var url = new URL(window.location.href);
+        var urlVersion = url.searchParams.get("v");
+
+        if (urlVersion === latestVersion && pageVersion === latestVersion) {
+            return;
+        }
+
+        refreshing = true;
+        url.searchParams.set("v", latestVersion);
+        window.location.replace(url.pathname + url.search + url.hash);
+    }
+
+    function checkLatestVersion() {
+        fetch("version.json?t=" + Date.now(), {
+            cache: "no-store"
+        })
+        .then(function (response) {
+            if (!response.ok) return null;
+            return response.json();
+        })
+        .then(function (data) {
+            if (!data || !data.version) return;
+
+            var latestVersion = String(data.version).trim();
+
+            if (latestVersion && latestVersion !== pageVersion) {
+                reloadWithVersion(latestVersion);
+            }
+        })
+        .catch(function () {
+            // Sessiz geç. İnternet yoksa veya dosya okunamazsa sayfa açık kalır.
+        });
+    }
+
+    window.addEventListener("pageshow", function () {
+        setTimeout(checkLatestVersion, 400);
+    });
+
+    document.addEventListener("visibilitychange", function () {
+        if (!document.hidden) {
+            setTimeout(checkLatestVersion, 400);
+        }
+    });
+
+    window.addEventListener("focus", function () {
+        setTimeout(checkLatestVersion, 400);
+    });
+
+    setInterval(function () {
+        if (!document.hidden) {
+            checkLatestVersion();
+        }
+    }, 60000);
+
+    setTimeout(checkLatestVersion, 700);
+})();
+</script>
+
 <style>
 :root {
     --bg:#f4efe7;
@@ -328,14 +407,14 @@ html {
 
 <div class="top-nav-wrap">
     <div class="top-nav-scroll">
-        <a class="top-nav-btn top-nav-home" href="index.html?v=202605170247">Ana Ekran</a><a class="top-nav-btn top-nav-briefing" href="briefing.html?v=202605170247">Sabah</a><a class="top-nav-btn top-nav-live" href="daily_report.html?v=202605170247#platform-sosyal-nabiz">Canlı</a><a class="top-nav-btn top-nav-daily active" href="daily_report.html?v=202605170247#top">Tam Rapor</a><a class="top-nav-btn top-nav-team" href="team_report.html?v=202605170247">Ekip</a>
+        <a class="top-nav-btn top-nav-home" href="index.html?v=20260517030000">Ana Ekran</a><a class="top-nav-btn top-nav-briefing" href="briefing.html?v=20260517030000">Sabah</a><a class="top-nav-btn top-nav-live" href="daily_report.html?v=20260517030000#platform-sosyal-nabiz">Canlı</a><a class="top-nav-btn top-nav-daily active" href="daily_report.html?v=20260517030000#top">Tam Rapor</a><a class="top-nav-btn top-nav-team" href="team_report.html?v=20260517030000">Ekip</a>
     </div>
 </div>
 
 
 <header>
     <h1>Kepez — 16-05-2026 — 🟠 Orta Risk</h1>
-    <p>Sayın Başkan Günlük Özeti • Güncelleme: 02:47</p>
+    <p>Sayın Başkan Günlük Özeti • Güncelleme: 03:00</p>
 </header>
 
 <main>
@@ -792,7 +871,7 @@ html {
             min-width:28px;
         ">
             <div style="
-                height:14px;
+                height:12px;
                 width:16px;
                 border-radius:999px 999px 4px 4px;
                 background:#475569;
@@ -858,7 +937,7 @@ html {
             min-width:28px;
         ">
             <div style="
-                height:21px;
+                height:19px;
                 width:16px;
                 border-radius:999px 999px 4px 4px;
                 background:#475569;
@@ -891,7 +970,7 @@ html {
             min-width:28px;
         ">
             <div style="
-                height:28px;
+                height:19px;
                 width:16px;
                 border-radius:999px 999px 4px 4px;
                 background:#475569;
@@ -911,7 +990,7 @@ html {
                 font-weight:900;
                 color:#f8fafc;
             ">
-                4
+                3
             </div>
         </div>
         
@@ -924,7 +1003,7 @@ html {
             min-width:28px;
         ">
             <div style="
-                height:35px;
+                height:31px;
                 width:16px;
                 border-radius:999px 999px 4px 4px;
                 background:#475569;
@@ -977,7 +1056,7 @@ html {
                 font-weight:900;
                 color:#f8fafc;
             ">
-                10
+                11
             </div>
         </div>
         
@@ -990,7 +1069,7 @@ html {
             min-width:28px;
         ">
             <div style="
-                height:35px;
+                height:31px;
                 width:16px;
                 border-radius:999px 999px 4px 4px;
                 background:#3b82f6;
@@ -1634,7 +1713,7 @@ html {
                 margin-top:6px;
                 line-height:1.35;
             ">
-                Risk seviyesi: Orta • Güncelleme: 02:47
+                Risk seviyesi: Orta • Güncelleme: 03:00
             </div>
         </div>
 
@@ -2290,8 +2369,8 @@ html {
 <b>Beğeni:</b> 102 •
 <b>Yanıt:</b> 1 •
 <b>Repost:</b> 18 •
-<b>Quote:</b> 0 •
-<b>Toplam etkileşim:</b> 121
+<b>Quote:</b> 1 •
+<b>Toplam etkileşim:</b> 122
 </p>
 <p><a href="https://x.com/mesutkocagoztr/status/2054625930811703672" target="_blank">Gönderiyi aç</a></p>
 </div>

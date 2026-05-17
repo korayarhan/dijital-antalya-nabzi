@@ -4593,9 +4593,10 @@ def build_president_visual_summary_html(summary_day, social, all_news):
     </div>
     """
 
-def president_dashboard_panel(today, report_time, news, social, president_posts, crisis_plan, early_warning, opportunity_sum=None, all_news=None):
+def president_dashboard_panel(today, report_time, news, social, president_posts, crisis_plan, early_warning, opportunity_sum=None, all_news=None, all_social=None):
     opportunity_sum = opportunity_sum or {}
     all_news = all_news if all_news is not None else news
+    all_social = all_social if all_social is not None else social
     try:
         display_day = dt.datetime.strptime(str(today), "%Y-%m-%d").strftime("%d-%m-%Y")
     except Exception:
@@ -4616,14 +4617,24 @@ def president_dashboard_panel(today, report_time, news, social, president_posts,
         if same_day(item.get("date", ""), today) and is_youtube_platform(item)
     ]
 
-    all_x_dashboard = [
+    today_instagram = [
         item for item in social
+        if same_day(item.get("date", ""), today) and is_instagram_platform(item)
+    ]
+
+    all_x_dashboard = [
+        item for item in all_social
         if is_x_platform(item)
     ]
 
     all_youtube_dashboard = [
-        item for item in social
+        item for item in all_social
         if is_youtube_platform(item)
+    ]
+
+    all_instagram_dashboard = [
+        item for item in all_social
+        if is_instagram_platform(item)
     ]
 
     today_president_posts = [
@@ -5234,12 +5245,13 @@ def president_dashboard_panel(today, report_time, news, social, president_posts,
     if not high_risk and not medium_risk and not strong_opportunity:
         decision_card_html = ""
 
-    today_social_total = len(today_x) + len(today_youtube)
+    today_social_total = len(today_x) + len(today_youtube) + len(today_instagram)
+    all_social_pool_total = len(all_x_dashboard) + len(all_youtube_dashboard) + len(all_instagram_dashboard)
 
     if today_social_total:
-        social_kpi_note = f"X {len(today_x)} • YouTube {len(today_youtube)}"
+         social_kpi_note = f"Özet günü: X {len(today_x)} • Instagram {len(today_instagram)} • YouTube {len(today_youtube)}"
     else:
-        social_kpi_note = f"Bugün kayıt yok • Takip havuzu {len(all_x_dashboard) + len(all_youtube_dashboard)}"
+         social_kpi_note = f"Özet günü kayıt yok • 7 gün havuz {all_social_pool_total}"
 
     alarm_decision = str(early_warning.get("decision", "") or "NORMAL TAKİP")
     alarm_decision_upper = alarm_decision.upper()
@@ -6881,6 +6893,26 @@ def build_data_flow_quality_html(news, social, president_posts, president_replie
     instagram_items = [item for item in social if is_instagram_platform(item)]
     youtube_items = [item for item in social if is_youtube_platform(item)]
     
+    summary_social_items = [
+        item for item in social
+        if summary_day and same_day(item.get("date", ""), summary_day)
+    ]
+
+    summary_x_items = [
+        item for item in summary_social_items
+        if is_x_platform(item)
+    ]
+
+    summary_instagram_items = [
+        item for item in summary_social_items
+        if is_instagram_platform(item)
+    ]
+
+    summary_youtube_items = [
+        item for item in summary_social_items
+        if is_youtube_platform(item)
+    ]
+    
     manual_items = [
         item for item in social
         if "manuel" in normalize_text(item.get("source_type", ""))
@@ -6909,10 +6941,14 @@ def build_data_flow_quality_html(news, social, president_posts, president_replie
         warnings.append("Sosyal medya verisi boş geldi. Manuel + otomatik sosyal kayıtlar kontrol edilmeli.")
 
     if len(x_items) == 0:
-        warnings.append("X verisi boş görünüyor. X token, otomatik tarama ve filtre kontrol edilmeli.")
+        warnings.append("X verisi havuzda boş görünüyor. X token, otomatik tarama ve filtre kontrol edilmeli.")
+    elif summary_day and len(summary_x_items) == 0:
+        notes.append(f"Özet gününde X kaydı yok; 7 günlük X havuzunda {len(x_items)} kayıt var. Bu hata değildir.")
 
     if len(instagram_items) == 0:
-        notes.append("Instagram verisi bugün boş görünüyor. Bu her zaman hata değildir; CSV veya manuel/API akışı kontrol edilebilir.")
+        notes.append("Instagram havuzunda kayıt yok. Bu her zaman hata değildir; CSV veya manuel/API akışı kontrol edilebilir.")
+    elif summary_day and len(summary_instagram_items) == 0:
+        notes.append(f"Özet gününde Instagram kaydı yok; 7 günlük Instagram havuzunda {len(instagram_items)} kayıt var.")
     
     if len(youtube_summary) == 0 and len(youtube_items) == 0:
         warnings.append("YouTube kanal özeti ve YouTube sosyal kayıtları boş görünüyor.")
@@ -6979,10 +7015,11 @@ def build_data_flow_quality_html(news, social, president_posts, president_replie
         <div>
             <div style="font-size:15px;font-weight:800;color:#0f172a;margin-bottom:8px;">Sosyal Medya Akışı</div>
             <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;">
-                {metric_card("Toplam sosyal", len(social), "Manuel + otomatik kayıt")}
-                {metric_card("X kayıtları", len(x_items), "X / Twitter kaynaklı kayıt")}
-                 {metric_card("Instagram kayıtları", len(instagram_items), "Instagram gönderi / yorum kaydı")}
-                {metric_card("YouTube sosyal", len(youtube_items), "Yorum / video kaynaklı kayıt")}
+                {metric_card("Özet günü sosyal", len(summary_social_items), f"{summary_day or 'özet günü'} kayıtları")}
+                 {metric_card("7 gün sosyal havuz", len(social), "Manuel + otomatik aktif havuz")}
+                 {metric_card("X havuzu", len(x_items), "7 günlük / aktif X kayıtları")}
+                 {metric_card("Instagram havuzu", len(instagram_items), "7 günlük / aktif Instagram kayıtları")}
+                 {metric_card("YouTube sosyal", len(youtube_items), "Yorum / video kaynaklı kayıt")}
                 {metric_card("Otomatik", len(auto_items), "Sistem tarafından çekilen")}
                 {metric_card("Manuel", len(manual_items), "Ekip tarafından girilen")}
             </div>
@@ -9165,6 +9202,7 @@ def build_team_report(news, social, early_warning, crisis_plan, crisis_status, r
         president_replies,
         youtube_summary,
         undated_news,
+        summary_day=dashboard_day,
     )
     
     news_quality_html = build_news_quality_html(
@@ -11975,15 +12013,16 @@ def build_report(news, social, undated_news=None):
     )
     
     dashboard_html = president_dashboard_panel(
-        dashboard_day,
-        report_time,
-        dashboard_news,
-        dashboard_social,
-        president_posts,
-        dashboard_crisis_plan,
-        dashboard_early_warning,
-        opportunity_sum,
-        news,
+         dashboard_day,
+         report_time,
+         dashboard_news,
+         dashboard_social,
+         president_posts,
+         dashboard_crisis_plan,
+         dashboard_early_warning,
+         opportunity_sum,
+         news,
+         social,
     )
     
     build_morning_briefing(

@@ -6842,7 +6842,7 @@ def build_instagram_anomaly_html(social):
     </div>
     """
 
-def build_data_flow_quality_html(news, social, president_posts, president_replies, youtube_summary, undated_news=None):
+def build_data_flow_quality_html(news, social, president_posts, president_replies, youtube_summary, undated_news=None, summary_day=None):
     undated_news = undated_news or []
 
     def to_int_local(value, default=0):

@@ -12792,6 +12792,8 @@ def main():
 
     html = build_report(news, social, undated_news)
     # save_report(html)
+    
+    write_pwa_version_file()
 
 if __name__ == "__main__":
     main()

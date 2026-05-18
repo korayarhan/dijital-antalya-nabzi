@@ -40,6 +40,7 @@ CRISIS_LOG_CSV = ROOT / "data" / "manual_crisis" / "crisis_log.csv"
 ALERT_LOG_CSV = ROOT / "data" / "alerts" / "alert_log.csv"
 TEAM_ACTIONS_CSV = ROOT / "data" / "team_actions" / "team_actions.csv"
 DEMO_SOCIAL_ACCOUNTS_CSV = ROOT / "data" / "demo" / "demo_social_accounts.csv"
+X_API_HEALTH_CSV = ROOT / "data" / "x" / "x_api_health.csv"
 ARCHIVE_DIR = ROOT / "data" / "archive"
 X_DATA_DIR = ROOT / "data" / "x"
 X_API_HEALTH_CSV = X_DATA_DIR / "x_api_health.csv"
@@ -2530,6 +2531,139 @@ def read_youtube_summary(limit=20):
         return []
 
     return rows[-limit:]
+    
+def read_x_api_health(limit=20):
+    if not X_API_HEALTH_CSV.exists():
+        return []
+
+    rows = []
+
+    try:
+        with X_API_HEALTH_CSV.open("r", encoding="utf-8-sig", newline="") as f:
+            reader = csv.DictReader(f)
+
+            for row in reader:
+                item = {
+                    "date": str(row.get("date", "") or row.get("created_at", "") or row.get("timestamp", "") or "").strip(),
+                    "time": str(row.get("time", "") or "").strip(),
+                    "endpoint": str(row.get("endpoint", "") or "").strip(),
+                    "query": str(row.get("query", "") or "").strip(),
+                    "success": str(row.get("success", "") or "").strip(),
+                    "status_code": str(row.get("status_code", "") or "").strip(),
+                    "record_count": str(row.get("record_count", "") or "").strip(),
+                    "error_message": str(row.get("error_message", "") or "").strip(),
+                    "note": str(row.get("note", "") or "").strip(),
+                }
+
+                if any(item.values()):
+                    rows.append(item)
+
+    except Exception as e:
+        print(f"X API sağlık dosyası okunamadı: {e}")
+        return []
+
+    return rows[-limit:]
+    
+def x_api_health_html(rows):
+    if not rows:
+        return """
+        <div class="card">
+            <b>X API Sağlık Durumu:</b> Henüz sağlık kaydı bulunamadı.
+            <br><small>data/x/x_api_health.csv oluştuğunda burada API kontrol sonucu görünecek.</small>
+        </div>
+        """
+
+    def is_success(value):
+        value_norm = normalize_text(value)
+        return value_norm in ["1", "true", "yes", "evet", "basarili", "başarılı", "success"]
+
+    total = len(rows)
+    success_count = len([x for x in rows if is_success(x.get("success", ""))])
+    fail_count = total - success_count
+    last = rows[-1]
+
+    last_ok = is_success(last.get("success", ""))
+
+    if last_ok and fail_count == 0:
+        status_text = "X API sağlık durumu normal görünüyor."
+        status_color = "#15803d"
+        status_bg = "#f0fdf4"
+    elif last_ok:
+        status_text = "Son kayıt başarılı; geçmişte kontrol edilmesi gereken hata var."
+        status_color = "#d97706"
+        status_bg = "#fffbeb"
+    else:
+        status_text = "Son X API sağlık kaydı başarısız görünüyor. Token, limit veya endpoint kontrol edilmeli."
+        status_color = "#b91c1c"
+        status_bg = "#fef2f2"
+
+    cards_html = ""
+
+    for item in rows[-6:][::-1]:
+        ok = is_success(item.get("success", ""))
+
+        if ok:
+            color = "#15803d"
+            bg = "#f0fdf4"
+            label = "Başarılı"
+        else:
+            color = "#b91c1c"
+            bg = "#fef2f2"
+            label = "Hata / kontrol"
+
+        cards_html += f"""
+        <div class="card" style="border-left:5px solid {color}; background:{bg}; margin:12px 0;">
+            <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start;flex-wrap:wrap;">
+                <div>
+                    <b>{esc(item.get("endpoint", "") or "X API kontrolü")}</b>
+                    <br><small>{esc(item.get("date", ""))} {esc(item.get("time", ""))}</small>
+                </div>
+
+                <div style="
+                    background:#ffffff;
+                    border:1px solid {color};
+                    color:{color};
+                    border-radius:999px;
+                    padding:5px 9px;
+                    font-size:12px;
+                    font-weight:800;
+                ">
+                    {esc(label)}
+                </div>
+            </div>
+
+            <p style="margin:8px 0;">
+                <b>Sorgu:</b> {esc(item.get("query", "") or "-")}
+            </p>
+
+            <p style="margin:8px 0;">
+                <b>Status code:</b> {esc(item.get("status_code", "") or "-")} •
+                <b>Kayıt sayısı:</b> {esc(item.get("record_count", "") or "0")}
+            </p>
+
+            <p style="margin:8px 0;">
+                <b>Not / hata:</b> {esc(item.get("error_message", "") or item.get("note", "") or "Hata mesajı yok.")}
+            </p>
+        </div>
+        """
+
+    return f"""
+    <div class="card" style="border-left:6px solid {status_color}; background:{status_bg};">
+        <h3>X API Sağlık Durumu</h3>
+        <p><b>Genel durum:</b> {esc(status_text)}</p>
+        <p>
+            <b>Toplam kontrol:</b> {total} •
+            <b>Başarılı:</b> {success_count} •
+            <b>Hatalı / kontrol:</b> {fail_count}
+        </p>
+        <p>
+            <b>Son endpoint:</b> {esc(last.get("endpoint", "") or "-")} •
+            <b>Son kayıt sayısı:</b> {esc(last.get("record_count", "") or "0")}
+        </p>
+    </div>
+
+    {cards_html}
+    """
     
 def youtube_summary_html(items):
     if not items:
@@ -9444,6 +9578,16 @@ def build_team_report(news, social, early_warning, crisis_plan, crisis_status, r
         summary_day=dashboard_day,
     )
     
+    x_api_health_rows = read_x_api_health()
+    x_api_health_section = accordion_section(
+        "🩺 X API Sağlık Durumu",
+        "#0f766e",
+        "#ecfdf5",
+        x_api_health_html(x_api_health_rows),
+        opened=True,
+        subtitle=f"{len(x_api_health_rows)} sağlık kaydı • Son X API kontrol durumu"
+    )
+    
     news_quality_html = build_news_quality_html(
         news,
         undated_news,
@@ -10230,6 +10374,7 @@ th {{
 
 {crisis_alarm_section}
 {data_flow_section}
+{x_api_health_section}
 {news_quality_section}
 {social_anomaly_section}
 {instagram_section}

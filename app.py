@@ -3014,8 +3014,8 @@ def read_social_data():
 
 def read_crisis_status():
     default_status = {
-        "active": "yes",
-        "status": "İzleniyor",
+        "active": "no",
+        "status": "Rutin takip",
         "manual_note": "Manuel kriz notu henüz girilmedi.",
         "last_action": "Son aksiyon henüz girilmedi.",
         "next_action": "Sıradaki aksiyon henüz belirlenmedi.",

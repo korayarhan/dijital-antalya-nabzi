@@ -41,6 +41,8 @@ ALERT_LOG_CSV = ROOT / "data" / "alerts" / "alert_log.csv"
 TEAM_ACTIONS_CSV = ROOT / "data" / "team_actions" / "team_actions.csv"
 DEMO_SOCIAL_ACCOUNTS_CSV = ROOT / "data" / "demo" / "demo_social_accounts.csv"
 ARCHIVE_DIR = ROOT / "data" / "archive"
+X_DATA_DIR = ROOT / "data" / "x"
+X_API_HEALTH_CSV = X_DATA_DIR / "x_api_health.csv"
 DAILY_DECISION_LOG_CSV = ARCHIVE_DIR / "daily_decision_log.csv"
 DYNAMIC_KEYWORDS = ROOT / "data" / "dynamic_keywords.txt"
 REPORTS = ROOT / "reports"
@@ -136,6 +138,52 @@ STOPWORDS = {
 def esc(x):
     return shared_esc(x)
 
+X_API_HEALTH_FIELDS = [
+    "date",
+    "time",
+    "endpoint",
+    "query",
+    "success",
+    "status_code",
+    "record_count",
+    "error_message",
+    "note",
+]
+
+
+def append_x_api_health(
+    endpoint="",
+    query="",
+    success=True,
+    status_code="",
+    record_count=0,
+    error_message="",
+    note="",
+):
+    X_DATA_DIR.mkdir(parents=True, exist_ok=True)
+
+    now = dt.datetime.now()
+    file_exists = X_API_HEALTH_CSV.exists()
+
+    row = {
+        "date": now.strftime("%Y-%m-%d"),
+        "time": now.strftime("%H:%M"),
+        "endpoint": endpoint,
+        "query": query,
+        "success": "1" if success else "0",
+        "status_code": str(status_code or ""),
+        "record_count": str(record_count or 0),
+        "error_message": str(error_message or ""),
+        "note": str(note or ""),
+    }
+
+    with open(X_API_HEALTH_CSV, "a", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=X_API_HEALTH_FIELDS)
+
+        if not file_exists:
+            writer.writeheader()
+
+        writer.writerow(row)
 
 def clean_text(text):
     return shared_clean_text(text)
@@ -13296,6 +13344,15 @@ def main():
     os.makedirs("data", exist_ok=True)
     
     write_pwa_version_file()
+    
+    append_x_api_health(
+        endpoint="system_check",
+        query="build_report",
+        success=True,
+        status_code="",
+        record_count=0,
+        note="X API health altyapısı çalıştı.",
+    )
 
     news, undated_news = fetch_news()
     print(f"Haber tarama tamamlandı. Raporlanan haber: {len(news)}, Tarihi okunamayan: {len(undated_news)}")

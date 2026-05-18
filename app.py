@@ -359,6 +359,24 @@ LOCAL_OFFTOPIC_TERMS = [
     "iş ilanı", "is ilani", "personel alımı", "personel alimi",
     "kepezspor", "kepez spor", "maç sonucu", "mac sonucu",
     "okul ilanı", "okul ilani",
+    "teknik servis",
+    "teknikservis",
+    "mekanik tesisat",
+    "mekaniktesisat",
+    "kazan bakımı",
+    "kazan bakim",
+    "kazan temizliği",
+    "kazan temizligi",
+    "merkezi ısıtma",
+    "merkezi isitma",
+    "kurumsal çözümler",
+    "kurumsal cozumler",
+    "bakım hizmeti",
+    "bakim hizmeti",
+    "periyodik bakım",
+    "periyodik bakim",
+    "kombi servis",
+    "tesisat servis",
 ]
 
 
@@ -553,6 +571,146 @@ def is_relevant(title, summary, keyword):
 
     return True
 
+def adjust_news_scores_for_completed_service(title, summary, tone, risk, opportunity):
+    text_norm = normalize_text(f"{title} {summary}")
+
+    problem_terms = [
+        "cop ev", "çöp ev", "kotu koku", "kötü koku",
+        "hijyen", "saglik riski", "sağlık riski",
+        "sikayet", "şikayet", "mahalle sakinleri",
+        "ev operasyonu", "temizlik sorunu"
+    ]
+
+    solution_terms = [
+        "mudahale", "müdahale",
+        "temizlik", "temizlendi",
+        "tahliye", "tahliye edildi",
+        "bosaltildi", "boşaltıldı",
+        "giderildi",
+        "ortadan kaldirildi", "ortadan kaldırıldı",
+        "dezenfekte",
+        "ekipler",
+        "operasyon yapti", "operasyon yaptı",
+        "calisma gerceklestirdi", "çalışma gerçekleştirdi",
+        "tamamlandi", "tamamlandı"
+    ]
+
+    municipality_terms = [
+        "kepez belediyesi",
+        "belediye ekipleri",
+        "zabita", "zabıta",
+        "temizlik isleri", "temizlik işleri",
+        "belediye"
+    ]
+
+    unresolved_terms = [
+        "mudahale edilmedi", "müdahale edilmedi",
+        "cozulmedi", "çözülmedi",
+        "giderilmedi",
+        "yapilmadi", "yapılmadı",
+        "bekliyor", "tepki gosterdi", "tepki gösterdi"
+    ]
+
+    has_problem = any(term in text_norm for term in problem_terms)
+    has_solution = any(term in text_norm for term in solution_terms)
+    has_municipality = any(term in text_norm for term in municipality_terms)
+    unresolved = any(term in text_norm for term in unresolved_terms)
+
+    # Belediyenin müdahale edip çözdüğü hizmet operasyonları kriz gibi şişmesin.
+    if has_problem and has_solution and has_municipality and not unresolved:
+        adjusted_risk = min(safe_score_value(risk, 0), 3)
+        adjusted_opportunity = max(safe_score_value(opportunity, 0), 6)
+
+        return (
+            "Olumlu",
+            adjusted_risk,
+            adjusted_opportunity,
+            "Hizmet müdahalesi / sorun çözüldü"
+        )
+
+    return tone, risk, opportunity, ""
+
+
+def is_low_value_commercial_social(text, account=""):
+    combined = normalize_text(f"{account} {text}")
+
+    commercial_terms = [
+        "teknik servis",
+        "teknikservis",
+        "mekanik tesisat",
+        "mekaniktesisat",
+        "kazan bakim",
+        "kazan bakımı",
+        "kazan temizligi",
+        "kazan temizliği",
+        "merkezi isitma",
+        "merkezi ısıtma",
+        "kurumsal cozumler",
+        "kurumsal çözümler",
+        "bakim hizmeti",
+        "bakım hizmeti",
+        "periyodik bakim",
+        "periyodik bakım",
+        "cihaz bakim",
+        "cihaz bakım",
+        "kombi servis",
+        "tesisat servis",
+        "isi verimliligi",
+        "ısı verimliliği",
+        "kazan dairesi",
+        "bakim ve temizlik",
+        "bakım ve temizlik",
+    ]
+
+    commercial_account_terms = [
+        "service",
+        "services",
+        "servis",
+        "teknik",
+        "tesisat",
+        "mekanik",
+        "kazan",
+        "group tr",
+    ]
+
+    strong_public_terms = [
+        "kepez belediyesi",
+        "kepez belediye",
+        "mesut kocagoz",
+        "mesut kocagöz",
+        "kocagoz",
+        "kocagöz",
+        "belediye başkanı",
+        "belediye baskani",
+        "belediye ekipleri",
+        "zabita",
+        "zabıta",
+        "vatandas",
+        "vatandaş",
+        "sikayet",
+        "şikayet",
+        "magdur",
+        "mağdur",
+        "teleferik",
+        "dava",
+        "mahkeme",
+        "asfalt",
+        "yol bozuk",
+        "park bozuk",
+        "cop konteyner",
+        "çöp konteyner",
+    ]
+
+    commercial_hit_count = sum(1 for term in commercial_terms if term in combined)
+    commercial_account_hit = any(term in combined for term in commercial_account_terms)
+    strong_public_hit = any(term in combined for term in strong_public_terms)
+
+    # Sadece Kepez/Antalya etiketiyle gelen firma reklamlarını ele.
+    if (commercial_hit_count >= 2 or commercial_account_hit) and not strong_public_hit:
+        return True
+
+    return False
+
 def parse_news_date(item):
     try:
         if hasattr(item, "published_parsed") and item.published_parsed:
@@ -614,6 +772,13 @@ def fetch_news():
             seen_topics.add(topic)
 
             tone, risk, opportunity = classify(title + " " + summary)
+            tone, risk, opportunity, news_category = adjust_news_scores_for_completed_service(
+                title,
+                summary,
+                tone,
+                risk,
+                opportunity
+            )
             
             local_check = local_relevance_analysis(
                 f"{title} {summary} {keyword}",
@@ -631,6 +796,7 @@ def fetch_news():
                 "risk": risk,
                 "opportunity": opportunity,
                 "topic": topic,
+                "news_category": news_category,
                 "local_relevance_score": local_check.get("score", 0),
                 "local_relevance_level": local_check.get("level", ""),
                 "local_relevance_reason": local_check.get("reason", ""),
@@ -1704,6 +1870,13 @@ def fetch_x_social_posts():
         for post in payload.get("data", []):
             text = post.get("text", "")
             text_norm = normalize_text(text)
+
+            author_preview = users.get(post.get("author_id"), {}) or {}
+            username_preview = author_preview.get("username", "")
+
+            if is_low_value_commercial_social(text, username_preview):
+                continue
+
             local_check = local_relevance_analysis(text, "x")
             local_score = local_check.get("score", 0)
 
@@ -2528,6 +2701,24 @@ def read_social_data():
                 ]
 
                 if any(term in test_raw for term in test_terms) or any(normalize_text(term) in test_norm for term in test_terms):
+                    continue
+
+                # Düşük değerli ticari / hashtag kaynaklı sosyal kayıt filtresi:
+                # Kepez etiketi kullanan teknik servis, kazan bakımı, tesisat vb. firma reklamları
+                # başkan/ekip raporuna risk veya fırsat olarak girmesin.
+                commercial_filter_text = (
+                    f"{item.get('platform', '')} "
+                    f"{item.get('account', '')} "
+                    f"{item.get('content', '')} "
+                    f"{item.get('topic', '')} "
+                    f"{item.get('action_note', '')} "
+                    f"{item.get('source_type', '')}"
+                )
+
+                if is_low_value_commercial_social(
+                    commercial_filter_text,
+                    item.get("account", "")
+                ):
                     continue
 
                 # Instagram için eski kayıt filtresi:

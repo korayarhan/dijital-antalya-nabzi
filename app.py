@@ -3441,33 +3441,33 @@ def social_summary(social):
     best_like = max(social, key=lambda x: safe_int(x, "likes"))
     most_comments = max(social, key=lambda x: safe_int(x, "comments"))
 
-# Kriz adayı seçerken resmi başkan/belediye PR veya hizmet duyurularını dışarıda tut.
-# Ama fırsat ve performans tarafında görünmeye devam etsinler.
-risk_candidates = [
-    item for item in social
-    if not is_official_pr_or_service_item(item)
-]
+    # Kriz adayı seçerken resmi başkan/belediye PR veya hizmet duyurularını dışarıda tut.
+    # Ama fırsat ve performans tarafında görünmeye devam etsinler.
+    risk_candidates = [
+        item for item in social
+        if not is_official_pr_or_service_item(item)
+    ]
 
-if risk_candidates:
-    risky = max(
-        risk_candidates,
-        key=lambda x: max(
-            safe_int(x, "risk_score"),
-            safe_int(x, "account_adjusted_risk_score")
+    if risk_candidates:
+        risky = max(
+            risk_candidates,
+            key=lambda x: max(
+                safe_int(x, "risk_score"),
+                safe_int(x, "account_adjusted_risk_score")
+            )
         )
-    )
-    max_risk = max(
-        safe_int(risky, "risk_score"),
-        safe_int(risky, "account_adjusted_risk_score")
-    )
-else:
-    risky = None
-    max_risk = 0
+        max_risk = max(
+            safe_int(risky, "risk_score"),
+            safe_int(risky, "account_adjusted_risk_score")
+        )
+    else:
+        risky = None
+        max_risk = 0
 
-opportunity = max(
-    social,
-    key=lambda x: safe_int(x, "likes") + safe_int(x, "shares") + safe_int(x, "good_comments")
-)
+    opportunity = max(
+        social,
+        key=lambda x: safe_int(x, "likes") + safe_int(x, "shares") + safe_int(x, "good_comments")
+    )
 
     if total_bad > total_good and max_risk >= 5:
         social_mood = "Riskli"

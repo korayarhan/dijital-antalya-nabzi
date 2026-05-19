@@ -11652,7 +11652,7 @@ def build_entry_page(
     if _num(opportunity_summary.get("score", 0)) >= 5:
         opportunity_count = max(opportunity_count, 1)
 
-        summary_president_posts = [
+    summary_president_posts = [
         item for item in president_posts
         if same_day(item.get("date", ""), summary_day)
     ]

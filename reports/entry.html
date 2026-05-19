@@ -5,13 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Yerel Lider AI — Başkan Portalı</title>
 
-<link rel="manifest" href="../manifest.json?v=20260519032638">
+<link rel="manifest" href="../manifest.json?v=20260519040459">
 <meta name="theme-color" content="#0f172a">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Yerel Lider AI">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<link rel="apple-touch-icon" href="../neon_tech_crest_with_glowing_ai_symbol.png?v=20260519032638">
+<link rel="apple-touch-icon" href="../neon_tech_crest_with_glowing_ai_symbol.png?v=20260519040459">
 
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
@@ -19,7 +19,7 @@
 
 <script>
 (function () {
-    var pageVersion = "20260519032638";
+    var pageVersion = "20260519040459";
     var refreshing = false;
 
     function reloadWithVersion(latestVersion) {
@@ -335,6 +335,23 @@ body::after {
   text-align: center;
 }
 
+.stat-card {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+.stat-card:active {
+  transform: scale(0.98);
+}
+
+.stat-more {
+  font-size: 9px;
+  color: #7b8aa6;
+  margin-top: 5px;
+  font-weight: 800;
+}
+
 .stat-val {
   font-family: 'Space Grotesk', sans-serif;
   font-size: 18px;
@@ -530,13 +547,13 @@ body::after {
 }
 </style>
 
-<link rel="manifest" href="../manifest.json?v=20260519032638">
+<link rel="manifest" href="../manifest.json?v=20260519040459">
 <meta name="theme-color" content="#0f172a">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Yerel Lider AI">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<link rel="apple-touch-icon" href="../neon_tech_crest_with_glowing_ai_symbol.png?v=20260519032638">
+<link rel="apple-touch-icon" href="../neon_tech_crest_with_glowing_ai_symbol.png?v=20260519040459">
 
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
@@ -544,7 +561,7 @@ body::after {
 
 <script>
 (function () {
-    var pageVersion = "20260519032638";
+    var pageVersion = "20260519040459";
     var refreshing = false;
 
     function reloadWithVersion(latestVersion) {
@@ -626,7 +643,7 @@ body::after {
     </div>
 
     <div class="clock-block">
-      <div class="clock-time">03:27</div>
+      <div class="clock-time">04:05</div>
       <div class="clock-date">18-05-2026</div>
     </div>
   </header>
@@ -639,30 +656,35 @@ body::after {
 
   <div class="status-pill">
     <div class="pulse-dot"></div>
-    <div class="status-text">Sistem aktif · Güncelleme: <strong>03:27</strong></div>
-    <a class="risk-badge" href="crisis_panel.html?v=20260519032638">🔴 Yüksek Risk</a>
+    <div class="status-text">Sistem aktif · Güncelleme: <strong>04:05</strong></div>
+    <a class="risk-badge" href="crisis_panel.html?v=20260519040459">🔴 Yüksek Risk</a>
   </div>
 
   <div class="stats-row">
-    <div class="stat-card">
+    <a class="stat-card" href="indicator_details.html?v=20260519040459#risk">
       <div class="stat-val" style="color:var(--orange)">3</div>
       <div class="stat-label">Risk</div>
-    </div>
-    <div class="stat-card">
+      <div class="stat-more">Detay ›</div>
+    </a>
+
+    <a class="stat-card" href="indicator_details.html?v=20260519040459#firsat">
       <div class="stat-val" style="color:var(--green)">4</div>
       <div class="stat-label">Fırsat</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-val" style="color:var(--purple)">658</div>
+      <div class="stat-more">Detay ›</div>
+    </a>
+
+    <a class="stat-card" href="indicator_details.html?v=20260519040459#etkilesim">
+      <div class="stat-val" style="color:var(--purple)">340</div>
       <div class="stat-label">Etkileşim</div>
-    </div>
+      <div class="stat-more">Detay ›</div>
+    </a>
   </div>
 
   <div class="section-label">Raporlar</div>
 
   <div class="cards">
 
-    <a class="card" href="briefing.html?v=20260519032638">
+    <a class="card" href="briefing.html?v=20260519040459">
       <div class="card-icon icon-orange">☀️</div>
       <div class="card-body">
         <div class="card-tag tag-orange">Günlük Özet</div>
@@ -672,7 +694,7 @@ body::after {
       <div class="card-arrow">›</div>
     </a>
 
-    <a class="card" href="daily_report.html?v=20260519032638#platform-sosyal-nabiz">
+    <a class="card" href="daily_report.html?v=20260519040459#platform-sosyal-nabiz">
       <div class="card-icon icon-green"><span class="live-dot"></span></div>
       <div class="card-body">
         <div class="card-tag tag-green">Canlı Nabız</div>
@@ -682,7 +704,7 @@ body::after {
       <div class="card-arrow">›</div>
     </a>
 
-    <a class="card" href="daily_report.html?v=20260519032638">
+    <a class="card" href="daily_report.html?v=20260519040459">
       <div class="card-icon icon-blue">📋</div>
       <div class="card-body">
         <div class="card-tag tag-blue">Tam Analiz</div>
@@ -692,7 +714,7 @@ body::after {
       <div class="card-arrow">›</div>
     </a>
 
-    <a class="card" href="team_report.html?v=20260519032638">
+    <a class="card" href="team_report.html?v=20260519040459">
       <div class="card-icon icon-purple">👥</div>
       <div class="card-body">
         <div class="card-tag tag-purple">Ekip</div>

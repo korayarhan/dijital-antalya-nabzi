@@ -1,0 +1,991 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Yerel Lider AI - Gösterge Detayları</title>
+
+<link rel="manifest" href="../manifest.json?v=20260519040459">
+<meta name="theme-color" content="#0f172a">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Yerel Lider AI">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="../neon_tech_crest_with_glowing_ai_symbol.png?v=20260519040459">
+
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+<script>
+(function () {
+    var pageVersion = "20260519040459";
+    var refreshing = false;
+
+    function reloadWithVersion(latestVersion) {
+        if (refreshing) return;
+
+        var url = new URL(window.location.href);
+        var urlVersion = url.searchParams.get("v");
+
+        if (urlVersion === latestVersion && pageVersion === latestVersion) {
+            return;
+        }
+
+        refreshing = true;
+        url.searchParams.set("v", latestVersion);
+        window.location.replace(url.pathname + url.search + url.hash);
+    }
+
+    function checkLatestVersion() {
+        fetch("version.json?t=" + Date.now(), {
+            cache: "no-store"
+        })
+        .then(function (response) {
+            if (!response.ok) return null;
+            return response.json();
+        })
+        .then(function (data) {
+            if (!data || !data.version) return;
+
+            var latestVersion = String(data.version).trim();
+
+            if (latestVersion && latestVersion !== pageVersion) {
+                reloadWithVersion(latestVersion);
+            }
+        })
+        .catch(function () {
+            // Sessiz geç. İnternet yoksa veya dosya okunamazsa sayfa açık kalır.
+        });
+    }
+
+    window.addEventListener("pageshow", function () {
+        setTimeout(checkLatestVersion, 400);
+    });
+
+    document.addEventListener("visibilitychange", function () {
+        if (!document.hidden) {
+            setTimeout(checkLatestVersion, 400);
+        }
+    });
+
+    window.addEventListener("focus", function () {
+        setTimeout(checkLatestVersion, 400);
+    });
+
+    setInterval(function () {
+        if (!document.hidden) {
+            checkLatestVersion();
+        }
+    }, 60000);
+
+    setTimeout(checkLatestVersion, 700);
+})();
+</script>
+
+<style>
+* {
+    box-sizing:border-box;
+}
+
+html {
+    scroll-behavior:smooth;
+}
+
+body {
+    margin:0;
+    background:#06090f;
+    color:#f8fafc;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+    line-height:1.5;
+}
+
+main {
+    max-width:980px;
+    margin:0 auto;
+    padding:16px;
+}
+
+.hero {
+    background:linear-gradient(135deg,rgba(59,130,246,0.18),rgba(139,92,246,0.12));
+    border:1px solid rgba(255,255,255,0.12);
+    border-radius:24px;
+    padding:18px;
+    margin:16px 0;
+    box-shadow:0 20px 50px rgba(0,0,0,0.35);
+}
+
+.hero-kicker {
+    color:#94a3b8;
+    font-size:12px;
+    font-weight:900;
+    letter-spacing:0.12em;
+    text-transform:uppercase;
+}
+
+.hero-title {
+    font-size:26px;
+    font-weight:950;
+    margin-top:6px;
+}
+
+.hero-sub {
+    color:#cbd5e1;
+    font-size:14px;
+    font-weight:750;
+    margin-top:6px;
+}
+
+.quick-grid {
+    display:grid;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:10px;
+    margin:14px 0 18px;
+}
+
+.quick-card {
+    display:block;
+    text-decoration:none;
+    color:#f8fafc;
+    background:#0c1120;
+    border:1px solid rgba(255,255,255,0.10);
+    border-radius:18px;
+    padding:14px;
+    min-height:92px;
+}
+
+.quick-number {
+    font-size:27px;
+    font-weight:950;
+    line-height:1;
+}
+
+.quick-label {
+    color:#94a3b8;
+    font-size:12px;
+    font-weight:850;
+    margin-top:7px;
+}
+
+.section {
+    scroll-margin-top:90px;
+    background:#0c1120;
+    border:1px solid rgba(255,255,255,0.10);
+    border-radius:24px;
+    padding:16px;
+    margin:18px 0;
+    box-shadow:0 14px 34px rgba(0,0,0,0.26);
+}
+
+.section-title {
+    font-size:22px;
+    font-weight:950;
+    margin-bottom:6px;
+}
+
+.section-desc {
+    color:#94a3b8;
+    font-size:13px;
+    font-weight:750;
+    margin-bottom:14px;
+}
+
+.detail-card {
+    background:rgba(255,255,255,0.06);
+    border:1px solid rgba(255,255,255,0.10);
+    border-radius:18px;
+    padding:14px;
+    margin:12px 0;
+}
+
+.risk-card {
+    border-left:6px solid #ef4444;
+}
+
+.opportunity-card {
+    border-left:6px solid #22c55e;
+}
+
+.engagement-card {
+    border-left:6px solid #8b5cf6;
+}
+
+.card-top {
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:10px;
+    flex-wrap:wrap;
+}
+
+.source-label {
+    font-size:11px;
+    font-weight:950;
+    letter-spacing:0.10em;
+    text-transform:uppercase;
+    margin-bottom:5px;
+}
+
+.source-label.red {
+    color:#fca5a5;
+}
+
+.source-label.green {
+    color:#86efac;
+}
+
+.source-label.purple {
+    color:#c4b5fd;
+}
+
+.card-title {
+    color:#f8fafc;
+    font-size:16px;
+    font-weight:950;
+    line-height:1.35;
+}
+
+.card-meta {
+    color:#94a3b8;
+    font-size:12px;
+    font-weight:750;
+    margin-top:5px;
+}
+
+.card-note {
+    color:#cbd5e1;
+    font-size:13px;
+    font-weight:750;
+    margin-top:11px;
+    line-height:1.45;
+}
+
+.score-pill {
+    border-radius:999px;
+    padding:7px 10px;
+    font-size:12px;
+    font-weight:950;
+    white-space:nowrap;
+}
+
+.score-pill.red {
+    background:rgba(239,68,68,0.14);
+    border:1px solid rgba(239,68,68,0.42);
+    color:#fecaca;
+}
+
+.score-pill.green {
+    background:rgba(34,197,94,0.13);
+    border:1px solid rgba(34,197,94,0.38);
+    color:#bbf7d0;
+}
+
+.score-pill.purple {
+    background:rgba(139,92,246,0.15);
+    border:1px solid rgba(139,92,246,0.40);
+    color:#ddd6fe;
+}
+
+.btn-row {
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    margin-top:12px;
+}
+
+.mini-btn {
+    display:inline-block;
+    text-decoration:none;
+    background:#1e293b;
+    border:1px solid rgba(255,255,255,0.16);
+    color:#f8fafc;
+    border-radius:999px;
+    padding:8px 11px;
+    font-size:12px;
+    font-weight:900;
+}
+
+.danger-btn {
+    background:rgba(185,28,28,0.28);
+    border-color:rgba(248,113,113,0.35);
+    color:#fecaca;
+}
+
+.good-btn {
+    background:rgba(22,163,74,0.22);
+    border-color:rgba(134,239,172,0.35);
+    color:#bbf7d0;
+}
+
+.purple-btn {
+    background:rgba(124,58,237,0.24);
+    border-color:rgba(196,181,253,0.35);
+    color:#ddd6fe;
+}
+
+.origin-box {
+    background:rgba(15,23,42,0.78);
+    border:1px solid rgba(255,255,255,0.10);
+    border-radius:16px;
+    padding:13px;
+    margin:12px 0;
+    color:#cbd5e1;
+    font-size:13px;
+    font-weight:750;
+}
+
+.origin-box b {
+    color:#f8fafc;
+}
+
+.empty-card {
+    background:rgba(255,255,255,0.055);
+    border:1px solid rgba(255,255,255,0.10);
+    border-radius:18px;
+    padding:16px;
+    color:#f8fafc;
+    font-size:14px;
+    font-weight:850;
+}
+
+.empty-card span {
+    color:#94a3b8;
+    font-size:13px;
+    font-weight:750;
+}
+
+.metric-grid {
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+    gap:10px;
+    margin:12px 0;
+}
+
+.metric-box {
+    background:rgba(255,255,255,0.06);
+    border:1px solid rgba(255,255,255,0.10);
+    border-radius:16px;
+    padding:13px;
+}
+
+.metric-val {
+    font-size:24px;
+    font-weight:950;
+}
+
+.metric-label {
+    color:#94a3b8;
+    font-size:12px;
+    font-weight:800;
+    margin-top:5px;
+}
+
+@media (max-width:700px) {
+    main {
+        padding:12px;
+    }
+
+    .quick-grid {
+        grid-template-columns:1fr 1fr 1fr;
+        gap:8px;
+    }
+
+    .quick-card {
+        padding:12px 8px;
+        min-height:82px;
+    }
+
+    .quick-number {
+        font-size:23px;
+    }
+
+    .quick-label {
+        font-size:11px;
+    }
+
+    .hero-title {
+        font-size:23px;
+    }
+}
+</style>
+
+<style>
+.top-nav-wrap {
+    position: sticky;
+    top: 0;
+    z-index: 999;
+    background: rgba(13,15,20,0.96);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    padding: 10px 14px 8px;
+}
+
+.top-nav-scroll {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+}
+
+.top-nav-scroll::-webkit-scrollbar {
+    display: none;
+}
+
+.top-nav-btn {
+    white-space: nowrap;
+    text-decoration: none;
+    color: #d1d5db;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.14);
+    border-radius: 999px;
+    padding: 8px 12px;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.top-nav-home {
+    background: rgba(59,130,246,0.15);
+    border-color: rgba(59,130,246,0.35);
+}
+
+.top-nav-briefing {
+    background: rgba(249,115,22,0.15);
+    border-color: rgba(249,115,22,0.35);
+}
+
+.top-nav-live {
+    background: rgba(16,185,129,0.15);
+    border-color: rgba(16,185,129,0.35);
+}
+
+.top-nav-daily {
+    background: rgba(59,130,246,0.15);
+    border-color: rgba(59,130,246,0.35);
+}
+
+.top-nav-team {
+    background: rgba(139,92,246,0.15);
+    border-color: rgba(139,92,246,0.35);
+}
+
+.top-nav-btn.active {
+    color: #ffffff;
+    box-shadow:
+        inset 0 0 0 1px rgba(255,255,255,0.20),
+        0 0 18px rgba(255,255,255,0.06);
+}
+
+.top-nav-home.active {
+    background: rgba(59,130,246,0.26);
+    border-color: rgba(59,130,246,0.70);
+}
+
+.top-nav-briefing.active {
+    background: rgba(249,115,22,0.26);
+    border-color: rgba(249,115,22,0.70);
+}
+
+.top-nav-live.active {
+    background: rgba(16,185,129,0.26);
+    border-color: rgba(16,185,129,0.70);
+}
+
+.top-nav-daily.active {
+    background: rgba(59,130,246,0.26);
+    border-color: rgba(59,130,246,0.70);
+}
+
+.top-nav-team.active {
+    background: rgba(139,92,246,0.26);
+    border-color: rgba(139,92,246,0.70);
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+#top,
+#baskan-ozet,
+#baskan-firsat,
+#platform-sosyal-nabiz,
+#detay-baskan-x,
+#detay-haberler,
+#detay-social,
+#baskan-kriz {
+    scroll-margin-top: 78px;
+}
+
+.back-to-top-btn {
+    position: fixed;
+    right: 14px;
+    bottom: calc(18px + env(safe-area-inset-bottom));
+    z-index: 1000;
+    width: 46px;
+    height: 46px;
+    border-radius: 999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(15,23,42,0.94);
+    color: #ffffff !important;
+    text-decoration: none;
+    border: 1px solid rgba(255,255,255,0.22);
+    box-shadow: 0 14px 32px rgba(0,0,0,0.32);
+    font-size: 24px;
+    font-weight: 950;
+}
+
+.back-to-top-btn:active {
+    transform: scale(0.96);
+}
+
+@media print {
+    .back-to-top-btn {
+        display: none !important;
+    }
+}
+
+</style>
+
+</head>
+<body id="top">
+
+
+<div class="top-nav-wrap">
+    <div class="top-nav-scroll">
+        <a class="top-nav-btn top-nav-home" href="index.html?v=20260519040459">Ana Ekran</a><a class="top-nav-btn top-nav-briefing" href="briefing.html?v=20260519040459">Sabah</a><a class="top-nav-btn top-nav-live" href="daily_report.html?v=20260519040459#platform-sosyal-nabiz">Canlı</a><a class="top-nav-btn top-nav-daily" href="daily_report.html?v=20260519040459#top">Tam Rapor</a><a class="top-nav-btn top-nav-team" href="team_report.html?v=20260519040459">Ekip</a>
+    </div>
+</div>
+
+
+<a class="back-to-top-btn" href="#top" aria-label="Sayfa başına dön" title="Yukarı çık">↑</a>
+
+
+<main>
+
+    <div class="hero">
+        <div class="hero-kicker">Başkan Portalı</div>
+        <div class="hero-title">Gösterge Detayları</div>
+        <div class="hero-sub">
+            Tarih: 18-05-2026 • Güncelleme: 04:05
+        </div>
+    </div>
+
+    <div class="quick-grid">
+        <a class="quick-card" href="#risk">
+            <div class="quick-number" style="color:#f97316;">3</div>
+            <div class="quick-label">Risk</div>
+        </a>
+
+        <a class="quick-card" href="#firsat">
+            <div class="quick-number" style="color:#22c55e;">4</div>
+            <div class="quick-label">Fırsat</div>
+        </a>
+
+        <a class="quick-card" href="#etkilesim">
+            <div class="quick-number" style="color:#a78bfa;">340</div>
+            <div class="quick-label">Etkileşim</div>
+        </a>
+    </div>
+
+    <section id="risk" class="section">
+        <div class="section-title">⚠️ Risk Detayı</div>
+        <div class="section-desc">
+            Başkan Portalı’ndaki risk sayısı; riskli haberler ve risk skoru yüksek sosyal medya kayıtlarından oluşur.
+        </div>
+
+        <div class="origin-box">
+            <b>Veri nereden geliyor?</b><br>
+            Haberlerde risk tonu veya risk skoru yüksek başlıklar + sosyal medyada risk skoru / hesap etkili risk skoru 6 ve üzeri kayıtlar sayılır.
+            Kriz büyüme ihtimali varsa detay kriz paneline bağlanır.
+        </div>
+
+        
+        <div class="detail-card risk-card">
+            <div class="card-top">
+                <div>
+                    <div class="source-label red">Haber Kaynağı</div>
+                    <div class="card-title">19 MAYIS ANTALYA KONSERLERİ 2026! 19 Mayıs Antalya konserleri ne zaman, saat kaçta? Antalya Emircan İğrek...</div>
+                    <div class="card-meta">Tarih: 2026-05-18 • Anahtar kelime: Antalya Kepez</div>
+                </div>
+                <div class="score-pill red">Risk 5.0/10</div>
+            </div>
+
+            <div class="card-note">19 MAYIS ANTALYA KONSERLERİ 2026! 19 Mayıs Antalya konserleri ne zaman, saat kaçta? Antalya Emircan İğrek, Ceza, Gazapizim konseri nerede? GZT</div>
+
+            <div class="btn-row">
+                
+        <a href="https://news.google.com/rss/articles/CBMi-wFBVV95cUxPOThvUnB4bDZ2V25hTDVOa2RxbEQwa2Zia1JBY05HWTg3LW5oSkxZV2FLWUU1eXZ3NkF1VGlUbmJvUG02SUNjc0d3c2NTMDRPSW91dUtiM0dHMzdlN0JpUkt0NDl3MzgtbmNlTWFncXVSWldBSnc2cEJrUWJ6dC05UGV4NVFPN2RuQkF1SFFUX29ScUcxZlQ1OG9WTHdWZjlodkxxMUNZSlRZVEF3TjZoYjFhUG1zNGxGajllWXlrekJhaXgzNjhpcy1zb0twaVZEaVZsRDVMVTNzQ0hLb2gxSHpKOElPYjVSOVJSUHQxaEc2RTVJdjNteF9QRQ?oc=5" target="_blank" rel="noopener noreferrer" class="mini-btn">
+            Kaynağı Aç
+        </a>
+        
+                <a href="crisis_panel.html?v=20260519040459" class="mini-btn danger-btn">Kriz Paneli</a>
+            </div>
+        </div>
+        
+        <div class="detail-card risk-card">
+            <div class="card-top">
+                <div>
+                    <div class="source-label red">Haber Kaynağı</div>
+                    <div class="card-title">Antalya&#x27;da 2 milyonluk şantaj iddiası! Mahkemeden kritik karar - MYGAZETE</div>
+                    <div class="card-meta">Tarih: 2026-05-18 • Anahtar kelime: Antalya Kepez</div>
+                </div>
+                <div class="score-pill red">Risk 5.0/10</div>
+            </div>
+
+            <div class="card-note">Antalya&#x27;da 2 milyonluk şantaj iddiası! Mahkemeden kritik karar MYGAZETE</div>
+
+            <div class="btn-row">
+                
+        <a href="https://news.google.com/rss/articles/CBMimgFBVV95cUxPMHVjdDRFMmsybG9fa2NhNlBfV3ItcGZwS3pibENBekdIT21oaGpQTVluMWlyRlE1a0hTSERDcEFMQzVpVC1vZG94TzROemFjbWVVWHgyYXkxNklJSm1qRE5tcnBuZW50cEJWT3ZnRVF0ZVJlNWQ4ZGs5MW1kQjU0MUt0Qm5nYk51d25pb3RfMU02d3l4UF9LdUVn?oc=5" target="_blank" rel="noopener noreferrer" class="mini-btn">
+            Kaynağı Aç
+        </a>
+        
+                <a href="crisis_panel.html?v=20260519040459" class="mini-btn danger-btn">Kriz Paneli</a>
+            </div>
+        </div>
+        
+        <div class="detail-card risk-card">
+            <div class="card-top">
+                <div>
+                    <div class="source-label red">Sosyal Medya</div>
+                    <div class="card-title">Kepez Belediye + teleferik</div>
+                    <div class="card-meta">X / Twitter • @dogrulluismail • 2026-05-18</div>
+                </div>
+                <div class="score-pill red">Risk 7.0/10</div>
+            </div>
+
+            <div class="card-note">Antalya da Valilik, Emniyet,Yargı ne yapmış. Antalya Kepez Belediye başkanı Teleferik kazasından Beraat etmiş. Valilik, Emniyet, Yargı; Muhittin Böcek yerine Mesut Karagöz&#x27;ü getirmek için uğraş(ıyor) mış. Antalya da bir klik var. ...</div>
+
+            <div class="btn-row">
+                
+        <a href="https://x.com/dogrulluismail/status/2056352965821087983" target="_blank" rel="noopener noreferrer" class="mini-btn">
+            Kaynağı Aç
+        </a>
+        
+                <a href="crisis_panel.html?v=20260519040459" class="mini-btn danger-btn">Kriz Paneli</a>
+            </div>
+        </div>
+        
+    </section>
+
+    <section id="firsat" class="section">
+        <div class="section-title">🌟 Fırsat Detayı</div>
+        <div class="section-desc">
+            Fırsat sayısı; olumlu haberler, fırsat skoru yüksek sosyal medya kayıtları ve sistemin seçtiği ana fırsattan oluşur.
+        </div>
+
+        <div class="origin-box">
+            <b>Veri nereden geliyor?</b><br>
+            Haber fırsat skoru, sosyal medya fırsat skoru, etkileşim gücü ve günlük ana fırsat değerlendirmesi birlikte okunur.
+            Başkan ekranında sadece kısa karar görünür; detay ekip raporunda kalır.
+        </div>
+
+        
+        <div class="detail-card opportunity-card">
+            <div class="card-top">
+                <div>
+                    <div class="source-label green">Ana Fırsat</div>
+                    <div class="card-title">Başkan X sosyal belediyecilik fırsatı</div>
+                    <div class="card-meta">Kaynak: Başkan X performans fırsatı • Sahip: Basın birimi + sosyal destek ekibi</div>
+                </div>
+                <div class="score-pill green">Fırsat 5.7/10</div>
+            </div>
+
+            <div class="card-note">İnsani ve sıcak dil kullanılmalı. Fotoğraf/video varsa aile ve çocuk teması öne çıkarılmalı.</div>
+
+            <div class="btn-row">
+                
+                <a href="daily_report.html?v=20260519040459#baskan-firsat" class="mini-btn good-btn">Fırsat Detayı</a>
+            </div>
+        </div>
+        
+        <div class="detail-card opportunity-card">
+            <div class="card-top">
+                <div>
+                    <div class="source-label green">Haber Fırsatı</div>
+                    <div class="card-title">Kepez’de 19 Mayıs coşkusu tarih ve bilimle buluşuyor - Kepez Belediyesi</div>
+                    <div class="card-meta">Tarih: 2026-05-18 • Anahtar kelime: Kepez Belediyesi</div>
+                </div>
+                <div class="score-pill green">Fırsat 4.0/10</div>
+            </div>
+
+            <div class="card-note">Kepez’de 19 Mayıs coşkusu tarih ve bilimle buluşuyor Kepez Belediyesi</div>
+
+            <div class="btn-row">
+                
+        <a href="https://news.google.com/rss/articles/CBMilwFBVV95cUxNN1NTbVk0cHYyWmVocEVXVWJ5djJQRjVRenhPSmVSbGpkQ0RGNW5fdkpYQ2JiNlpXM0l0TVMwRVRSTUZyRlprV2VXTGZ5YUpjVXpiR2hlekNfRGhmR3NYME1QaEpxQm5JV0JZTmdyYV84VENkVEk1bW5GVEJxMXR4UWVqUnMzZm1UYkhkT2ZGQjlZY3JtbzBJ?oc=5" target="_blank" rel="noopener noreferrer" class="mini-btn">
+            Kaynağı Aç
+        </a>
+        
+                <a href="daily_report.html?v=20260519040459#baskan-firsat" class="mini-btn good-btn">Fırsat Detayı</a>
+            </div>
+        </div>
+        
+        <div class="detail-card opportunity-card">
+            <div class="card-top">
+                <div>
+                    <div class="source-label green">Haber Fırsatı</div>
+                    <div class="card-title">Kepez&#x27;de 19 Mayıs coşkusu - Antalya Ekspres</div>
+                    <div class="card-meta">Tarih: 2026-05-18 • Anahtar kelime: Kepez Belediyesi</div>
+                </div>
+                <div class="score-pill green">Fırsat 4.0/10</div>
+            </div>
+
+            <div class="card-note">Kepez&#x27;de 19 Mayıs coşkusu Antalya Ekspres</div>
+
+            <div class="btn-row">
+                
+        <a href="https://news.google.com/rss/articles/CBMibEFVX3lxTE1ycUZzSlZnRTd3OTQzZXZxQWQyY0F3eWlSYmlQTDFQYXVnZVE4NnNhNGs1SVBkXzRuR2NLcmFoMFI5b3ZGQWxBS2xSQ1pCLU10UVotb0FmYjZlNkR4Y19rSGlaV1R3ZDZqM1ZQatIBckFVX3lxTE1qRzBNWDJmZ0JKZ2t4X2EtYXhEY3VMY3FjRTcyNXBiUzk4bXkxQTBmSXFkYXR5a19pc0JRT0tqT3lPQVhJY19YTlJScEZQTG9lOWV6U3B3dkI0VHV5aExyem40eE5VaF9zYjRtWXlPV01JQQ?oc=5" target="_blank" rel="noopener noreferrer" class="mini-btn">
+            Kaynağı Aç
+        </a>
+        
+                <a href="daily_report.html?v=20260519040459#baskan-firsat" class="mini-btn good-btn">Fırsat Detayı</a>
+            </div>
+        </div>
+        
+        <div class="detail-card opportunity-card">
+            <div class="card-top">
+                <div>
+                    <div class="source-label green">Haber Fırsatı</div>
+                    <div class="card-title">Kepez’de 19 Mayıs coşkusu GençFest ile yaşandı - İhlas Haber Ajansı</div>
+                    <div class="card-meta">Tarih: 2026-05-18 • Anahtar kelime: Antalya Kepez</div>
+                </div>
+                <div class="score-pill green">Fırsat 4.0/10</div>
+            </div>
+
+            <div class="card-note">Kepez’de 19 Mayıs coşkusu GençFest ile yaşandı İhlas Haber Ajansı</div>
+
+            <div class="btn-row">
+                
+        <a href="https://news.google.com/rss/articles/CBMinAFBVV95cUxNT0tYWHVJRlJhZm1GemhYVnFXamdiNzZqMlYwTWE0NXoyWWZKVFZDUTBtaTN1aHpDSlZEMERmc3Y0dFJQUGNCY3RLWENzZlc0blN0R2U3NTg2b1JvbkdLMzhtSDRYNkM4TWs0Rkg1WFBsb21sWDhxdVFHRVBaM1RoUUVXSmRMZS1OWXZCbHowZzkybFFsUXY2bDFqUzM?oc=5" target="_blank" rel="noopener noreferrer" class="mini-btn">
+            Kaynağı Aç
+        </a>
+        
+                <a href="daily_report.html?v=20260519040459#baskan-firsat" class="mini-btn good-btn">Fırsat Detayı</a>
+            </div>
+        </div>
+        
+        <div class="detail-card opportunity-card">
+            <div class="card-top">
+                <div>
+                    <div class="source-label green">Haber Fırsatı</div>
+                    <div class="card-title">Antalya&#x27;da 19 Mayıs coşkusu! GençFest stadyumu doldurdu - Alanya Postası</div>
+                    <div class="card-meta">Tarih: 2026-05-18 • Anahtar kelime: Antalya Kepez</div>
+                </div>
+                <div class="score-pill green">Fırsat 4.0/10</div>
+            </div>
+
+            <div class="card-note">Antalya&#x27;da 19 Mayıs coşkusu! GençFest stadyumu doldurdu Alanya Postası</div>
+
+            <div class="btn-row">
+                
+        <a href="https://news.google.com/rss/articles/CBMijwFBVV95cUxNakltdDBlMVRPSndHRENoZ1N2SjV3T3VFaGd3Y3ZhT1MwdDlhbVhmS1dXbTZsNmVoaFZVaUtHY3FVcFhBeXBNZFZQaTZuU2FHSXVPY2I1TkkxQk55ODVBOWZ6aUs2NkxWcURYRENBTXNwbWVra3pyZ1JyWEF1ZWJudHhhV2xPSlEtZjMxMXpjcw?oc=5" target="_blank" rel="noopener noreferrer" class="mini-btn">
+            Kaynağı Aç
+        </a>
+        
+                <a href="daily_report.html?v=20260519040459#baskan-firsat" class="mini-btn good-btn">Fırsat Detayı</a>
+            </div>
+        </div>
+        
+    </section>
+
+    <section id="etkilesim" class="section">
+        <div class="section-title">📊 Etkileşim Detayı</div>
+        <div class="section-desc">
+            Etkileşim göstergesi Başkan X performansı varsa oradan; yoksa sosyal medya beğeni, yorum ve paylaşım toplamından gelir.
+        </div>
+
+        <div class="origin-box">
+            <b>Veri nereden geliyor?</b><br>
+            Öncelik Başkan X gönderilerinin toplam etkileşimidir. Özet gününde Başkan X gönderisi yoksa sosyal medya havuzundaki beğeni + yorum + paylaşım toplamı gösterilir.
+        </div>
+
+        <div class="metric-grid">
+            <div class="metric-box">
+                <div class="metric-val" style="color:#a78bfa;">340</div>
+                <div class="metric-label">Başkan Portalı’nda görünen etkileşim</div>
+            </div>
+
+            <div class="metric-box">
+                <div class="metric-val" style="color:#22c55e;">340</div>
+                <div class="metric-label">Başkan X etkileşimi</div>
+            </div>
+
+            <div class="metric-box">
+                <div class="metric-val" style="color:#60a5fa;">1</div>
+                <div class="metric-label">Sosyal medya etkileşimi</div>
+            </div>
+
+            <div class="metric-box">
+                <div class="metric-val" style="color:#f97316;">0</div>
+                <div class="metric-label">Toplam görüntülenme</div>
+            </div>
+        </div>
+
+        <div class="metric-grid">
+            <div class="metric-box">
+                <div class="metric-val">272</div>
+                <div class="metric-label">Başkan X beğeni</div>
+            </div>
+
+            <div class="metric-box">
+                <div class="metric-val">2</div>
+                <div class="metric-label">Başkan X yanıt</div>
+            </div>
+
+            <div class="metric-box">
+                <div class="metric-val">66</div>
+                <div class="metric-label">Başkan X repost</div>
+            </div>
+
+            <div class="metric-box">
+                <div class="metric-val">1</div>
+                <div class="metric-label">Sosyal medya yorum</div>
+            </div>
+        </div>
+
+        
+        <div class="detail-card engagement-card">
+            <div class="card-top">
+                <div>
+                    <div class="source-label purple">Başkan X</div>
+                    <div class="card-title">Kepez’de iki gün boyunca sadece bir festival değil, kocaman bir 19 Mayıs hatırası yaşandı. 🇹🇷 Hasan Doğan...</div>
+                    <div class="card-meta">2026-05-18 • @mesutkocagoztr</div>
+                </div>
+                <div class="score-pill purple">85 etkileşim</div>
+            </div>
+
+            <div class="card-note">
+                Beğeni: 65 •
+                Yanıt: 0 •
+                Repost: 20
+            </div>
+
+            <div class="btn-row">
+                
+        <a href="https://x.com/mesutkocagoztr/status/2056310769587737075" target="_blank" rel="noopener noreferrer" class="mini-btn">
+            Gönderiyi Aç
+        </a>
+        
+                <a href="daily_report.html?v=20260519040459#detay-baskan-x" class="mini-btn purple-btn">Başkan X Detayı</a>
+            </div>
+        </div>
+        
+        <div class="detail-card engagement-card">
+            <div class="card-top">
+                <div>
+                    <div class="source-label purple">Başkan X</div>
+                    <div class="card-title">Bazı yolculuklar vardır; yalnızca bir limandan diğerine varmaz. Bir milletin kaderini değiştirir, tarihin...</div>
+                    <div class="card-meta">2026-05-18 • @mesutkocagoztr</div>
+                </div>
+                <div class="score-pill purple">73 etkileşim</div>
+            </div>
+
+            <div class="card-note">
+                Beğeni: 56 •
+                Yanıt: 0 •
+                Repost: 17
+            </div>
+
+            <div class="btn-row">
+                
+        <a href="https://x.com/mesutkocagoztr/status/2056435693887324275" target="_blank" rel="noopener noreferrer" class="mini-btn">
+            Gönderiyi Aç
+        </a>
+        
+                <a href="daily_report.html?v=20260519040459#detay-baskan-x" class="mini-btn purple-btn">Başkan X Detayı</a>
+            </div>
+        </div>
+        
+        <div class="detail-card engagement-card">
+            <div class="card-top">
+                <div>
+                    <div class="source-label purple">Başkan X</div>
+                    <div class="card-title">Bilgiyi savunan, umutsuzluğa karşı dayanışmayı büyüten bir ömür bıraktı ardında. Hayatını eğitime, bilime...</div>
+                    <div class="card-meta">2026-05-18 • @mesutkocagoztr</div>
+                </div>
+                <div class="score-pill purple">53 etkileşim</div>
+            </div>
+
+            <div class="card-note">
+                Beğeni: 42 •
+                Yanıt: 1 •
+                Repost: 10
+            </div>
+
+            <div class="btn-row">
+                
+        <a href="https://x.com/mesutkocagoztr/status/2056323773230379116" target="_blank" rel="noopener noreferrer" class="mini-btn">
+            Gönderiyi Aç
+        </a>
+        
+                <a href="daily_report.html?v=20260519040459#detay-baskan-x" class="mini-btn purple-btn">Başkan X Detayı</a>
+            </div>
+        </div>
+        
+        <div class="detail-card engagement-card">
+            <div class="card-top">
+                <div>
+                    <div class="source-label purple">Başkan X</div>
+                    <div class="card-title">Antalya’nın Geleceği Kepez’de 7 gün nasıl geçti? 🔎 📌 19 Mayıs coşkusu Kepez’i sardı. 📌 Emir Can İğrek kon...</div>
+                    <div class="card-meta">2026-05-18 • @mesutkocagoztr</div>
+                </div>
+                <div class="score-pill purple">51 etkileşim</div>
+            </div>
+
+            <div class="card-note">
+                Beğeni: 39 •
+                Yanıt: 1 •
+                Repost: 11
+            </div>
+
+            <div class="btn-row">
+                
+        <a href="https://x.com/mesutkocagoztr/status/2056418781786710288" target="_blank" rel="noopener noreferrer" class="mini-btn">
+            Gönderiyi Aç
+        </a>
+        
+                <a href="daily_report.html?v=20260519040459#detay-baskan-x" class="mini-btn purple-btn">Başkan X Detayı</a>
+            </div>
+        </div>
+        
+        <div class="detail-card engagement-card">
+            <div class="card-top">
+                <div>
+                    <div class="source-label purple">Başkan X</div>
+                    <div class="card-title">Önceki Dışişleri Bakanımız Mevlüt Çavuşoğlu&#x27;nun kardeşi Aydın Çavuşoğlu&#x27;nun cenaze törenine Konyaaltı Bel...</div>
+                    <div class="card-meta">2026-05-18 • @mesutkocagoztr</div>
+                </div>
+                <div class="score-pill purple">40 etkileşim</div>
+            </div>
+
+            <div class="card-note">
+                Beğeni: 36 •
+                Yanıt: 0 •
+                Repost: 4
+            </div>
+
+            <div class="btn-row">
+                
+        <a href="https://x.com/mesutkocagoztr/status/2056414109889909052" target="_blank" rel="noopener noreferrer" class="mini-btn">
+            Gönderiyi Aç
+        </a>
+        
+                <a href="daily_report.html?v=20260519040459#detay-baskan-x" class="mini-btn purple-btn">Başkan X Detayı</a>
+            </div>
+        </div>
+        
+
+        <div class="btn-row">
+            <a href="daily_report.html?v=20260519040459#detay-baskan-x" class="mini-btn purple-btn">Başkan X Performansı</a>
+            <a href="daily_report.html?v=20260519040459#platform-sosyal-nabiz" class="mini-btn">Sosyal Nabız</a>
+            <a href="team_report.html?v=20260519040459" class="mini-btn">Ekip Raporu</a>
+        </div>
+    </section>
+
+</main>
+</body>
+</html>

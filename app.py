@@ -10380,6 +10380,7 @@ th {{
 <body>
 
 {top_nav_html("team")}
+{back_to_top_html()}
 
 <header>
 <h1>Yerel Lider AI - Ekip Operasyon Raporu</h1>
@@ -10658,7 +10659,42 @@ html {
     scroll-margin-top: 78px;
 }
 
+.back-to-top-btn {
+    position: fixed;
+    right: 14px;
+    bottom: calc(18px + env(safe-area-inset-bottom));
+    z-index: 1000;
+    width: 46px;
+    height: 46px;
+    border-radius: 999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(15,23,42,0.94);
+    color: #ffffff !important;
+    text-decoration: none;
+    border: 1px solid rgba(255,255,255,0.22);
+    box-shadow: 0 14px 32px rgba(0,0,0,0.32);
+    font-size: 24px;
+    font-weight: 950;
+}
+
+.back-to-top-btn:active {
+    transform: scale(0.96);
+}
+
+@media print {
+    .back-to-top-btn {
+        display: none !important;
+    }
+}
+
 </style>
+"""
+    
+def back_to_top_html():
+    return """
+<a class="back-to-top-btn" href="#top" aria-label="Sayfa başına dön" title="Yukarı çık">↑</a>
 """
     
 def build_morning_briefing(summary_day, report_time, news, social, president_posts, crisis_plan, early_warning, opportunity_sum, all_news=None):
@@ -12685,6 +12721,7 @@ main #haberler ~ * a[style*="background"] {{
 <body id="top">
 
 {top_nav_html("daily")}
+{back_to_top_html()}
 
 <header>
     <h1>Kepez — {header_display_day} — {header_status}</h1>
@@ -13353,10 +13390,10 @@ main #haberler ~ * a[style*="background"] {{
 </head>
 <body>
   {top_nav_html("")}
+  {back_to_top_html()}
 
   <div class="wrap">
 
-    <a class="btn" href="daily_report.html">← Günlük rapora dön</a>
 
     <div class="top">
       <h1>🚨 Acil Eylem Planı / Kriz Paneli</h1>

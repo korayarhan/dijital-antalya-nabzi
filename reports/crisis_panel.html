@@ -5,13 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Acil Eylem Planı / Kriz Paneli</title>
   
-<link rel="manifest" href="../manifest.json?v=20260519030710">
+<link rel="manifest" href="../manifest.json?v=20260519032638">
 <meta name="theme-color" content="#0f172a">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Yerel Lider AI">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<link rel="apple-touch-icon" href="../neon_tech_crest_with_glowing_ai_symbol.png?v=20260519030710">
+<link rel="apple-touch-icon" href="../neon_tech_crest_with_glowing_ai_symbol.png?v=20260519032638">
 
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
@@ -19,7 +19,7 @@
 
 <script>
 (function () {
-    var pageVersion = "20260519030710";
+    var pageVersion = "20260519032638";
     var refreshing = false;
 
     function reloadWithVersion(latestVersion) {
@@ -274,6 +274,36 @@ html {
     scroll-margin-top: 78px;
 }
 
+.back-to-top-btn {
+    position: fixed;
+    right: 14px;
+    bottom: calc(18px + env(safe-area-inset-bottom));
+    z-index: 1000;
+    width: 46px;
+    height: 46px;
+    border-radius: 999px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(15,23,42,0.94);
+    color: #ffffff !important;
+    text-decoration: none;
+    border: 1px solid rgba(255,255,255,0.22);
+    box-shadow: 0 14px 32px rgba(0,0,0,0.32);
+    font-size: 24px;
+    font-weight: 950;
+}
+
+.back-to-top-btn:active {
+    transform: scale(0.96);
+}
+
+@media print {
+    .back-to-top-btn {
+        display: none !important;
+    }
+}
+
 </style>
 
 </head>
@@ -281,14 +311,16 @@ html {
   
 <div class="top-nav-wrap">
     <div class="top-nav-scroll">
-        <a class="top-nav-btn top-nav-home" href="index.html?v=20260519030710">Ana Ekran</a><a class="top-nav-btn top-nav-briefing" href="briefing.html?v=20260519030710">Sabah</a><a class="top-nav-btn top-nav-live" href="daily_report.html?v=20260519030710#platform-sosyal-nabiz">Canlı</a><a class="top-nav-btn top-nav-daily" href="daily_report.html?v=20260519030710#top">Tam Rapor</a><a class="top-nav-btn top-nav-team" href="team_report.html?v=20260519030710">Ekip</a>
+        <a class="top-nav-btn top-nav-home" href="index.html?v=20260519032638">Ana Ekran</a><a class="top-nav-btn top-nav-briefing" href="briefing.html?v=20260519032638">Sabah</a><a class="top-nav-btn top-nav-live" href="daily_report.html?v=20260519032638#platform-sosyal-nabiz">Canlı</a><a class="top-nav-btn top-nav-daily" href="daily_report.html?v=20260519032638#top">Tam Rapor</a><a class="top-nav-btn top-nav-team" href="team_report.html?v=20260519032638">Ekip</a>
     </div>
 </div>
+
+  
+<a class="back-to-top-btn" href="#top" aria-label="Sayfa başına dön" title="Yukarı çık">↑</a>
 
 
   <div class="wrap">
 
-    <a class="btn" href="daily_report.html">← Günlük rapora dön</a>
 
     <div class="top">
       <h1>🚨 Acil Eylem Planı / Kriz Paneli</h1>
@@ -297,7 +329,7 @@ html {
       <div class="status">
         <div><b>Risk seviyesi</b><br>Yüksek</div>
         <div><b>Kriz başlığı</b><br>Kepez Belediye + teleferik</div>
-        <div><b>Son güncelleme</b><br>2026-05-19 • 03:07</div>
+        <div><b>Son güncelleme</b><br>2026-05-19 • 03:27</div>
         <div><b>Durum</b><br>Rutin takip</div>
       </div>
     </div>

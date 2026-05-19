@@ -5807,14 +5807,6 @@ def president_dashboard_panel(today, report_time, news, social, president_posts,
              box-shadow:0 22px 55px rgba(0,0,0,0.38);
              color:#f8fafc;
         ">
-        <div class="president-mobile-nav">
-            <a href="#baskan-ozet">Özet</a>
-            <a href="#baskan-haber">Haber</a>
-            <a href="#baskan-x">X</a>
-            <a href="#baskan-youtube">YouTube</a>
-            <a href="#baskan-kriz">Kriz</a>
-            <a href="team_report.html">Ekip</a>
-        </div>
 
         <div class="president-dashboard-layout">
             <div class="president-side-nav">

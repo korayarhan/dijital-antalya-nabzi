@@ -11967,6 +11967,23 @@ body::after {{
   text-align: center;
 }}
 
+.stat-card {{
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}}
+
+.stat-card:active {{
+  transform: scale(0.98);
+}}
+
+.stat-more {{
+  font-size: 9px;
+  color: #7b8aa6;
+  margin-top: 5px;
+  font-weight: 800;
+}}
+
 .stat-val {{
   font-family: 'Space Grotesk', sans-serif;
   font-size: 18px;
@@ -12198,18 +12215,23 @@ body::after {{
   </div>
 
   <div class="stats-row">
-    <div class="stat-card">
+    <a class="stat-card" href="indicator_details.html?v={version}#risk">
       <div class="stat-val" style="color:var(--orange)">{risk_count}</div>
       <div class="stat-label">Risk</div>
-    </div>
-    <div class="stat-card">
+      <div class="stat-more">Detay ›</div>
+    </a>
+
+    <a class="stat-card" href="indicator_details.html?v={version}#firsat">
       <div class="stat-val" style="color:var(--green)">{opportunity_count}</div>
       <div class="stat-label">Fırsat</div>
-    </div>
-    <div class="stat-card">
+      <div class="stat-more">Detay ›</div>
+    </a>
+
+    <a class="stat-card" href="indicator_details.html?v={version}#etkilesim">
       <div class="stat-val" style="color:var(--purple)">{engagement_count}</div>
       <div class="stat-label">Etkileşim</div>
-    </div>
+      <div class="stat-more">Detay ›</div>
+    </a>
   </div>
 
   <div class="section-label">Raporlar</div>
@@ -12276,6 +12298,745 @@ body::after {{
 
     print(f"Başkan giriş paneli hazır: {index_out}")
     print(f"Başkan giriş paneli kopyası hazır: {entry_out}")
+    
+def build_indicator_details_page(
+    summary_day,
+    report_time,
+    news,
+    social,
+    president_posts,
+    opportunity_summary=None,
+    crisis_plan=None,
+    early_warning=None,
+):
+    opportunity_summary = opportunity_summary or {}
+    crisis_plan = crisis_plan or {}
+    early_warning = early_warning or {}
+
+    version = page_version()
+
+    try:
+        display_day = dt.datetime.strptime(str(summary_day), "%Y-%m-%d").strftime("%d-%m-%Y")
+    except Exception:
+        display_day = str(summary_day)
+
+    def short_text(value, limit=170):
+        value = clean_text(value or "")
+        if len(value) > limit:
+            return value[:limit] + "..."
+        return value
+
+    def source_button(url, label="Kaynağı Aç"):
+        url = str(url or "").strip()
+
+        if not url.startswith("http"):
+            return ""
+
+        return f"""
+        <a href="{esc(url)}" target="_blank" rel="noopener noreferrer" class="mini-btn">
+            {esc(label)}
+        </a>
+        """
+
+    risk_news = sorted(
+        [
+            item for item in news
+            if normalize_text(item.get("tone", "")) == "riskli"
+            or safe_score_value(item.get("risk", 0)) >= 6
+        ],
+        key=lambda item: safe_score_value(item.get("risk", 0)),
+        reverse=True,
+    )
+
+    risk_social = sorted(
+        [
+            item for item in social
+            if safe_score_value(item.get("account_adjusted_risk_score", item.get("risk_score", 0))) >= 6
+        ],
+        key=lambda item: safe_score_value(item.get("account_adjusted_risk_score", item.get("risk_score", 0))),
+        reverse=True,
+    )
+
+    opportunity_news = sorted(
+        [
+            item for item in news
+            if normalize_text(item.get("tone", "")) == "olumlu"
+            or safe_score_value(item.get("opportunity", 0)) >= 4
+        ],
+        key=lambda item: safe_score_value(item.get("opportunity", 0)),
+        reverse=True,
+    )
+
+    opportunity_social = sorted(
+        [
+            item for item in social
+            if safe_score_value(item.get("opportunity_score", 0)) >= 5
+        ],
+        key=lambda item: safe_score_value(item.get("opportunity_score", 0)),
+        reverse=True,
+    )
+
+    summary_president_posts = [
+        item for item in president_posts
+        if same_day(item.get("date", ""), summary_day)
+    ]
+
+    president_engagement = sum(
+        safe_score_value(item.get("engagement", 0))
+        for item in summary_president_posts
+    )
+
+    president_likes = sum(
+        safe_score_value(item.get("likes", 0))
+        for item in summary_president_posts
+    )
+
+    president_replies = sum(
+        safe_score_value(item.get("replies", 0))
+        for item in summary_president_posts
+    )
+
+    president_reposts = sum(
+        safe_score_value(item.get("reposts", 0))
+        for item in summary_president_posts
+    )
+
+    social_likes = sum(safe_score_value(item.get("likes", 0)) for item in social)
+    social_comments = sum(safe_score_value(item.get("comments", 0)) for item in social)
+    social_shares = sum(safe_score_value(item.get("shares", 0)) for item in social)
+    social_views = sum(safe_score_value(item.get("views", 0)) for item in social)
+    social_engagement = social_likes + social_comments + social_shares
+
+    engagement_total = president_engagement if president_engagement > 0 else social_engagement
+
+    risk_count = len(risk_news) + len(risk_social)
+
+    opportunity_count = len(opportunity_news) + len(opportunity_social)
+
+    if safe_score_value(opportunity_summary.get("score", 0)) >= 5:
+        opportunity_count = max(opportunity_count, 1)
+
+    def risk_card(source_label, title, meta, note, score, link=""):
+        return f"""
+        <div class="detail-card risk-card">
+            <div class="card-top">
+                <div>
+                    <div class="source-label red">{esc(source_label)}</div>
+                    <div class="card-title">{esc(short_text(title, 105))}</div>
+                    <div class="card-meta">{esc(meta)}</div>
+                </div>
+                <div class="score-pill red">Risk {esc(str(score))}/10</div>
+            </div>
+
+            <div class="card-note">{esc(short_text(note, 230))}</div>
+
+            <div class="btn-row">
+                {source_button(link)}
+                <a href="crisis_panel.html?v={version}" class="mini-btn danger-btn">Kriz Paneli</a>
+            </div>
+        </div>
+        """
+
+    def opportunity_card(source_label, title, meta, note, score, link=""):
+        return f"""
+        <div class="detail-card opportunity-card">
+            <div class="card-top">
+                <div>
+                    <div class="source-label green">{esc(source_label)}</div>
+                    <div class="card-title">{esc(short_text(title, 105))}</div>
+                    <div class="card-meta">{esc(meta)}</div>
+                </div>
+                <div class="score-pill green">Fırsat {esc(str(score))}/10</div>
+            </div>
+
+            <div class="card-note">{esc(short_text(note, 230))}</div>
+
+            <div class="btn-row">
+                {source_button(link)}
+                <a href="daily_report.html?v={version}#baskan-firsat" class="mini-btn good-btn">Fırsat Detayı</a>
+            </div>
+        </div>
+        """
+
+    risk_cards_html = ""
+
+    for item in risk_news[:5]:
+        risk_cards_html += risk_card(
+            "Haber Kaynağı",
+            item.get("title", "Riskli haber"),
+            f"Tarih: {item.get('parsed_date', item.get('date', ''))} • Anahtar kelime: {item.get('keyword', '')}",
+            item.get("summary", "") or "Haber kaynaklı risk tespit edildi.",
+            safe_score_value(item.get("risk", 0)),
+            item.get("link", ""),
+        )
+
+    for item in risk_social[:5]:
+        risk_cards_html += risk_card(
+            "Sosyal Medya",
+            item.get("topic", "") or item.get("content", "") or "Riskli sosyal medya kaydı",
+            f"{item.get('platform', '')} • {item.get('account', '')} • {item.get('date', '')}",
+            item.get("content", "") or item.get("action_note", "") or "Sosyal medya kaynaklı risk tespit edildi.",
+            safe_score_value(item.get("account_adjusted_risk_score", item.get("risk_score", 0))),
+            item.get("link", "") or item.get("url", ""),
+        )
+
+    if not risk_cards_html:
+        risk_cards_html = """
+        <div class="empty-card">
+            Bugün Başkan seviyesinde öne çıkarılacak risk bulunmadı.
+            <br>
+            <span>Sistem haberleri ve sosyal medya kayıtlarını izlemeye devam ediyor.</span>
+        </div>
+        """
+
+    opportunity_cards_html = ""
+
+    main_opportunity_title = clean_text(opportunity_summary.get("title", ""))
+    main_opportunity_score = safe_score_value(opportunity_summary.get("score", 0))
+
+    if main_opportunity_title and main_opportunity_score > 0:
+        opportunity_cards_html += opportunity_card(
+            "Ana Fırsat",
+            main_opportunity_title,
+            f"Kaynak: {opportunity_summary.get('source', 'Genel takip')} • Sahip: {opportunity_summary.get('owner', 'Basın birimi')}",
+            opportunity_summary.get("action", "") or opportunity_summary.get("reason", "") or "Günlük fırsat olarak takip edilmeli.",
+            main_opportunity_score,
+            "daily_report.html#baskan-firsat",
+        )
+
+    for item in opportunity_news[:4]:
+        opportunity_cards_html += opportunity_card(
+            "Haber Fırsatı",
+            item.get("title", "Fırsat haberi"),
+            f"Tarih: {item.get('parsed_date', item.get('date', ''))} • Anahtar kelime: {item.get('keyword', '')}",
+            item.get("summary", "") or "Haber kaynaklı fırsat tespit edildi.",
+            safe_score_value(item.get("opportunity", 0)),
+            item.get("link", ""),
+        )
+
+    for item in opportunity_social[:4]:
+        opportunity_cards_html += opportunity_card(
+            "Sosyal Medya Fırsatı",
+            item.get("topic", "") or item.get("content", "") or "Sosyal medya fırsatı",
+            f"{item.get('platform', '')} • {item.get('account', '')} • {item.get('date', '')}",
+            item.get("content", "") or item.get("action_note", "") or "Sosyal medya kaynaklı fırsat tespit edildi.",
+            safe_score_value(item.get("opportunity_score", 0)),
+            item.get("link", "") or item.get("url", ""),
+        )
+
+    if not opportunity_cards_html:
+        opportunity_cards_html = """
+        <div class="empty-card">
+            Bugün güçlü fırsat görünmüyor.
+            <br>
+            <span>Olumlu haber, yüksek etkileşim veya hizmet görünürlüğü oluşursa burada listelenecek.</span>
+        </div>
+        """
+
+    president_posts_html = ""
+
+    for item in summary_president_posts[:5]:
+        president_posts_html += f"""
+        <div class="detail-card engagement-card">
+            <div class="card-top">
+                <div>
+                    <div class="source-label purple">Başkan X</div>
+                    <div class="card-title">{esc(short_text(item.get("content", "Başkan X gönderisi"), 105))}</div>
+                    <div class="card-meta">{esc(item.get("date", ""))} • {esc(item.get("account", ""))}</div>
+                </div>
+                <div class="score-pill purple">{int(safe_score_value(item.get("engagement", 0)))} etkileşim</div>
+            </div>
+
+            <div class="card-note">
+                Beğeni: {int(safe_score_value(item.get("likes", 0)))} •
+                Yanıt: {int(safe_score_value(item.get("replies", 0)))} •
+                Repost: {int(safe_score_value(item.get("reposts", 0)))}
+            </div>
+
+            <div class="btn-row">
+                {source_button(item.get("url", ""), "Gönderiyi Aç")}
+                <a href="daily_report.html?v={version}#detay-baskan-x" class="mini-btn purple-btn">Başkan X Detayı</a>
+            </div>
+        </div>
+        """
+
+    if not president_posts_html:
+        president_posts_html = """
+        <div class="empty-card">
+            Özet gününde Başkan X gönderisi bulunmadı.
+            <br>
+            <span>Bu durumda etkileşim sayısı sosyal medya beğeni, yorum ve paylaşım toplamından gelir.</span>
+        </div>
+        """
+
+    doc = f"""<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Yerel Lider AI - Gösterge Detayları</title>
+{pwa_head_tags()}
+<style>
+* {{
+    box-sizing:border-box;
+}}
+
+html {{
+    scroll-behavior:smooth;
+}}
+
+body {{
+    margin:0;
+    background:#06090f;
+    color:#f8fafc;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+    line-height:1.5;
+}}
+
+main {{
+    max-width:980px;
+    margin:0 auto;
+    padding:16px;
+}}
+
+.hero {{
+    background:linear-gradient(135deg,rgba(59,130,246,0.18),rgba(139,92,246,0.12));
+    border:1px solid rgba(255,255,255,0.12);
+    border-radius:24px;
+    padding:18px;
+    margin:16px 0;
+    box-shadow:0 20px 50px rgba(0,0,0,0.35);
+}}
+
+.hero-kicker {{
+    color:#94a3b8;
+    font-size:12px;
+    font-weight:900;
+    letter-spacing:0.12em;
+    text-transform:uppercase;
+}}
+
+.hero-title {{
+    font-size:26px;
+    font-weight:950;
+    margin-top:6px;
+}}
+
+.hero-sub {{
+    color:#cbd5e1;
+    font-size:14px;
+    font-weight:750;
+    margin-top:6px;
+}}
+
+.quick-grid {{
+    display:grid;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+    gap:10px;
+    margin:14px 0 18px;
+}}
+
+.quick-card {{
+    display:block;
+    text-decoration:none;
+    color:#f8fafc;
+    background:#0c1120;
+    border:1px solid rgba(255,255,255,0.10);
+    border-radius:18px;
+    padding:14px;
+    min-height:92px;
+}}
+
+.quick-number {{
+    font-size:27px;
+    font-weight:950;
+    line-height:1;
+}}
+
+.quick-label {{
+    color:#94a3b8;
+    font-size:12px;
+    font-weight:850;
+    margin-top:7px;
+}}
+
+.section {{
+    scroll-margin-top:90px;
+    background:#0c1120;
+    border:1px solid rgba(255,255,255,0.10);
+    border-radius:24px;
+    padding:16px;
+    margin:18px 0;
+    box-shadow:0 14px 34px rgba(0,0,0,0.26);
+}}
+
+.section-title {{
+    font-size:22px;
+    font-weight:950;
+    margin-bottom:6px;
+}}
+
+.section-desc {{
+    color:#94a3b8;
+    font-size:13px;
+    font-weight:750;
+    margin-bottom:14px;
+}}
+
+.detail-card {{
+    background:rgba(255,255,255,0.06);
+    border:1px solid rgba(255,255,255,0.10);
+    border-radius:18px;
+    padding:14px;
+    margin:12px 0;
+}}
+
+.risk-card {{
+    border-left:6px solid #ef4444;
+}}
+
+.opportunity-card {{
+    border-left:6px solid #22c55e;
+}}
+
+.engagement-card {{
+    border-left:6px solid #8b5cf6;
+}}
+
+.card-top {{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:10px;
+    flex-wrap:wrap;
+}}
+
+.source-label {{
+    font-size:11px;
+    font-weight:950;
+    letter-spacing:0.10em;
+    text-transform:uppercase;
+    margin-bottom:5px;
+}}
+
+.source-label.red {{
+    color:#fca5a5;
+}}
+
+.source-label.green {{
+    color:#86efac;
+}}
+
+.source-label.purple {{
+    color:#c4b5fd;
+}}
+
+.card-title {{
+    color:#f8fafc;
+    font-size:16px;
+    font-weight:950;
+    line-height:1.35;
+}}
+
+.card-meta {{
+    color:#94a3b8;
+    font-size:12px;
+    font-weight:750;
+    margin-top:5px;
+}}
+
+.card-note {{
+    color:#cbd5e1;
+    font-size:13px;
+    font-weight:750;
+    margin-top:11px;
+    line-height:1.45;
+}}
+
+.score-pill {{
+    border-radius:999px;
+    padding:7px 10px;
+    font-size:12px;
+    font-weight:950;
+    white-space:nowrap;
+}}
+
+.score-pill.red {{
+    background:rgba(239,68,68,0.14);
+    border:1px solid rgba(239,68,68,0.42);
+    color:#fecaca;
+}}
+
+.score-pill.green {{
+    background:rgba(34,197,94,0.13);
+    border:1px solid rgba(34,197,94,0.38);
+    color:#bbf7d0;
+}}
+
+.score-pill.purple {{
+    background:rgba(139,92,246,0.15);
+    border:1px solid rgba(139,92,246,0.40);
+    color:#ddd6fe;
+}}
+
+.btn-row {{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    margin-top:12px;
+}}
+
+.mini-btn {{
+    display:inline-block;
+    text-decoration:none;
+    background:#1e293b;
+    border:1px solid rgba(255,255,255,0.16);
+    color:#f8fafc;
+    border-radius:999px;
+    padding:8px 11px;
+    font-size:12px;
+    font-weight:900;
+}}
+
+.danger-btn {{
+    background:rgba(185,28,28,0.28);
+    border-color:rgba(248,113,113,0.35);
+    color:#fecaca;
+}}
+
+.good-btn {{
+    background:rgba(22,163,74,0.22);
+    border-color:rgba(134,239,172,0.35);
+    color:#bbf7d0;
+}}
+
+.purple-btn {{
+    background:rgba(124,58,237,0.24);
+    border-color:rgba(196,181,253,0.35);
+    color:#ddd6fe;
+}}
+
+.origin-box {{
+    background:rgba(15,23,42,0.78);
+    border:1px solid rgba(255,255,255,0.10);
+    border-radius:16px;
+    padding:13px;
+    margin:12px 0;
+    color:#cbd5e1;
+    font-size:13px;
+    font-weight:750;
+}}
+
+.origin-box b {{
+    color:#f8fafc;
+}}
+
+.empty-card {{
+    background:rgba(255,255,255,0.055);
+    border:1px solid rgba(255,255,255,0.10);
+    border-radius:18px;
+    padding:16px;
+    color:#f8fafc;
+    font-size:14px;
+    font-weight:850;
+}}
+
+.empty-card span {{
+    color:#94a3b8;
+    font-size:13px;
+    font-weight:750;
+}}
+
+.metric-grid {{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+    gap:10px;
+    margin:12px 0;
+}}
+
+.metric-box {{
+    background:rgba(255,255,255,0.06);
+    border:1px solid rgba(255,255,255,0.10);
+    border-radius:16px;
+    padding:13px;
+}}
+
+.metric-val {{
+    font-size:24px;
+    font-weight:950;
+}}
+
+.metric-label {{
+    color:#94a3b8;
+    font-size:12px;
+    font-weight:800;
+    margin-top:5px;
+}}
+
+@media (max-width:700px) {{
+    main {{
+        padding:12px;
+    }}
+
+    .quick-grid {{
+        grid-template-columns:1fr 1fr 1fr;
+        gap:8px;
+    }}
+
+    .quick-card {{
+        padding:12px 8px;
+        min-height:82px;
+    }}
+
+    .quick-number {{
+        font-size:23px;
+    }}
+
+    .quick-label {{
+        font-size:11px;
+    }}
+
+    .hero-title {{
+        font-size:23px;
+    }}
+}}
+</style>
+{top_nav_css()}
+</head>
+<body id="top">
+
+{top_nav_html("")}
+{back_to_top_html()}
+
+<main>
+
+    <div class="hero">
+        <div class="hero-kicker">Başkan Portalı</div>
+        <div class="hero-title">Gösterge Detayları</div>
+        <div class="hero-sub">
+            Tarih: {esc(display_day)} • Güncelleme: {esc(report_time)}
+        </div>
+    </div>
+
+    <div class="quick-grid">
+        <a class="quick-card" href="#risk">
+            <div class="quick-number" style="color:#f97316;">{risk_count}</div>
+            <div class="quick-label">Risk</div>
+        </a>
+
+        <a class="quick-card" href="#firsat">
+            <div class="quick-number" style="color:#22c55e;">{opportunity_count}</div>
+            <div class="quick-label">Fırsat</div>
+        </a>
+
+        <a class="quick-card" href="#etkilesim">
+            <div class="quick-number" style="color:#a78bfa;">{int(engagement_total)}</div>
+            <div class="quick-label">Etkileşim</div>
+        </a>
+    </div>
+
+    <section id="risk" class="section">
+        <div class="section-title">⚠️ Risk Detayı</div>
+        <div class="section-desc">
+            Başkan Portalı’ndaki risk sayısı; riskli haberler ve risk skoru yüksek sosyal medya kayıtlarından oluşur.
+        </div>
+
+        <div class="origin-box">
+            <b>Veri nereden geliyor?</b><br>
+            Haberlerde risk tonu veya risk skoru yüksek başlıklar + sosyal medyada risk skoru / hesap etkili risk skoru 6 ve üzeri kayıtlar sayılır.
+            Kriz büyüme ihtimali varsa detay kriz paneline bağlanır.
+        </div>
+
+        {risk_cards_html}
+    </section>
+
+    <section id="firsat" class="section">
+        <div class="section-title">🌟 Fırsat Detayı</div>
+        <div class="section-desc">
+            Fırsat sayısı; olumlu haberler, fırsat skoru yüksek sosyal medya kayıtları ve sistemin seçtiği ana fırsattan oluşur.
+        </div>
+
+        <div class="origin-box">
+            <b>Veri nereden geliyor?</b><br>
+            Haber fırsat skoru, sosyal medya fırsat skoru, etkileşim gücü ve günlük ana fırsat değerlendirmesi birlikte okunur.
+            Başkan ekranında sadece kısa karar görünür; detay ekip raporunda kalır.
+        </div>
+
+        {opportunity_cards_html}
+    </section>
+
+    <section id="etkilesim" class="section">
+        <div class="section-title">📊 Etkileşim Detayı</div>
+        <div class="section-desc">
+            Etkileşim göstergesi Başkan X performansı varsa oradan; yoksa sosyal medya beğeni, yorum ve paylaşım toplamından gelir.
+        </div>
+
+        <div class="origin-box">
+            <b>Veri nereden geliyor?</b><br>
+            Öncelik Başkan X gönderilerinin toplam etkileşimidir. Özet gününde Başkan X gönderisi yoksa sosyal medya havuzundaki beğeni + yorum + paylaşım toplamı gösterilir.
+        </div>
+
+        <div class="metric-grid">
+            <div class="metric-box">
+                <div class="metric-val" style="color:#a78bfa;">{int(engagement_total)}</div>
+                <div class="metric-label">Başkan Portalı’nda görünen etkileşim</div>
+            </div>
+
+            <div class="metric-box">
+                <div class="metric-val" style="color:#22c55e;">{int(president_engagement)}</div>
+                <div class="metric-label">Başkan X etkileşimi</div>
+            </div>
+
+            <div class="metric-box">
+                <div class="metric-val" style="color:#60a5fa;">{int(social_engagement)}</div>
+                <div class="metric-label">Sosyal medya etkileşimi</div>
+            </div>
+
+            <div class="metric-box">
+                <div class="metric-val" style="color:#f97316;">{int(social_views)}</div>
+                <div class="metric-label">Toplam görüntülenme</div>
+            </div>
+        </div>
+
+        <div class="metric-grid">
+            <div class="metric-box">
+                <div class="metric-val">{int(president_likes)}</div>
+                <div class="metric-label">Başkan X beğeni</div>
+            </div>
+
+            <div class="metric-box">
+                <div class="metric-val">{int(president_replies)}</div>
+                <div class="metric-label">Başkan X yanıt</div>
+            </div>
+
+            <div class="metric-box">
+                <div class="metric-val">{int(president_reposts)}</div>
+                <div class="metric-label">Başkan X repost</div>
+            </div>
+
+            <div class="metric-box">
+                <div class="metric-val">{int(social_comments)}</div>
+                <div class="metric-label">Sosyal medya yorum</div>
+            </div>
+        </div>
+
+        {president_posts_html}
+
+        <div class="btn-row">
+            <a href="daily_report.html?v={version}#detay-baskan-x" class="mini-btn purple-btn">Başkan X Performansı</a>
+            <a href="daily_report.html?v={version}#platform-sosyal-nabiz" class="mini-btn">Sosyal Nabız</a>
+            <a href="team_report.html?v={version}" class="mini-btn">Ekip Raporu</a>
+        </div>
+    </section>
+
+</main>
+</body>
+</html>
+"""
+
+    out = REPORTS / "indicator_details.html"
+    out.write_text(doc, encoding="utf-8")
+    print(f"Gösterge detayları hazır: {out}")
     
 def build_report(news, social, undated_news=None):
     undated_news = undated_news or []
@@ -12482,6 +13243,17 @@ def build_report(news, social, undated_news=None):
     )
     
     build_entry_page(
+        dashboard_day,
+        report_time,
+        dashboard_news,
+        dashboard_social,
+        president_posts,
+        opportunity_sum,
+        dashboard_crisis_plan,
+        dashboard_early_warning,
+    )
+    
+    build_indicator_details_page(
         dashboard_day,
         report_time,
         dashboard_news,

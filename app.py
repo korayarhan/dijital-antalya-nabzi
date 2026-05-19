@@ -13123,8 +13123,6 @@ def build_report(news, social, undated_news=None):
     if not crisis_log_html:
         crisis_log_html = "<div class='card'>Henüz yapılan işlem / müdahale kaydı girilmedi.</div>"
 
-    if not crisis_log_html:
-        crisis_log_html = "<div class='card'>Henüz kriz zaman çizelgesi girilmedi.</div>"
     
     positive_count = sum(1 for x in news if x["tone"] == "Olumlu")
     neutral_count = sum(1 for x in news if x["tone"] == "Nötr")

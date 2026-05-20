@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 # Proje ana klasörü
@@ -68,3 +69,6 @@ DAILY_REPORT_HTML = REPORTS_DIR / "daily_report.html"
 TEAM_REPORT_HTML = REPORTS_DIR / "team_report.html"
 CRISIS_PANEL_HTML = REPORTS_DIR / "crisis_panel.html"
 VERSION_JSON = REPORTS_DIR / "version.json"
+
+# Başkan X hesabı
+PRESIDENT_X_USERNAME = os.getenv("PRESIDENT_X_USERNAME", "mesutkocagoztr")

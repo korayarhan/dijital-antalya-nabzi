@@ -18,6 +18,7 @@ DYNAMIC_KEYWORDS_FILE = DATA_DIR / "dynamic_keywords.txt"
 
 # Sosyal medya veri klasörleri
 AUTO_SOCIAL_DIR = DATA_DIR / "auto_social"
+X_DATA_DIR = AUTO_SOCIAL_DIR
 MANUAL_SOCIAL_DIR = DATA_DIR / "manual_social"
 SOCIAL_WATCH_DIR = DATA_DIR / "social_watch"
 

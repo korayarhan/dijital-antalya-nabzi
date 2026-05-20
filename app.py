@@ -3124,10 +3124,10 @@ def generate_dynamic_keywords(news, social):
 
 
 def save_dynamic_keywords(keywords):
-    DYNAMIC_KEYWORDS.parent.mkdir(parents=True, exist_ok=True)
+    DYNAMIC_KEYWORDS_FILE.parent.mkdir(parents=True, exist_ok=True)
     content = "# Sistem tarafından otomatik üretilen dinamik anahtar kelimeler\n# Bu dosya her çalışmada güncellenir\n\n"
     content += "\n".join(keywords) + "\n"
-    DYNAMIC_KEYWORDS.write_text(content, encoding="utf-8")
+    DYNAMIC_KEYWORDS_FILE.write_text(content, encoding="utf-8")
 
 
 def unique_by_topic(items, limit):

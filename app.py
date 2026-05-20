@@ -1045,7 +1045,7 @@ def fetch_president_x_posts():
                 "source_type": "Başkan X Hesabı",
             })
 
-        with PRESIDENT_X_CSV.open("w", encoding="utf-8-sig", newline="") as f:
+        with PRESIDENT_X_POSTS_CSV.open("w", encoding="utf-8-sig", newline="") as f:
             fieldnames = [
                 "date",
                 "platform",
@@ -6034,7 +6034,7 @@ def social_card(title, item):
     """
 
 def read_president_x_posts():
-    if not PRESIDENT_X_CSV.exists():
+    if not PRESIDENT_X_POSTS_CSV.exists():
         return []
 
     rows = []
@@ -6046,7 +6046,7 @@ def read_president_x_posts():
             return default
 
     try:
-        with PRESIDENT_X_CSV.open("r", encoding="utf-8-sig", newline="") as f:
+        with PRESIDENT_X_POSTS_CSV.open("r", encoding="utf-8-sig", newline="") as f:
             reader = csv.DictReader(f)
             for row in reader:
                 item = {

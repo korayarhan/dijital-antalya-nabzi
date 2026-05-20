@@ -224,7 +224,7 @@ def read_keyword_file(path):
 
 
 def read_keywords():
-    base = read_keyword_file(CONFIG)
+    base = read_keyword_file(KEYWORDS_FILE)
     dynamic = read_keyword_file(DYNAMIC_KEYWORDS)
     combined, seen = [], set()
     for keyword in base + dynamic:

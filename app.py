@@ -2760,7 +2760,7 @@ def youtube_summary_html(items):
 
 def read_social_data():
     sources = [
-        (SOCIAL_CSV, "Manuel"),
+        (SOCIAL_MANUAL_CSV, "Manuel"),
         (AUTO_SOCIAL_CSV, "Otomatik"),
         (YOUTUBE_SOCIAL_CSV, "Otomatik YouTube"),
         (INSTAGRAM_SOCIAL_CSV, "Otomatik Instagram"),

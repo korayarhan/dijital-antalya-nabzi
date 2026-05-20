@@ -968,7 +968,7 @@ def fetch_president_x_posts():
         print("Başkan X gönderileri atlandı: kullanıcı adı yok.")
         return
 
-    PRESIDENT_X_CSV.parent.mkdir(parents=True, exist_ok=True)
+    PRESIDENT_X_POSTS_CSV.parent.mkdir(parents=True, exist_ok=True)
 
     try:
         # 1) Kullanıcı adından X kullanıcı ID'sini al

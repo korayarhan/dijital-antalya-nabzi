@@ -31,6 +31,7 @@ AUTO_SOCIAL_CSV = SOCIAL_AUTO_CSV
 
 PRESIDENT_X_POSTS_CSV = AUTO_SOCIAL_DIR / "president_x_posts.csv"
 PRESIDENT_X_REPLIES_CSV = AUTO_SOCIAL_DIR / "president_x_replies.csv"
+X_API_HEALTH_CSV = AUTO_SOCIAL_DIR / "x_api_health.csv"
 
 YOUTUBE_SOCIAL_CSV = AUTO_SOCIAL_DIR / "youtube_social.csv"
 YOUTUBE_SUMMARY_CSV = AUTO_SOCIAL_DIR / "youtube_summary.csv"

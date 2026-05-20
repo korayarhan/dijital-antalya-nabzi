@@ -13212,13 +13212,40 @@ def build_report(news, social, undated_news=None):
         news,
     )
     
+    # Giriş ekranı için güvenli veri yedeği:
+    # Özet gününde haber/sosyal medya yoksa giriş ekranı tamamen 0 görünmesin.
+    entry_news = dashboard_news if dashboard_news else news
+    entry_social = dashboard_social if dashboard_social else social
+
+    entry_president_posts = [
+        item for item in president_posts
+        if same_day(item.get("date", ""), dashboard_day)
+    ]
+
+    if not entry_president_posts:
+        entry_president_posts = president_posts[:10]
+
+    entry_opportunity_sum = build_opportunity_summary(
+        entry_news,
+        entry_social,
+        entry_president_posts,
+        dashboard_day
+    )
+
+    print(
+        f"Giriş ekranı veri kontrolü: "
+        f"Haber={len(entry_news)} / "
+        f"Sosyal={len(entry_social)} / "
+        f"Başkan X={len(entry_president_posts)}"
+    )
+
     build_entry_page(
         dashboard_day,
         report_time,
-        dashboard_news,
-        dashboard_social,
-        president_posts,
-        opportunity_sum,
+        entry_news,
+        entry_social,
+        entry_president_posts,
+        entry_opportunity_sum,
         dashboard_crisis_plan,
         dashboard_early_warning,
     )
@@ -13226,10 +13253,10 @@ def build_report(news, social, undated_news=None):
     build_indicator_details_page(
         dashboard_day,
         report_time,
-        dashboard_news,
-        dashboard_social,
-        president_posts,
-        opportunity_sum,
+        entry_news,
+        entry_social,
+        entry_president_posts,
+        entry_opportunity_sum,
         dashboard_crisis_plan,
         dashboard_early_warning,
     )

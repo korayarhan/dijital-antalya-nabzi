@@ -1,7 +1,7 @@
 import datetime as dt
 import json
 
-from src.config_paths import REPORTS, RUN_VERSION
+from src.config import REPORTS, RUN_VERSION
 
 
 def page_version():

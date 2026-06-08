@@ -1,3 +1,4 @@
+import datetime as dt
 import os
 from pathlib import Path
 
@@ -69,6 +70,11 @@ DAILY_REPORT_HTML = REPORTS_DIR / "daily_report.html"
 TEAM_REPORT_HTML = REPORTS_DIR / "team_report.html"
 CRISIS_PANEL_HTML = REPORTS_DIR / "crisis_panel.html"
 VERSION_JSON = REPORTS_DIR / "version.json"
+RUN_VERSION = (dt.datetime.utcnow() + dt.timedelta(hours=3)).strftime("%Y%m%d%H%M%S")
 
 # Başkan X hesabı
 PRESIDENT_X_USERNAME = os.getenv("PRESIDENT_X_USERNAME", "mesutkocagoztr")
+
+REPORTS_DIR.mkdir(exist_ok=True)
+ARCHIVE_DIR.mkdir(parents=True, exist_ok=True)
+AUTO_SOCIAL_DIR.mkdir(parents=True, exist_ok=True)
